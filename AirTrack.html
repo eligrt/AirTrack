@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.006
+  PFD - Fly page   v0.01.007
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.006"}
+    page -> shell  {pfd:"hello", version:"0.01.007"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -15,6 +15,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1c3d6e">
 <title>PFD Fly</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 180%22%3E%3Crect width=%22180%22 height=%22180%22 fill=%22%231c3d6e%22/%3E%3Cpath d=%22M34 138 L74 92 L112 104 L146 48%22 fill=%22none%22 stroke=%22%23f5c518%22 stroke-width=%229%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-dasharray=%221 0%22/%3E%3Ccircle cx=%2234%22 cy=%22138%22 r=%2212%22 fill=%22%23fbf6e8%22 stroke=%22%230e2348%22 stroke-width=%224%22/%3E%3Ccircle cx=%22146%22 cy=%2248%22 r=%2212%22 fill=%22%23fbf6e8%22 stroke=%22%230e2348%22 stroke-width=%224%22/%3E%3Cg transform=%22translate%2890 92%29 rotate%2830%29%22%3E%3Cpath d=%22M0 -26 L18 20 L0 10 L-18 20Z%22 fill=%22%23fbf6e8%22 stroke=%22%230e2348%22 stroke-width=%224%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AirTrack">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -835,7 +841,7 @@ body.drawing #gBL,body.drawing #gBR,body.drawing #driftPill,body.drawing #bRoute
 </script>
 <script>
 "use strict";
-const VER="0.01.006";
+const VER="0.01.007";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const alog=()=>{};
@@ -1819,7 +1825,15 @@ $("bRoute").addEventListener("click",routeTap);
 $("dClear").addEventListener("click",drawClearAsk); $("dUndo").addEventListener("click",drawUndo); $("dDone").addEventListener("click",drawDone);
 $("bComp").addEventListener("click",()=>{ if(COMP_ON){ compassStop(); ui(); draw(); } else compassStart(); });   // the motion prompt comes only from this tap
 $("bChart").addEventListener("click",()=>{ $("chartCard").classList.toggle("hid"); chartUi(); placeCard(); draw(); });
-$("bFull").addEventListener("click",()=>{ FULL=!FULL; ui(); try{ parent.postMessage({pfd:"fullscreen",on:FULL},location.origin); }catch(e){} });
+$("bFull").addEventListener("click",()=>{
+  if(window.parent!==window){ FULL=!FULL; ui(); try{ parent.postMessage({pfd:"fullscreen",on:FULL},location.origin); }catch(e){} return; }
+  // opened on its own (not inside LSA Toolbox): use the browser's full screen
+  const d=document, el=d.documentElement, on=!!(d.fullscreenElement||d.webkitFullscreenElement);
+  const f=on? (d.exitFullscreen||d.webkitExitFullscreen) : (el.requestFullscreen||el.webkitRequestFullscreen);
+  if(!f){ toast("Full screen is not available here. Open AirTrack from LSA Toolbox, or add it to the Home Screen.",6000); return; }
+  try{ const r=f.call(on?d:el); if(r&&r.catch) r.catch(()=>toast("Full screen was blocked by the browser.",4000)); }catch(e){}
+});
+["fullscreenchange","webkitfullscreenchange"].forEach(n=>document.addEventListener(n,()=>{ if(window.parent===window){ FULL=!!(document.fullscreenElement||document.webkitFullscreenElement); ui(); } }));
 $("bRings").addEventListener("click",()=>{ RINGS_ON=!RINGS_ON; LS.set("rings",RINGS_ON?"1":"0"); ui(); draw(); });
 $("bDirect").addEventListener("click",()=>{ DIRECT_ON=!DIRECT_ON; LS.set("direct",DIRECT_ON?"1":"0"); ui(); draw(); });
 $("bGps").addEventListener("click",()=>{
@@ -1833,7 +1847,6 @@ $("bNorth").addEventListener("click",()=>{
   layoutMap(); follow(); ui();
   toast(TRACKUP? (LASTTRK!=null? "Track up" : "Track up: the map turns once you move faster than 3 kt.") : "North up",3500);
 });
-if(window.parent===window) $("bFull").style.display="none";
 window.addEventListener("message",e=>{
   if(e.origin!==location.origin||!e.data||typeof e.data!=="object") return;
   if(e.data.pfd==="bars"){
