@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.005
+  PFD - Fly page   v0.01.006
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.005"}
+    page -> shell  {pfd:"hello", version:"0.01.006"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -712,7 +712,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .pillx{background:rgba(251,246,232,.96);border:1px solid var(--ink);border-radius:14px;padding:6px 11px;font:700 11px var(--font-mono);color:var(--ink);box-shadow:0 1px 4px rgba(14,35,72,.25);white-space:nowrap;pointer-events:none !important}
 #corr{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
 .pillx.big{font:700 15px var(--font-ui);padding:7px 14px;border-radius:18px}
-.pillx.big2{font:700 13px var(--font-ui);padding:6px 13px;border-radius:16px}
+.pillx.big2{font:700 12px var(--font-ui);padding:6px 10px;border-radius:16px;max-width:calc(100vw - 72px)}
 .pillx.big .d{margin-right:7px;font-size:14px}
 .pillx.grey{color:var(--ink-muted);border-color:#8a7a5a;background:rgba(244,236,220,.96);font-weight:600}
 .pillx .d{color:#c62828}.pillx.pa .d{color:#b36b00}.pillx.grey .d{color:#8a7a5a}
@@ -738,15 +738,44 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 #lsaLinks i{color:var(--ink-faint);font-style:normal}
 #toast{position:fixed;z-index:25;left:50%;transform:translateX(-50%);bottom:calc(var(--sb) + 4px);max-width:calc(100% - 140px);min-width:150px;text-align:center;background:rgba(14,35,72,.94);color:#fff;font:600 13px/1.35 var(--font-ui);padding:9px 14px;border-radius:14px;display:none;pointer-events:none}
 #toast.show{display:block}
-#scrim{position:fixed;inset:0;z-index:30;background:rgba(14,35,72,.45);display:none;align-items:center;justify-content:center;padding:16px}
-#scrim.show{display:flex}
-#dlg{width:100%;max-width:290px;max-height:100%;overflow:auto;background:var(--paper-hi);border:2px solid var(--ink);border-radius:16px;padding:18px 16px 14px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.35)}
-#dlgT{font:700 19px var(--font-ui);color:var(--ink);margin-bottom:4px}
-#dlgX{font:13px var(--font-ui);color:var(--ink-muted);margin-bottom:10px;overflow-wrap:anywhere}
-.db{display:flex;width:100%;height:52px;border-radius:12px;align-items:center;justify-content:center;font:700 16px var(--font-ui);margin-top:8px;cursor:pointer;padding:0}
-.db.keep{background:var(--ink);color:var(--paper);border:2px solid var(--ink)}
-.db.alt{border:2px solid var(--ink);color:var(--ink);background:transparent}
-.db.stp2{border:2px solid var(--red);color:var(--red);background:transparent}
+.pillx.big2.grid{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;column-gap:4px;row-gap:1px;align-items:center;line-height:1.5;font-variant-numeric:tabular-nums}
+.pillx.big2.grid .lb{font-weight:600;color:var(--ink);margin-right:2px}
+.pillx.big2.grid .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pillx.big2.grid .r{display:flex;align-items:center;justify-content:space-between;gap:3px;white-space:nowrap}
+.pillx.big2.grid .r:before{content:"";flex:none;width:12px;height:12px;background:center/contain no-repeat}
+.pillx.big2.grid .b:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a2a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M15.5 8.5l-2 5-5 2 2-5z'/%3E%3C/svg%3E")}
+.pillx.big2.grid .dst:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a2a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 16L16 4l4 4L8 20z'/%3E%3Cpath d='M9 9l2 2M12 6l2 2M6 12l2 2'/%3E%3C/svg%3E")}
+.pillx.big2.grid .t:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a2a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E")}
+.pillx.dirp{border:1.5px solid var(--red);max-width:calc(100vw - 104px)}
+.pillx.dirp .lb{color:var(--red);font-weight:700}
+.pillx.big2.col{line-height:1.5;white-space:normal}
+#drawbar{display:none}
+body.drawing #drawbar{display:block}
+body.drawing #gBL,body.drawing #gBR,body.drawing #driftPill,body.drawing #bRoute{display:none}
+.dg{position:fixed;z-index:10;display:flex;flex-direction:column;align-items:center;gap:8px}
+.dgi{display:flex;flex-direction:column;align-items:center}
+.dgi .cap2{margin-top:2px}
+.btn.big{width:58px;height:58px}
+.btn.big svg{width:28px;height:28px}
+.btn.done{background:var(--ink);color:var(--paper);border-color:var(--ink-dark)}
+.btn.dis{opacity:.38;pointer-events:none}
+#scrim{position:fixed;inset:0;z-index:30;background:rgba(14,35,72,.22);display:none}
+#scrim.show{display:block}
+#dlg{position:absolute;width:272px;background:var(--paper-hi);border-radius:18px;box-shadow:0 14px 40px rgba(14,35,72,.35),0 0 0 1px rgba(14,35,72,.12);--ax:130px}
+#dlg:before{content:"";position:absolute;top:-7px;left:var(--ax);width:14px;height:14px;background:var(--paper-hi);transform:rotate(45deg);box-shadow:-1px -1px 0 rgba(14,35,72,.12)}
+#dlg.up:before{top:auto;bottom:-7px;box-shadow:1px 1px 0 rgba(14,35,72,.12)}
+#dlg.na:before{display:none}
+#dlgT{font:700 17px var(--font-ui);color:var(--ink);padding:14px 18px 2px;overflow-wrap:anywhere}
+#dlgX{font:13px var(--font-ui);color:var(--ink-muted);padding:0 18px 8px;overflow-wrap:anywhere}
+#dlgX:empty{display:none}
+#dlgT:last-of-type{padding-bottom:8px}
+.db{position:relative;z-index:1;display:flex;width:100%;height:56px;align-items:center;gap:14px;padding:0 18px;border:0;border-top:1px solid rgba(14,35,72,.12);background:var(--paper-hi);color:var(--ink);font:600 16.5px var(--font-ui);text-align:left;cursor:pointer}
+.db svg{width:22px;height:22px;flex:none}
+.db:active{background:#f1e2bc}
+.db.stp2{color:var(--red)}
+.db.stp2 svg{background:#f6dcd8;border-radius:50%;padding:4px;width:30px;height:30px;margin:-4px -4px -4px -4px;box-sizing:border-box}
+.db.keep{color:var(--ink-muted);font-weight:500}
+#dlgB .db:last-child{border-radius:0 0 18px 18px}
 </style>
 </head>
 <body>
@@ -788,6 +817,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
   <button class="btn" id="bGps" type="button" aria-label="GPS"></button>
   <div class="pillx grey" id="gsPill">GS -- kt</div>
 </div>
+<div id="drawbar">
+  <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
+  <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
+</div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -802,7 +835,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 </script>
 <script>
 "use strict";
-const VER="0.01.005";
+const VER="0.01.006";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const alog=()=>{};
@@ -819,7 +852,10 @@ const ICON={
   route:SV('<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/>'),
   ring:SV('<circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="6" stroke-dasharray="2.5 2.5"/><circle cx="12" cy="12" r="10" stroke-dasharray="2.5 2.5"/>'),
   dir:SV('<circle cx="6" cy="18" r="2.5"/><path d="M8 16L17 7"/><path d="M13 6h5v5"/>',' stroke-width="2.2"'),
-  compass:SV('<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>')
+  compass:SV('<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>'),
+  trash:SV('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>'),
+  undo:SV('<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>'),
+  check:SV('<path d="M5 12.5l4.5 4.5L19 7"/>',' stroke-width="2.4"')
 };
 const nglyph=rot=>'<svg viewBox="0 0 24 24" style="width:30px;height:30px"><g transform="rotate('+rot.toFixed(1)+' 12 12)"><path d="M12 1.5 L16 9 L8 9Z" fill="#c62828"/><text x="12" y="21.5" font-size="12.5" font-weight="800" font-family="IBM Plex Sans Hebrew,system-ui,sans-serif" text-anchor="middle" fill="currentColor">N</text></g></svg>';
 
@@ -1167,7 +1203,7 @@ function lsaDelete(){
   dlg("Delete the LSA chart?","It is removed from this device. You can load it again from the zip file.",[["Keep chart","keep"],["Delete chart","stp2",async()=>{
     try{ await idbClear("tiles"); }catch(e){ lsaStatus("Could not delete the chart",true,5000); return; }
     LSA.stored=0; lsaSet(false); lsaStatus("Chart deleted",false,3000);
-  }]]);
+  }]],$("lsaDel"),"down");
 }
 async function lsaOnFile(){
   const f=LSA.file.files&&LSA.file.files[0]; if(!f){ LSA.replacing=false; lsaStatus(""); return; }
@@ -1204,11 +1240,36 @@ function lsaInit(){
 let toastT=0;
 function toast(t,ms){ const e=$("toast"); e.textContent=t; e.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>e.classList.remove("show"),ms||4500); }
 function closeDlg(){ $("scrim").classList.remove("show"); }
-function dlg(title,text,btns){
-  $("dlgT").textContent=title; $("dlgX").textContent=text||""; const b=$("dlgB"); b.innerHTML="";
-  btns.forEach(([label,cls,fn])=>{ const d=document.createElement("button"); d.type="button"; d.className="db "+cls; d.textContent=label; d.onclick=()=>{ closeDlg(); if(fn) fn(); }; b.appendChild(d); });
-  $("scrim").classList.add("show");
+const DLG_IC={
+  pen:'<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
+  file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  edit:'<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8 16l8-8"/>',
+  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>'
+};
+function dlgIcon(label,cls){
+  if(/^draw/i.test(label)) return DLG_IC.pen;
+  if(/^load/i.test(label)) return DLG_IC.file;
+  if(/^edit/i.test(label)) return DLG_IC.edit;
+  if(/remove|clear|delete/i.test(label)) return DLG_IC.trash;
+  if(cls==="keep"||/^(close|keep)/i.test(label)) return DLG_IC.x;
+  return "";
 }
+// a small menu that opens right next to the button that was pressed (dir "down" = under it, "up" = above it)
+function dlg(title,text,btns,anchor,dir){
+  $("dlgT").textContent=title; $("dlgX").textContent=text||""; const b=$("dlgB"); b.innerHTML="";
+  btns.forEach(([label,cls,fn])=>{ const d=document.createElement("button"); d.type="button"; d.className="db "+cls;
+    d.innerHTML=SV(dlgIcon(label,cls))+"<span>"+esc(label)+"</span>"; d.onclick=()=>{ closeDlg(); if(fn) fn(); }; b.appendChild(d); });
+  const sc=$("scrim"), dl=$("dlg"); sc.classList.add("show");
+  const W=sc.clientWidth, H=sc.clientHeight, pw=Math.min(272,W-20);
+  dl.style.width=pw+"px"; dl.classList.toggle("up",dir==="up"); dl.classList.toggle("na",!anchor);
+  if(anchor){
+    const r=anchor.getBoundingClientRect(), cx=r.left+r.width/2, left=Math.max(10,Math.min(W-pw-10,cx-pw/2));
+    dl.style.left=left+"px"; dl.style.setProperty("--ax",Math.max(14,Math.min(pw-28,cx-left-7))+"px");
+    if(dir==="up"){ dl.style.top="auto"; dl.style.bottom=(H-r.top+10)+"px"; } else { dl.style.bottom="auto"; dl.style.top=(r.bottom+10)+"px"; }
+  } else { dl.style.left=Math.round((W-pw)/2)+"px"; dl.style.bottom="auto"; dl.style.top=Math.round(H*0.22)+"px"; }
+}
+$("scrim").addEventListener("click",e=>{ if(e.target===e.currentTarget) closeDlg(); });
 
 /* ───────── numbers ───────── */
 const NMR=3440.065;
@@ -1218,6 +1279,10 @@ const norm360=a=>((a%360)+360)%360;
 function lerpAng(a,b,k){ const d=((b-a+540)%360)-180; return norm360(a+d*k); }
 const p2=n=>String(n).padStart(2,"0");
 const p3=n=>String(Math.round(n)%360).padStart(3,"0");
+function trow(l,nm,dd,brg){   // one row of a grid pill: label, name, true bearing, distance, time
+  const m=(typeof GS!=="undefined"&&GS!=null&&GS>=5)? dd/GS*60 : null;
+  return '<span class="lb">'+l+'</span><span class="nm">'+esc(nm)+'</span><span class="r b">'+String(Math.round(brg)%360).padStart(3,"0")+'\u00b0</span><span class="r dst">'+dd.toFixed(1).padStart(4,"\u2007")+' NM</span><span class="r t">'+fmtMin(m)+'</span>';
+}
 function fmtMin(m){ if(m==null||!isFinite(m)) return "-- min"; m=Math.round(m); return m<60? p2(m)+" min" : Math.floor(m/60)+"h"+p2(m%60); }
 
 /* ───────── GPS, compass, screen on ───────── */
@@ -1299,6 +1364,7 @@ document.addEventListener("visibilitychange",()=>{
 /* ───────── direct line ───────── */
 let DIRECT_ON=LS.get("direct","1")==="1", RINGS_ON=LS.get("rings","1")==="1", TGT=null;
 function onTap(vx,vy){
+  if(DRAW.on){ drawTap(vx,vy); return; }
   if(!DIRECT_ON) return;
   const cp=v2cp(vx,vy), ll=MAP.containerPointToLatLng(cp);
   const o=snapNearest(vx,vy);
@@ -1307,12 +1373,11 @@ function onTap(vx,vy){
 }
 function dirPillUpdate(){
   const el=$("dirPill");
-  if(!DIRECT_ON){ el.className="pillx grey"; el.textContent="Direct line off"; return; }
-  if(!TGT){ el.className="pillx grey"; el.textContent="Tap a waypoint"; return; }
-  if(!POS||!GPS.on||STALE){ el.className="pillx grey"; el.innerHTML="<bdi>"+esc(TGT.name)+"</bdi> · GPS off"; return; }
+  if(!DIRECT_ON){ el.className="pillx big2 grey"; el.textContent="Direct line off"; return; }
+  if(!TGT){ el.className="pillx big2 grey"; el.textContent="Tap a waypoint"; return; }
+  if(!POS||!GPS.on||STALE){ el.className="pillx big2 grey"; el.innerHTML="<bdi>"+esc(TGT.name)+"</bdi> · GPS off"; return; }
   const d=distNM(POS.lat,POS.lon,TGT.lat,TGT.lon), b=bearing(POS.lat,POS.lon,TGT.lat,TGT.lon);
-  const m=(GS!=null&&GS>=5)? d/GS*60 : null;
-  el.className="pillx"; el.innerHTML="<bdi>"+esc(TGT.name)+"</bdi> · "+d.toFixed(1)+" NM · "+fmtMin(m)+" · "+String(Math.round(b)%360).padStart(3,"0")+"° <small>TRUE</small>";
+  el.className="pillx big2 grid dirp"; el.innerHTML=trow("To",TGT.name,d,b);
 }
 
 /* ───────── drawing on top of the map (lines, rings, plane, names) ───────── */
@@ -1380,7 +1445,7 @@ function draw(){
   if(!MAP) return;
   ov.setAttribute("viewBox","0 0 "+VW+" "+VH);
   corrDraw();
-  let o=nameLabels()+routeArrows();
+  let o=nameLabels()+(DRAW.on?"":routeArrows());
   const showPos=POS&&GPS.on;
   let P=null;
   if(showPos) P=toScreen([POS.lat,POS.lon]);
@@ -1406,7 +1471,12 @@ function draw(){
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#1a1308" stroke-width="2.4" stroke-dasharray="2 7" stroke-linecap="round"/>';
       o+=lineLabel(P.x,P.y,a,Math.max(30,edgeD(P.x,P.y,a,top)-22),"TRACK"+TAG("TRUE"),"#1a1308"); }
   }
-  if(TGT&&DIRECT_ON){
+  if(showPos&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length){
+    const w=ROUTE.wp[NX.i], N=toScreen([w.lat,w.lon]);
+    const ln=' x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+N.x.toFixed(1)+'" y2="'+N.y.toFixed(1)+'" stroke-linecap="round" stroke-dasharray="1 8"';
+    o+='<line'+ln+' stroke="#fff" stroke-width="6" stroke-opacity=".9"/><line'+ln+' stroke="#0e2348" stroke-width="3"/>';
+  }
+  if(TGT&&DIRECT_ON&&!DRAW.on){
     const T=toScreen([TGT.lat,TGT.lon]);
     if(showPos){
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+T.x.toFixed(1)+'" y2="'+T.y.toFixed(1)+'" stroke="#b3261e" stroke-width="2.5"/>';
@@ -1435,8 +1505,10 @@ function draw(){
 }
 
 /* ───────── route from a GPX file, with the corridor around it ───────── */
-let ROUTE={layer:null,name:"",al:[],meta:[],dots:[],len:0};
-let CORR_NM=Math.min(3,Math.max(1,parseInt(LS.get("corr","2"),10)||2));   // how far the red edge is from the line, each side
+let ROUTE={layer:null,name:"",al:[],meta:[],dots:[],len:0,wp:[],pins:false,drawn:false};   // wp = the waypoints in order: {lat,lon,name}
+let NX={i:1,pc:0,lastT:0};   // Next waypoint: index into wp, how many fixes in a row are past it, time of the last fix used
+const DRAW={on:false,pts:[]};
+const CORR_NM=2;   // corridor: 2 NM each side, fixed
 let DRIFT=null;   // where the plane is compared with the route: {d NM, side +1 right / -1 left, rem NM, q = nearest point on the route}
 const lineNM=a=>{ let t=0; for(let i=0;i<a.length-1;i++) t+=distNM(a[i][0],a[i][1],a[i+1][0],a[i+1][1]); return t; };
 function routeShow(txt,name){
@@ -1446,10 +1518,10 @@ function routeShow(txt,name){
   const ok=q=>isFinite(q[0])&&isFinite(q[1]);
   const nameOf=e=>{ const n=e&&e.getElementsByTagName("name")[0]; return n? String(n.textContent||"").trim() : ""; };
   const lines=[], meta=[], dots=[];
-  [...x.getElementsByTagName("trkseg")].forEach(s=>{ const a=[...s.getElementsByTagName("trkpt")].map(ll).filter(ok); if(a.length>1){ lines.push(a); meta.push({s:"",e:""}); } });
+  [...x.getElementsByTagName("trkseg")].forEach(s=>{ const a=[...s.getElementsByTagName("trkpt")].map(ll).filter(ok); if(a.length>1){ lines.push(a); meta.push({s:"",e:"",k:"t"}); } });
   [...x.getElementsByTagName("rte")].forEach(s=>{
     const pts=[...s.getElementsByTagName("rtept")].filter(e=>ok(ll(e))), a=pts.map(ll);
-    if(a.length>1){ lines.push(a); dots.push(...a); meta.push({s:nameOf(pts[0]),e:nameOf(pts[pts.length-1])}); } });
+    if(a.length>1){ lines.push(a); dots.push(...a); meta.push({s:nameOf(pts[0]),e:nameOf(pts[pts.length-1]),k:"r",n:pts.map(nameOf)}); } });
   [...x.getElementsByTagName("wpt")].map(ll).filter(ok).forEach(q=>dots.push(q));
   if(!lines.length&&!dots.length) throw new Error("empty");
   routeClear();
@@ -1458,11 +1530,15 @@ function routeShow(txt,name){
   const total=lines.reduce((n,a)=>n+a.length,0), stride=Math.max(1,Math.floor(total/3000));   // very long tracks: fewer points
   const al=lines.map(a=>a.filter((q,i)=>i%stride===0||i===a.length-1));
   let main=0, best=-1; al.forEach((a,i)=>{ const l=lineNM(a); if(l>best){ best=l; main=i; } });
-  ROUTE={layer:g,name:name||"route.gpx",al,meta,dots,len:Math.max(0,best),main};
+  const mm=meta[main]||{}; let wp=[], pins=false;
+  if(lines.length){ const ln=lines[main];
+    if(mm.k==="r"){ wp=ln.map((q,i)=>({lat:q[0],lon:q[1],name:(mm.n&&mm.n[i])||("Point "+(i+1))})); pins=true; }
+    else { const s0=ln[0], e0=ln[ln.length-1], f0=ln[ln.length-2]; wp=[{lat:s0[0],lon:s0[1],name:mm.s||"Start"},{lat:e0[0],lon:e0[1],name:mm.e||"End of route",from:{lat:f0[0],lon:f0[1]}}]; } }
+  ROUTE={layer:g,name:name||"route.gpx",al,meta,dots,len:Math.max(0,best),main,wp,pins,drawn:false};
   const b=L.latLngBounds(lines.flat().concat(dots)); if(b.isValid()) { FOLLOW=false; MAP.fitBounds(b,{padding:[70,70],animate:false}); }
   ui(); draw();
 }
-function routeClear(){ if(ROUTE.layer&&MAP) MAP.removeLayer(ROUTE.layer); ROUTE={layer:null,name:"",al:[],meta:[],dots:[],len:0}; DRIFT=null; }
+function routeClear(){ if(ROUTE.layer&&MAP) MAP.removeLayer(ROUTE.layer); ROUTE={layer:null,name:"",al:[],meta:[],dots:[],len:0,wp:[],pins:false,drawn:false}; DRIFT=null; NX={i:1,pc:0,lastT:0}; }
 const routeFile=document.createElement("input"); routeFile.type="file"; routeFile.accept=".gpx,application/gpx+xml,text/xml,application/xml"; routeFile.style.display="none"; document.body.appendChild(routeFile);
 routeFile.addEventListener("change",async()=>{
   const f=routeFile.files&&routeFile.files[0]; if(!f) return;
@@ -1471,12 +1547,58 @@ routeFile.addEventListener("change",async()=>{
   routeFile.value="";
 });
 function routeTap(){
-  if(!ROUTE.layer){ routeFile.value=""; routeFile.click(); return; }
-  dlg("Route on the map",ROUTE.name+" · "+ROUTE.len.toFixed(0)+" NM",[
-    ["Close","keep"],
-    ["Corridor: "+CORR_NM+" NM each side","alt",()=>{ CORR_NM=CORR_NM%3+1; LS.set("corr",String(CORR_NM)); ui(); draw(); routeTap(); }],
-    ["Load another file","alt",()=>{ routeFile.value=""; routeFile.click(); }],
-    ["Remove from map","stp2",()=>{ routeClear(); kvDel("route"); ui(); draw(); }]]);
+  const a=$("bRoute"), loadFile=()=>{ routeFile.value=""; routeFile.click(); };
+  if(!ROUTE.layer){
+    dlg("Route","",[["Draw on the map","alt",()=>drawStart([])],["Load a GPX file","alt",loadFile],["Close","keep"]],a,"down"); return; }
+  dlg(ROUTE.name,ROUTE.len.toFixed(0)+" NM",[
+    ["Edit route","alt",()=>drawStart(ROUTE.wp.map(p=>({lat:p.lat,lon:p.lon,name:/^Point \d+$/.test(p.name)?"":p.name})))],
+    ["Load another file","alt",loadFile],
+    ["Remove from map","stp2",()=>{ routeClear(); kvDel("route"); ui(); draw(); }],
+    ["Close","keep"]],a,"down");
+}
+
+/* ───────── drawing a route by tapping the map ───────── */
+const wpName=(p,i)=>p.name||("Point "+(i+1));
+function routeBuild(pts){   // a drawn route: the points in order, with the same corridor as a GPX route
+  routeClear(); if(pts.length<2) return;
+  const g=L.layerGroup(); g.addTo(MAP);
+  const wp=pts.map((p,i)=>({lat:p.lat,lon:p.lon,name:wpName(p,i)})), a=wp.map(p=>[p.lat,p.lon]);
+  ROUTE={layer:g,name:"My route",al:[a],meta:[{s:wp[0].name,e:wp[wp.length-1].name}],dots:[],len:lineNM(a),main:0,wp,pins:true,drawn:true};
+}
+function drawStart(pts){
+  DRAW.on=true; DRAW.pts=pts; FOLLOW=false; snapLoad().catch(()=>{});
+  routeBuild(DRAW.pts); ui(); draw();
+}
+function drawTap(vx,vy){
+  const o=snapNearest(vx,vy); let p;
+  if(o){ p={lat:o.lat,lon:o.lon,name:o.name}; toast("Snapped to "+o.name,1800); }
+  else { const ll=MAP.containerPointToLatLng(v2cp(vx,vy)); p={lat:ll.lat,lon:ll.lng,name:""}; toast("Free point. Zoom in to snap to a reporting point.",2500); }
+  const l=DRAW.pts[DRAW.pts.length-1]; if(l&&l.lat===p.lat&&l.lon===p.lon) return;
+  DRAW.pts.push(p); routeBuild(DRAW.pts); ui(); draw();
+}
+function drawUndo(){ if(!DRAW.pts.length) return; DRAW.pts.pop(); routeBuild(DRAW.pts); ui(); draw(); }
+function drawClearAsk(){
+  if(!DRAW.pts.length) return;
+  dlg("Clear all points?","",[["Clear all points","stp2",()=>{ DRAW.pts=[]; routeBuild([]); ui(); draw(); }],["Keep drawing","keep"]],$("dClear"),"up");
+}
+function drawDone(){
+  if(DRAW.pts.length<2) return;
+  routeBuild(DRAW.pts); DRAW.on=false;
+  kvSet("route",{drawn:true,pts:DRAW.pts.map(p=>({lat:p.lat,lon:p.lon,name:p.name})),name:"My route"});
+  FOLLOW=false; MAP.fitBounds(L.latLngBounds(ROUTE.al[0]),{padding:[70,70],animate:false});
+  ui(); draw();
+}
+// Next waypoint: passed when the plane crosses the line that stands across the route at that point (the bisector at a turn)
+function nextAdvance(){
+  const wp=ROUTE.wp; if(!wp||wp.length<2||!POS||!GPS.on||STALE||DRAW.on) return;
+  if(NX.i>=wp.length||POS.t===NX.lastT) return; NX.lastT=POS.t;
+  const k=NX.i, w=wp[k], cl=Math.cos(w.lat*RAD)*60;
+  const u=(a,b)=>{ const x=(b.lon-a.lon)*cl, y=(b.lat-a.lat)*60, l=Math.hypot(x,y)||1; return [x/l,y/l]; };
+  const inc=u(w.from||wp[k-1],w); let d=inc;
+  if(k<wp.length-1){ const o=u(w,wp[k+1]), sx=inc[0]+o[0], sy=inc[1]+o[1], l=Math.hypot(sx,sy); if(l>=0.05) d=[sx/l,sy/l]; }
+  const dot=(POS.lon-w.lon)*cl*d[0]+(POS.lat-w.lat)*60*d[1];
+  if(dot>0.05) NX.pc++; else NX.pc=0;   // two fixes in a row past the line, so one noisy fix does not count
+  if(NX.pc>=2){ NX.i++; NX.pc=0; }
 }
 
 /* how far off the route is the plane, and on which side */
@@ -1513,6 +1635,12 @@ function driftAlpha(t){
 const rgbaC=(c,a)=>"rgba("+Math.round(c[0])+","+Math.round(c[1])+","+Math.round(c[2])+","+a+")";
 function driftUi(){
   const p1=$("driftPill"), t1=$("driftTxt"), dot=$("driftDot"), p2=$("toPill");
+  if(DRAW.on){
+    const n=DRAW.pts.length; p2.style.display="";
+    if(!n){ p2.className="pillx big2"; p2.textContent="Tap the map to place your first point"; return; }
+    const len=ROUTE.layer? ROUTE.len : 0, m=(GS!=null&&GS>=5)? len/GS*60 : null;
+    p2.className="pillx big2 col"; p2.innerHTML="<div>Route "+n+(n===1?" point":" points")+"</div><div>Dist "+len.toFixed(1)+" NM"+(m!=null?" · "+fmtMin(m):"")+"</div>"; return;
+  }
   if(!ROUTE.layer){ p1.className="pillx big grey"; dot.style.display="none"; t1.textContent="No route loaded"; p2.style.display="none"; return; }
   p2.style.display="";
   const m=ROUTE.meta[ROUTE.main]||{}, dest=m.e||"End of route";
@@ -1524,6 +1652,15 @@ function driftUi(){
   const t=DRIFT.d/CORR_NM, col=driftCol(t);
   p1.className="pillx big"; dot.style.display=""; dot.style.color=rgbaC(col,1);
   t1.textContent= DRIFT.d<0.1? "On route" : (DRIFT.d<10? DRIFT.d.toFixed(1) : Math.round(DRIFT.d))+" NM "+(DRIFT.side>0?"right":"left")+" of route";
+  const wp=ROUTE.wp||[], n=wp.length;
+  if(n>=2){
+    const i=NX.i;
+    if(i>=n){ p2.className="pillx big2"; p2.textContent="Route complete"; return; }
+    const dN=distNM(POS.lat,POS.lon,wp[i].lat,wp[i].lon), bN=bearing(POS.lat,POS.lon,wp[i].lat,wp[i].lon), e=wp[n-1];
+    let dE=dN; for(let k=i;k<n-1;k++) dE+=distNM(wp[k].lat,wp[k].lon,wp[k+1].lat,wp[k+1].lon);
+    const bE=bearing(POS.lat,POS.lon,e.lat,e.lon);
+    p2.className="pillx big2 grid"; p2.innerHTML=(i<n-1? trow("Next",wp[i].name,dN,bN) : "")+trow("End",e.name,dE,bE); return;
+  }
   const mm=(GS!=null&&GS>=5)? DRIFT.rem/GS*60 : null;
   p2.className="pillx big2"; p2.innerHTML="<bdi>"+esc(dest)+"</bdi> · "+DRIFT.rem.toFixed(1)+" NM · "+fmtMin(mm);
 }
@@ -1551,7 +1688,9 @@ function corrDraw(){
   const dpr=Math.min(window.devicePixelRatio||1,3), cw=Math.round(VW*dpr), ch=Math.round(VH*dpr);
   if(corr.width!==cw||corr.height!==ch){ corr.width=cw; corr.height=ch; }
   cctx.setTransform(dpr,0,0,dpr,0,0); cctx.clearRect(0,0,VW,VH);
-  if(!MAP||!ROUTE.layer||!ROUTE.al.length) return;
+  const hasR=!!(MAP&&ROUTE.layer&&ROUTE.al.length);
+  if(!MAP||(!hasR&&!DRAW.on)) return;
+  if(hasR){
   const ctr=MAP.getCenter(), mpp=40075016.686*Math.cos(ctr.lat*RAD)/(256*Math.pow(2,MAP.getZoom())), R=CORR_NM*1852/mpp;   // corridor width on the screen
   // route in screen points (very close points dropped)
   const lines=ROUTE.al.map(a=>{ const out=[]; let last=null;
@@ -1585,26 +1724,61 @@ function corrDraw(){
   trace(); cctx.strokeStyle="rgba(255,255,255,.9)"; cctx.lineWidth=8; cctx.stroke();
   trace(); cctx.strokeStyle="#0e2348"; cctx.lineWidth=5; cctx.stroke();
   trace(); cctx.strokeStyle="#f5c518"; cctx.lineWidth=2.2; cctx.stroke();
-  ROUTE.dots.forEach(d=>{ const q=toScreen(d); if(q.x<-10||q.x>VW+10||q.y<-10||q.y>VH+10) return;
+  (ROUTE.pins?[]:ROUTE.dots).forEach(d=>{ const q=toScreen(d); if(q.x<-10||q.x>VW+10||q.y<-10||q.y>VH+10) return;
     cctx.beginPath(); cctx.arc(q.x,q.y,5,0,7); cctx.fillStyle="#f5c518"; cctx.fill(); cctx.lineWidth=2; cctx.strokeStyle="#0e2348"; cctx.stroke(); });
   const mp=lines[ROUTE.main]||lines[0], m=ROUTE.meta[ROUTE.main]||{};
-  if(mp&&mp.length>1){
+  if(!ROUTE.pins&&mp&&mp.length>1){
     const s0=mp[0], e0=mp[mp.length-1];
     corrFlag(s0.x,s0.y,false); corrFlag(e0.x,e0.y,true);
     if(m.s) corrLabel(m.s,s0.x+12,s0.y+18);
     if(m.e) corrLabel(m.e,e0.x+26,e0.y-8);
   }
-  // edge light: a soft glow on the side of the screen where the plane has drifted to
-  if(DRIFT&&!STALE&&POS){
-    const t=DRIFT.d/CORR_NM, e=Math.max(0,Math.min(1,(t-0.15)/0.55));
-    if(e>0){
-      const P=toScreen([POS.lat,POS.lon]), Q=toScreen([DRIFT.qlat,DRIFT.qlon]), dx=Q.x-P.x;
-      const right= Math.abs(dx)>1? dx<0 : DRIFT.side>0, col=driftCol(t), gw=Math.min(110,VW*0.28);
-      const g=cctx.createLinearGradient(right?VW:0,0,right?VW-gw:gw,0);
-      g.addColorStop(0,rgbaC(col,0.62*e)); g.addColorStop(0.45,rgbaC(col,0.22*e)); g.addColorStop(1,rgbaC(col,0));
-      cctx.fillStyle=g; cctx.fillRect(right?VW-gw:0,0,gw,VH);
+  }
+  // numbered pins, passed legs in grey, the NEXT marker, and (while drawing) a tag on each leg
+  const W=DRAW.on? DRAW.pts.map((p,i)=>({lat:p.lat,lon:p.lon,name:wpName(p,i)})) : (ROUTE.pins? ROUTE.wp : []);
+  if(W.length){
+    const n=W.length, live=!DRAW.on&&GPS.on&&!!POS, S=W.map(p=>toScreen([p.lat,p.lon]));
+    cctx.lineCap="round"; cctx.lineJoin="round";
+    if(live&&NX.i>1){
+      const segs=()=>{ cctx.beginPath(); for(let k=1;k<NX.i&&k<n;k++){ cctx.moveTo(S[k-1].x,S[k-1].y); cctx.lineTo(S[k].x,S[k].y); } };
+      segs(); cctx.strokeStyle="rgba(255,255,255,.9)"; cctx.lineWidth=8; cctx.stroke();
+      segs(); cctx.strokeStyle="#8f8671"; cctx.lineWidth=5; cctx.stroke();
+      segs(); cctx.strokeStyle="#d9d1bd"; cctx.lineWidth=2.2; cctx.stroke();
+    }
+    if(DRAW.on) for(let k=1;k<n;k++){
+      const A=S[k-1], B=S[k]; if(Math.hypot(B.x-A.x,B.y-A.y)<96) continue;
+      const mx=(A.x+B.x)/2, my=(A.y+B.y)/2; if(mx<-40||mx>VW+40||my<-20||my>VH+20) continue;
+      corrTag(distNM(W[k-1].lat,W[k-1].lon,W[k].lat,W[k].lon).toFixed(1)+" NM · "+p3(bearing(W[k-1].lat,W[k-1].lon,W[k].lat,W[k].lon))+"\u00b0",mx,my,"600 11px 'JetBrains Mono',monospace","#fbf6e8","#0e2348","#0e2348");
+    }
+    const nx=(live&&NX.i<n)? NX.i : -1;
+    W.forEach((p,i)=>{
+      const q=S[i]; if(q.x<-30||q.x>VW+30||q.y<-60||q.y>VH+30) return;
+      const passed=live&&i<NX.i;
+      if(i===nx){
+        cctx.lineWidth=2.5; cctx.strokeStyle="#f5c518";
+        cctx.beginPath(); cctx.arc(q.x,q.y,19,0,7); cctx.stroke();
+        cctx.beginPath(); cctx.arc(q.x,q.y,23.5,0,7); cctx.stroke();
+      }
+      cctx.beginPath(); cctx.arc(q.x,q.y,11,0,7); cctx.fillStyle=passed?"#8f8671":"#0e2348"; cctx.fill();
+      cctx.lineWidth=2; cctx.strokeStyle="#fff"; cctx.stroke();
+      cctx.font="800 12px 'JetBrains Mono',monospace"; cctx.textAlign="center"; cctx.textBaseline="middle";
+      cctx.fillStyle=passed?"#ece6d6":"#f5c518"; cctx.fillText(String(i+1),q.x,q.y+0.5);
+      cctx.textAlign="start"; cctx.textBaseline="alphabetic";
+      if(i===nx) corrTag("NEXT",q.x,q.y-38,"800 11px 'IBM Plex Sans Hebrew',system-ui,sans-serif","#f5c518","#0e2348","#0e2348");
+    });
+    if(ROUTE.pins&&!ROUTE.drawn&&!DRAW.on){
+      const nm=(p,i)=>p.name&&!/^Point \d+$/.test(p.name);
+      if(nm(W[0],0)) corrLabel(W[0].name,S[0].x+16,S[0].y+22);
+      if(n>1&&nm(W[n-1],n-1)) corrLabel(W[n-1].name,S[n-1].x+16,S[n-1].y-14);
     }
   }
+}
+function corrTag(txt,x,y,font,fill,stroke,color){   // a small rounded tag centred on x,y
+  cctx.font=font; cctx.textAlign="center"; cctx.textBaseline="middle";
+  const w=cctx.measureText(txt).width+14, h=18, r=h/2, x0=x-w/2, y0=y-h/2;
+  cctx.beginPath(); cctx.moveTo(x0+r,y0); cctx.lineTo(x0+w-r,y0); cctx.arc(x0+w-r,y0+r,r,-Math.PI/2,Math.PI/2); cctx.lineTo(x0+r,y0+h); cctx.arc(x0+r,y0+r,r,Math.PI/2,Math.PI*1.5); cctx.closePath();
+  cctx.fillStyle=fill; cctx.fill(); cctx.lineWidth=1.5; cctx.strokeStyle=stroke; cctx.stroke();
+  cctx.fillStyle=color; cctx.fillText(txt,x,y+0.5); cctx.textAlign="start"; cctx.textBaseline="alphabetic";
 }
 
 /* ───────── buttons and their looks ───────── */
@@ -1626,14 +1800,25 @@ function ui(){
   $("bNorth").classList.toggle("on",TRACKUP); $("bNorth").innerHTML=nglyph(TRACKUP? -ROT : 0);
   $("bRoute").classList.toggle("on",!!ROUTE.layer);
   $("bFull").innerHTML= FULL? ICON.fullx : ICON.full;
-  const gp=$("gsPill"); gp.className="pillx"+(g?"":" grey"); gp.textContent="GS "+(g&&GS!=null?Math.round(GS):"--")+" kt";
-  driftCalc(); driftUi(); dirPillUpdate(); chartUi();
+  const gp=$("gsPill"); gp.className="pillx big2"+(g?"":" grey"); gp.textContent="GS "+(g&&GS!=null?Math.round(GS):"--")+" kt";
+  document.body.classList.toggle("drawing",DRAW.on);
+  $("dClear").classList.toggle("dis",!DRAW.pts.length); $("dUndo").classList.toggle("dis",!DRAW.pts.length); $("dDone").classList.toggle("dis",DRAW.pts.length<2);
+  driftCalc(); nextAdvance(); driftUi(); dirPillUpdate(); chartUi(); placeCard();
 }
+// the layers card sits just under the pills at the top left
+function placeCard(){
+  const c=$("chartCard"); if(c.classList.contains("hid")) return;
+  let b=0; ["driftPill","toPill"].forEach(id=>{ const e=$(id); if(e&&getComputedStyle(e).display!=="none") b=Math.max(b,e.getBoundingClientRect().bottom); });
+  c.style.top= b? (Math.ceil(b)+8)+"px" : "";
+}
+window.addEventListener("resize",placeCard);
 $("bRoute").innerHTML=ICON.route; $("bChart").innerHTML=ICON.layers;
 $("bRings").innerHTML=ICON.ring; $("bDirect").innerHTML=ICON.dir; $("bGps").innerHTML=ICON.gps; $("bComp").innerHTML=ICON.compass;
+$("dClear").innerHTML=ICON.trash; $("dUndo").innerHTML=ICON.undo; $("dDone").innerHTML=ICON.check;
 $("bRoute").addEventListener("click",routeTap);
+$("dClear").addEventListener("click",drawClearAsk); $("dUndo").addEventListener("click",drawUndo); $("dDone").addEventListener("click",drawDone);
 $("bComp").addEventListener("click",()=>{ if(COMP_ON){ compassStop(); ui(); draw(); } else compassStart(); });   // the motion prompt comes only from this tap
-$("bChart").addEventListener("click",()=>{ $("chartCard").classList.toggle("hid"); chartUi(); draw(); });
+$("bChart").addEventListener("click",()=>{ $("chartCard").classList.toggle("hid"); chartUi(); placeCard(); draw(); });
 $("bFull").addEventListener("click",()=>{ FULL=!FULL; ui(); try{ parent.postMessage({pfd:"fullscreen",on:FULL},location.origin); }catch(e){} });
 $("bRings").addEventListener("click",()=>{ RINGS_ON=!RINGS_ON; LS.set("rings",RINGS_ON?"1":"0"); ui(); draw(); });
 $("bDirect").addEventListener("click",()=>{ DIRECT_ON=!DIRECT_ON; LS.set("direct",DIRECT_ON?"1":"0"); ui(); draw(); });
@@ -1688,7 +1873,10 @@ window.addEventListener("message",e=>{
 initMap();
 ui();
 if(!SIM) gpsStart();
-kvGet("route").then(r=>{ if(r&&r.txt){ try{ routeShow(r.txt,r.name); const b=MAP.getBounds(); }catch(e){} } });
+kvGet("route").then(r=>{
+  if(r&&r.txt){ try{ routeShow(r.txt,r.name); }catch(e){} }
+  else if(r&&r.drawn&&r.pts&&r.pts.length>1){ try{ routeBuild(r.pts); FOLLOW=false; MAP.fitBounds(L.latLngBounds(ROUTE.al[0]),{padding:[70,70],animate:false}); ui(); draw(); }catch(e){} }
+});
 kvDel("rec"); kvDel("fin");   // recording was dropped in v0.01.005: clear anything left on this device
 try{ parent.postMessage({pfd:"hello",version:VER},location.origin); }catch(e){}
 
@@ -1697,7 +1885,7 @@ if(SIM){
   window.pfdSim={
     pos(lat,lon,kt,hdg){ if(!GPS.on){ GPS.on=true; firstFix=true; } onPos({timestamp:Date.now(),coords:{latitude:lat,longitude:lon,accuracy:5,altitude:300,speed:kt==null?null:kt/1.94384,heading:hdg==null?null:hdg}}); },
     compass(h){ HDG=h; drawSoon(); },
-    state(){ return {ROT,TRACKUP,POS,GS,TRK,TGT,DRIFT,CORR_NM,LSA:{on:LSA.on,stored:LSA.stored},zoom:MAP.getZoom(),center:MAP.getCenter()}; },
+    state(){ return {ROT,TRACKUP,POS,GS,TRK,TGT,DRIFT,CORR_NM,NX,DRAW,ROUTE,LSA:{on:LSA.on,stored:LSA.stored},zoom:MAP.getZoom(),center:MAP.getCenter()}; },
     map(){ return MAP; }, toScreen
   };
 }
