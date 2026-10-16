@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.011
+  PFD - Fly page   v0.01.013
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.011"}
+    page -> shell  {pfd:"hello", version:"0.01.013"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -783,9 +783,63 @@ body.drawing #gBL,body.drawing #gBR,body.drawing #driftPill,body.drawing #bRoute
 .db.stp2 svg{background:#f6dcd8;border-radius:50%;padding:4px;width:30px;height:30px;margin:-4px -4px -4px -4px;box-sizing:border-box}
 .db.keep{color:var(--ink-muted);font-weight:500}
 #dlgB .db:last-child{border-radius:0 0 18px 18px}
+/* LSA-ALIGN v1 START - shared chassis: scroll, header inset, footer. Do not edit per app; update the machine instead. */
+:root{
+  --lsa-hdr-min:58px;                                   /* navy header content height */
+  --lsa-foot-h:33px;                                    /* footer content height */
+  --lsa-foot-pad:max(8px,calc(env(safe-area-inset-bottom,0px) - 16px)); /* sits low, clear of the home bar */
+}
+*{overscroll-behavior:none;}                            /* no rubber-band, no scroll chaining */
+html,body{overscroll-behavior:none;}
+.lsa-hdr{box-sizing:border-box;min-height:calc(var(--lsa-hdr-min) + env(safe-area-inset-top,0px));padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:10px;}
+.lsa-foot{box-sizing:border-box;flex:0 0 auto;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;direction:ltr;
+  height:calc(var(--lsa-foot-h) + var(--lsa-foot-pad));padding:0 12px var(--lsa-foot-pad);margin:0;
+  background:var(--paper-hi,#fbf6e8);border-top:1px solid var(--gold-lite,#d4b878);
+  font-family:var(--font-mono,var(--mono,'JetBrains Mono',monospace));font-size:9px;font-weight:400;letter-spacing:.04em;line-height:1.2;
+  color:var(--ink-faint,#8a7a5a);text-transform:none;text-align:center;position:relative;z-index:5;}
+.lsa-foot.sp{position:absolute;left:0;right:0;bottom:0;}
+.lsa-foot-ver{grid-column:2;max-width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lsa-foot-ver a{color:inherit;text-decoration:none;}
+.lsa-foot-slot{grid-column:1;justify-self:start;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.75;font-size:9px;letter-spacing:.04em;background:none;border:0;padding:0;font-family:inherit;color:inherit;}
+.lsa-foot-slot:empty{visibility:hidden;}
+button.lsa-foot-slot{cursor:pointer;padding:8px 0;}
+.lsa-foot-reload{grid-column:3;justify-self:end;background:none;border:0;padding:8px 0;margin:0;font-family:var(--font-ui,'IBM Plex Sans Hebrew',sans-serif);font-size:11px;letter-spacing:.02em;
+  color:var(--ink-muted,#5a4a3a);text-decoration:underline;text-underline-offset:2px;opacity:.75;cursor:pointer;white-space:nowrap;}
+.lsa-foot-reload:active{opacity:.4;}
+.lsa-skip{position:absolute;left:0;right:0;bottom:calc(var(--lsa-foot-h) + var(--lsa-foot-pad) + 14px);text-align:center;font-family:var(--font-mono,var(--mono,'JetBrains Mono',monospace));font-size:9px;letter-spacing:.18em;color:var(--ink-faint,#8a7a5a);text-transform:uppercase;pointer-events:none;}
+#splash.lobby .lsa-skip{display:none;}
+/* header clock: time on top, UTC label beneath (all apps) */
+.hdr-clock,.strip-clock{display:flex!important;flex-direction:column!important;align-items:center!important;gap:3px!important;}
+.hdr-clock>.hdr-clock-lbl,.strip-clock>.strip-clock-lbl{order:2;font-size:9px!important;line-height:1;letter-spacing:.22em;margin:0!important;}
+.hdr-clock>:not(.hdr-clock-lbl),.strip-clock>:not(.strip-clock-lbl){order:1;}
+.hdr-clock-row{display:flex;flex-direction:column-reverse!important;align-items:center!important;gap:3px!important;}
+/* LSA-ALIGN v1 END */
+
+/* LSA header family v2: icon+name LEFT, optional middle, UTC RIGHT */
+.hdr-fam{direction:ltr;display:flex;justify-content:space-between;align-items:center;background:var(--ink);padding-left:16px;padding-right:16px;gap:6px}
+.hdr-fam .hdr-rail{display:flex;align-items:center;gap:10px;min-width:0}
+.hdr-fam .hdr-glyph{display:block;width:38px;height:38px;flex:0 0 38px;border-radius:9px;overflow:hidden;border:1px solid var(--gold);background:var(--paper)}
+.hdr-fam .hdr-glyph img{width:100%;height:100%;display:block;object-fit:cover}
+.hdr-fam .hdr-title{direction:ltr;text-align:left}
+.hdr-fam .hdr-title h1{font-size:16.5px;line-height:1.25;font-weight:700;letter-spacing:-.1px;color:var(--paper);margin:0;white-space:nowrap}
+.hdr-fam .hdr-title p{color:var(--gold-lite);font-weight:500;margin:1px 0 0;line-height:1.3;font-size:10.5px}
+.hdr-fam .hdr-clock{display:flex;color:var(--paper);font-family:var(--font-mono);direction:ltr;flex:0 0 auto}
+.hdr-fam .hdr-clock-lbl{font-size:10px;opacity:.75;letter-spacing:.18em}
+.hdr-fam .hdr-utc{font-size:21px;font-weight:700;line-height:1}
+/* AirTrack: fixed header and footer frame the map */
+:root{--hh:calc(58px + env(safe-area-inset-top,0px));--fh:calc(33px + max(8px,calc(env(safe-area-inset-bottom,0px) - 16px)));
+  --st:calc(var(--hh) + 10px);--sb:calc(var(--fh) + 10px);--sl:max(10px,env(safe-area-inset-left));--sr:max(10px,env(safe-area-inset-right))}
+html.full{--hh:env(safe-area-inset-top,0px);--fh:env(safe-area-inset-bottom,0px)}
+html.full #lsaHdr,html.full .lsa-foot{display:none}
+#lsaHdr{position:fixed;left:0;right:0;top:0;z-index:20;height:var(--hh)}
+.lsa-foot{position:fixed;left:0;right:0;bottom:0;z-index:20}
+#mapwrap,#corr,#ov,#capLayer{inset:var(--hh) 0 var(--fh) 0!important;width:auto;height:auto}
+#attr{bottom:calc(var(--fh) + 2px)}
+
 </style>
 </head>
 <body>
+<div class="hdr-fam lsa-hdr" id="lsaHdr"><div class="hdr-rail"><div class="hdr-glyph" aria-hidden="true"><img id="atIcon" alt=""></div><div class="hdr-title"><h1>AirTrack</h1><p>Moving map</p></div></div><div class="hdr-clock"><span class="hdr-clock-lbl">UTC</span><span class="hdr-utc">--:--</span></div></div>
 <div id="mapwrap"><div id="map"></div></div>
 <canvas id="corr"></canvas>
 <svg id="ov" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -828,6 +882,7 @@ body.drawing #gBL,body.drawing #gBR,body.drawing #driftPill,body.drawing #bRoute
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.013 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -842,7 +897,7 @@ body.drawing #gBL,body.drawing #gBR,body.drawing #driftPill,body.drawing #bRoute
 </script>
 <script>
 "use strict";
-const VER="0.01.011";
+const VER="0.01.013";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const alog=()=>{};
@@ -1807,6 +1862,7 @@ function ui(){
   $("bNorth").classList.toggle("on",TRACKUP); $("bNorth").innerHTML=nglyph(TRACKUP? -ROT : 0);
   $("bRoute").classList.toggle("on",!!ROUTE.layer);
   $("bFull").innerHTML= FULL? ICON.fullx : ICON.full;
+  document.documentElement.classList.toggle("full",FULL);
   const gp=$("gsPill"); gp.className="pillx big2"+(g?"":" grey"); gp.textContent="GS "+(g&&GS!=null?Math.round(GS):"--")+" kt";
   document.body.classList.toggle("drawing",DRAW.on);
   $("dClear").classList.toggle("dis",!DRAW.pts.length); $("dUndo").classList.toggle("dis",!DRAW.pts.length); $("dDone").classList.toggle("dis",DRAW.pts.length<2);
@@ -1826,8 +1882,8 @@ $("bRoute").addEventListener("click",routeTap);
 $("dClear").addEventListener("click",drawClearAsk); $("dUndo").addEventListener("click",drawUndo); $("dDone").addEventListener("click",drawDone);
 $("bComp").addEventListener("click",()=>{ if(COMP_ON){ compassStop(); ui(); draw(); } else compassStart(); });   // the motion prompt comes only from this tap
 $("bChart").addEventListener("click",()=>{ $("chartCard").classList.toggle("hid"); chartUi(); placeCard(); draw(); });
-// full screen is a placeholder for now: the button is shown but disabled
-$("bFull").disabled=true; $("bFull").classList.add("grey");
+// full screen: hide or show the navy header and the footer, the map grows to fill the screen
+$("bFull").addEventListener("click",()=>{ FULL=!FULL; ui(); });
 $("bRings").addEventListener("click",()=>{ RINGS_ON=!RINGS_ON; LS.set("rings",RINGS_ON?"1":"0"); ui(); draw(); });
 $("bDirect").addEventListener("click",()=>{ DIRECT_ON=!DIRECT_ON; LS.set("direct",DIRECT_ON?"1":"0"); ui(); draw(); });
 $("bGps").addEventListener("click",()=>{
@@ -1897,5 +1953,17 @@ if(SIM){
   };
 }
 </script>
+<script>
+/* LSA-ALIGN v1 JS START */
+async function lsaReload(){
+  try{
+    if('caches' in window){const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)));}
+    if(navigator.serviceWorker){const r=await navigator.serviceWorker.getRegistrations();await Promise.all(r.map(x=>x.unregister()));}
+  }catch(e){}
+  const u=new URL(location.href);u.searchParams.set('r',Date.now().toString(36));location.replace(u.href);
+}
+/* LSA-ALIGN v1 JS END */
+</script>
+<script>(function(){var l=document.querySelector('link[rel=apple-touch-icon]'),i=document.getElementById('atIcon');if(l&&i)i.src=l.href;function t(){var d=new Date(),v=('0'+d.getUTCHours()).slice(-2)+':'+('0'+d.getUTCMinutes()).slice(-2);document.querySelectorAll('.hdr-utc').forEach(function(e){e.textContent=v})}t();setInterval(t,1000)})();</script>
 </body>
 </html>
