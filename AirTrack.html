@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.016
+  PFD - Fly page   v0.01.019
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.016"}
+    page -> shell  {pfd:"hello", version:"0.01.019"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -715,6 +715,18 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .btn.grey{color:var(--ink-muted);border-color:#8a7a5a;background:rgba(244,236,220,.96)}
 .btn.free{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-lite),0 1px 5px rgba(14,35,72,.3)}
 .btn:active{filter:brightness(.92)}
+.btn{position:relative}
+.btn .tag{position:absolute;bottom:-3px;right:-5px;background:var(--ink);color:var(--paper);font:800 9px var(--font-mono);border-radius:8px;padding:1px 4px;letter-spacing:.02em;pointer-events:none}
+.btn.rb.on.nm{border:3px solid #1c3d6e}
+.btn.rb.on.nm .tag{background:#1c3d6e}
+.btn.rb.on.min{border:3px solid #a3207a}
+.btn.rb.on.min .tag{background:#a3207a}
+.btn.rb.off .tag,.btn.rb.grey .tag{background:#8a7a5a}
+.prow{display:flex;align-items:center;gap:8px;pointer-events:none}
+.prow>.btn{pointer-events:auto}
+.pillx.tlp{width:calc(100vw - var(--sl) - var(--sr) - 102px);box-sizing:border-box}
+.pillx.big2.tlp{padding-left:8px;padding-right:8px}
+.pillx.big2.grid.tlp{column-gap:3px}
 .pillx{background:rgba(251,246,232,.96);border:1px solid var(--ink);border-radius:14px;padding:6px 11px;font:700 11px var(--font-mono);color:var(--ink);box-shadow:0 1px 4px rgba(14,35,72,.25);white-space:nowrap;pointer-events:none !important}
 #corr{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
 .pillx.big{font:700 15px var(--font-ui);padding:7px 14px;border-radius:18px}
@@ -724,7 +736,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .pillx .d{color:#c62828}.pillx.pa .d{color:#b36b00}.pillx.grey .d{color:#8a7a5a}
 .pillx small{font-size:8px;font-weight:700;opacity:.8;margin-left:2px;letter-spacing:.06em}
 .cap2{text-align:center;font:700 11px var(--font-mono);color:var(--ink);text-shadow:0 0 3px #fbf6e8,0 0 3px #fbf6e8,0 0 3px #fbf6e8;pointer-events:none !important;margin-top:-4px}
-#chartCard{position:absolute;z-index:10;left:50%;transform:translateX(-50%);top:calc(var(--st) + 92px);display:flex;flex-direction:column;gap:6px;align-items:center}
+#chartCard{position:absolute;z-index:10;left:50%;transform:translateX(-50%);bottom:var(--sb);display:flex;flex-direction:column-reverse;gap:6px;align-items:center}
 #chartCard.hid{display:none}
 .csw{width:216px;display:flex;background:rgba(251,246,232,.96);border:1.5px solid var(--ink);border-radius:24px;padding:2px;box-shadow:0 1px 5px rgba(14,35,72,.3)}
 .csw button{font:700 14px var(--font-ui);width:70px;height:40px;border:0;background:transparent;border-radius:20px;color:var(--ink);cursor:pointer;padding:0}
@@ -752,12 +764,18 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .pillx.big2.grid .b:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a2a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M15.5 8.5l-2 5-5 2 2-5z'/%3E%3C/svg%3E")}
 .pillx.big2.grid .dst:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a2a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 16L16 4l4 4L8 20z'/%3E%3Cpath d='M9 9l2 2M12 6l2 2M6 12l2 2'/%3E%3C/svg%3E")}
 .pillx.big2.grid .t:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a2a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E")}
+.pillx.big2.grid .rph{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pillx.big2.grid .rph.dv{padding-bottom:3px;margin-bottom:2px;border-bottom:1px solid #d9cba8}
+.pillx.big2.grid .rpl{display:flex;align-items:center;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pillx.big2.grid .rpl .d{margin-right:5px;font-size:13px}
+.pillx.big2.grid .rpg{flex:none}
+.pillx.big2.grid .rpm{grid-column:1/-1;white-space:normal}
 .pillx.dirp{border:1.5px solid var(--red);max-width:calc(100vw - 104px)}
 .pillx.dirp .lb{color:var(--red);font-weight:700}
 .pillx.big2.col{line-height:1.5;white-space:normal}
 #drawbar{display:none}
 body.drawing #drawbar{display:block}
-body.drawing #gBL,body.drawing #gBR,body.drawing #driftPill,body.drawing #bRoute{display:none}
+body.drawing #gBL,body.drawing #gBR,body.drawing #rowDir,body.drawing #bRoute,body.drawing #chartCard{display:none}
 .dg{position:absolute;z-index:10;display:flex;flex-direction:column;align-items:center;gap:8px}
 .dgi{display:flex;flex-direction:column;align-items:center}
 .dgi .cap2{margin-top:2px}
@@ -852,43 +870,38 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 <div id="capLayer"></div>
 <div id="attr">© OpenStreetMap contributors · Layers: IAA GIS</div>
 
-<!-- top left: route drift pill, route target pill, Route -->
+<!-- top left: Direct button with its pill, Route button with the route pill -->
 <div class="grp" id="gTL" style="left:var(--sl);top:var(--st);align-items:flex-start">
-  <div class="pillx big grey" id="driftPill"><span class="d" id="driftDot">●</span><span id="driftTxt">No route loaded</span></div>
-  <div class="pillx big2 grey" id="toPill" style="display:none"></div>
-  <button class="btn" id="bRoute" type="button" aria-label="Route"></button>
+  <div class="prow" id="rowDir"><button class="btn" id="bDirect" type="button" aria-label="Direct line"></button><div class="pillx grey" id="dirPill">Tap a waypoint</div></div>
+  <div class="prow" id="rowRoute"><button class="btn" id="bRoute" type="button" aria-label="Route"></button><div class="pillx big2 grid tlp grey" id="toPill"></div></div>
 </div>
-<!-- top right: full screen, chart -->
+<!-- top right: full screen -->
 <div class="grp" id="gTR" style="right:var(--sr);top:var(--st);align-items:flex-end">
   <button class="btn" id="bFull" type="button" aria-label="Full screen"></button>
-  <button class="btn" id="bChart" type="button" aria-label="Chart"></button>
-  <div class="cap2" id="chartCap"></div>
 </div>
-<!-- top centre: chart controls -->
+<!-- bottom centre: chart controls -->
 <div id="chartCard" class="hid">
   <div class="csw"><button type="button" id="swLsa">LSA</button><button type="button" class="off" tabindex="-1">CVFR</button><button type="button" class="off" tabindex="-1">HEL</button></div>
   <div class="opw"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><input type="range" id="lsaOp" min="0" max="100" value="100" aria-label="Chart transparency"></div>
   <div id="lsaLinks"><button type="button" id="lsaRep">Replace chart</button><i>·</i><button type="button" id="lsaDel">Delete chart</button></div>
   <div id="lsaSt"></div>
 </div>
-<!-- bottom left: rings, direct line, direct pill -->
+<!-- bottom left: layers, centre on the plane -->
 <div class="grp" id="gBL" style="left:var(--sl);bottom:var(--sb);align-items:flex-start">
-  <button class="btn" id="bRings" type="button" aria-label="Rings"></button>
-  <button class="btn" id="bDirect" type="button" aria-label="Direct line"></button>
-  <div class="pillx grey" id="dirPill">Tap a waypoint</div>
+  <button class="btn" id="bChart" type="button" aria-label="Chart"></button>
+  <button class="btn" id="bGps" type="button" aria-label="GPS"></button>
 </div>
-<!-- bottom right: north up / track up, GPS, ground speed -->
+<!-- bottom right: compass line, rings (Off, NM, MIN), north up or track up -->
 <div class="grp" id="gBR" style="right:var(--sr);bottom:var(--sb);align-items:flex-end">
   <button class="btn" id="bComp" type="button" aria-label="Compass line"></button>
+  <button class="btn rb off" id="bRings" type="button" aria-label="Rings"></button>
   <button class="btn" id="bNorth" type="button" aria-label="North up or Track up"></button>
-  <button class="btn" id="bGps" type="button" aria-label="GPS"></button>
-  <div class="pillx grey" id="gsPill">GS -- kt</div>
 </div>
 <div id="drawbar">
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.016 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.019 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -903,7 +916,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.016";
+const VER="0.01.019";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1388,7 +1401,9 @@ function onPos(p){
   TRK=(c.heading!=null&&isFinite(c.heading)&&GS!=null&&GS>=3)? c.heading : null;
   if(TRK!=null) LASTTRK=TRK;
   STALE=false;
-  if(TRACKUP&&LASTTRK!=null) setRot(ROT===null||!isFinite(ROT)? LASTTRK : lerpAng(ROT,LASTTRK,0.6));
+  // Track up: GPS track when moving (3 kt or more), the compass below that
+  const rt=(TRK!=null)? TRK : (COMP_ON&&HDG!=null? HDG : LASTTRK);
+  if(TRACKUP&&rt!=null) setRot(ROT===null||!isFinite(ROT)? rt : lerpAng(ROT,rt,0.6));
   if(firstFix){ firstFix=false; MAP.setView([POS.lat,POS.lon],Math.max(MAP.getZoom(),10),{animate:false}); toast("GPS found",1800); }
   follow(); ui(); draw();
 }
@@ -1416,11 +1431,13 @@ function onOri(e){
   if(!COMP_T) COMP_T=requestAnimationFrame(compTick);
 }
 let COMP_LAST=0;
+// slow or stopped: Track up follows the compass instead of freezing
+function compRot(){ if(TRACKUP&&TRK==null&&COMP_ON&&HDG!=null){ setRot(HDG); follow(); } }
 function compTick(t){
   COMP_T=0; if(!COMP_ON||HRAW==null) return;
   if(t-COMP_LAST>=50){
     COMP_LAST=t; const d=((HRAW-HDG+540)%360)-180;
-    if(Math.abs(d)>=0.5){ HDG=norm360(HDG+d*0.35); draw(); }
+    if(Math.abs(d)>=0.5){ HDG=norm360(HDG+d*0.35); compRot(); draw(); }
   }
   COMP_T=requestAnimationFrame(compTick);
 }
@@ -1440,7 +1457,8 @@ document.addEventListener("visibilitychange",()=>{
 });
 
 /* ───────── direct line ───────── */
-let DIRECT_ON=LS.get("direct","1")==="1", RINGS_ON=LS.get("rings","1")==="1", TGT=null;
+let DIRECT_ON=LS.get("direct","1")==="1", TGT=null;
+let RINGS=(()=>{ const v=LS.get("rings","nm"); return v==="1"? "nm" : v==="0"? "off" : (v==="off"||v==="nm"||v==="min")? v : "nm"; })();   // rings: Off, NM or MIN
 function onTap(vx,vy){
   if(DRAW.on){ drawTap(vx,vy); return; }
   if(!DIRECT_ON) return;
@@ -1451,11 +1469,11 @@ function onTap(vx,vy){
 }
 function dirPillUpdate(){
   const el=$("dirPill");
-  if(!DIRECT_ON){ el.className="pillx big2 grey"; el.textContent="Direct line off"; return; }
-  if(!TGT){ el.className="pillx big2 grey"; el.textContent="Tap a waypoint"; return; }
-  if(!POS||!GPS.on||STALE){ el.className="pillx big2 grey"; el.innerHTML="<bdi>"+esc(TGT.name)+"</bdi> · GPS off"; return; }
+  if(!DIRECT_ON){ el.className="pillx big2 grey tlp"; el.textContent="Direct line off"; return; }
+  if(!TGT){ el.className="pillx big2 grey tlp"; el.textContent="Tap a waypoint"; return; }
+  if(!POS||!GPS.on||STALE){ el.className="pillx big2 grey tlp"; el.innerHTML="<bdi>"+esc(TGT.name)+"</bdi> · GPS off"; return; }
   const d=distNM(POS.lat,POS.lon,TGT.lat,TGT.lon), b=bearing(POS.lat,POS.lon,TGT.lat,TGT.lon);
-  el.className="pillx big2 grid dirp"; el.innerHTML=trow("To",TGT.name,d,b);
+  el.className="pillx big2 grid dirp tlp"; el.innerHTML=trow("To",TGT.name,d,b);
 }
 
 /* ───────── drawing on top of the map (lines, rings, plane, names) ───────── */
@@ -1475,7 +1493,7 @@ function lineLabel(cx,cy,ang,d,txt,col){
   return '<text transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+') rotate('+r.toFixed(1)+')" dy="-6" font-size="10.5" font-weight="800" font-family="JetBrains Mono,monospace" letter-spacing=".08em" text-anchor="middle" fill="'+col+'" stroke="#fbf6e8" stroke-width="3" paint-order="stroke">'+txt+'</text>';
 }
 const TAG=t=>'<tspan font-size="7.5" dx="3" letter-spacing=".04em">'+t+'</tspan>';
-function labelTop(){ const c=$("chartCard"); if(c.classList.contains("hid")) return 58; return Math.ceil(c.getBoundingClientRect().bottom)+8; }
+function labelTop(){ return 58; }
 function rayEnd(cx,cy,ang,len){ const a=ang*RAD; return [cx+len*Math.sin(a), cy-len*Math.cos(a)]; }
 function nameLabels(){
   if(!SNAP_PTS||MAP.getZoom()<11) return "";
@@ -1527,14 +1545,14 @@ function draw(){
   const showPos=POS&&GPS.on;
   let P=null;
   if(showPos) P=toScreen([POS.lat,POS.lon]);
-  if(showPos&&RINGS_ON){
-    const mpp=40075016.686*Math.cos(POS.lat*RAD)/(256*Math.pow(2,MAP.getZoom()));
-    [5,10,20].forEach(nm=>{
-      const r=nm*1852/mpp; if(r<28||r>Math.max(VW,VH)*1.6) return;
-      const t=(GS!=null&&GS>=5&&!STALE)? " · "+Math.round(nm/GS*60)+" min" : "";
-      const txt=nm+" NM"+t, w=txt.length*6+14;
-      o+='<circle cx="'+P.x.toFixed(1)+'" cy="'+P.y.toFixed(1)+'" r="'+r.toFixed(1)+'" fill="none" stroke="#1c3d6e" stroke-width="1.6" stroke-dasharray="6 4"/>';
-      o+='<rect x="'+(P.x-w/2).toFixed(1)+'" y="'+(P.y-r-8).toFixed(1)+'" width="'+w+'" height="15" rx="7" fill="#fbf6e8" stroke="#1c3d6e" stroke-width=".8"/><text x="'+P.x.toFixed(1)+'" y="'+(P.y-r+3).toFixed(1)+'" font-size="9.5" font-family="JetBrains Mono,monospace" font-weight="700" text-anchor="middle" fill="#1c3d6e">'+txt+'</text>';
+  if(showPos&&RINGS!=="off"){
+    const mpp=40075016.686*Math.cos(POS.lat*RAD)/(256*Math.pow(2,MAP.getZoom())), isMin=RINGS==="min", col=isMin?"#a3207a":"#1c3d6e";
+    if(!isMin||(GS!=null&&GS>=5&&!STALE)) [5,10,20].forEach(v=>{
+      const nm=isMin? GS*v/60 : v, r=nm*1852/mpp; if(r<28||r>Math.max(VW,VH)*1.6) return;
+      const txt=v+(isMin?" min":" NM"), w=txt.length*8.2+22, px=P.x.toFixed(1), py=P.y.toFixed(1);
+      o+='<circle cx="'+px+'" cy="'+py+'" r="'+r.toFixed(1)+'" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="6"/>';
+      o+='<circle cx="'+px+'" cy="'+py+'" r="'+r.toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-dasharray="9 6"/>';
+      o+='<rect x="'+(P.x-w/2).toFixed(1)+'" y="'+(P.y-r-12).toFixed(1)+'" width="'+w.toFixed(1)+'" height="24" rx="12" fill="#fbf6e8" stroke="'+col+'" stroke-width="1.8"/><text x="'+px+'" y="'+(P.y-r+4.6).toFixed(1)+'" font-size="13" font-family="JetBrains Mono,monospace" font-weight="800" text-anchor="middle" fill="'+col+'">'+txt+'</text>';
     });
   }
   if(showPos){
@@ -1576,7 +1594,7 @@ function draw(){
     halo=rgbs; haloOp='.38';
   }
   if(showPos){
-    const pa=norm360((LASTTRK!=null?LASTTRK:(HDG!=null?HDG:0))-ROT);
+    const pa=norm360((TRK!=null?TRK:(COMP_ON&&HDG!=null?HDG:(LASTTRK!=null?LASTTRK:(HDG!=null?HDG:0))))-ROT);
     o+='<g transform="translate('+P.x.toFixed(1)+' '+P.y.toFixed(1)+') rotate('+pa.toFixed(1)+') scale(2)" opacity="'+(STALE?.45:1)+'"><circle r="14" fill="'+halo+'" opacity="'+haloOp+'"/><path d="M0 -10 L7 8 L0 4 L-7 8Z" fill="#1c3d6e" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></g>';
   }
   ov.innerHTML=o;
@@ -1586,7 +1604,7 @@ function draw(){
 let ROUTE={layer:null,name:"",al:[],meta:[],dots:[],len:0,wp:[],pins:false,drawn:false};   // wp = the waypoints in order: {lat,lon,name}
 let NX={i:1,pc:0,lastT:0};   // Next waypoint: index into wp, how many fixes in a row are past it, time of the last fix used
 const DRAW={on:false,pts:[]};
-const CORR_NM=2;   // corridor: 2 NM each side, fixed
+const CORR_NM=1;   // corridor: 1 NM each side, fixed
 let DRIFT=null;   // where the plane is compared with the route: {d NM, side +1 right / -1 left, rem NM, q = nearest point on the route}
 const lineNM=a=>{ let t=0; for(let i=0;i<a.length-1;i++) t+=distNM(a[i][0],a[i][1],a[i+1][0],a[i+1][1]); return t; };
 function routeShow(txt,name){
@@ -1711,36 +1729,38 @@ function driftAlpha(t){
   return 0;
 }
 const rgbaC=(c,a)=>"rgba("+Math.round(c[0])+","+Math.round(c[1])+","+Math.round(c[2])+","+a+")";
+function rpHead(dotCol,txt,div){   // top line of the route pill: drift on the left, ground speed on the right
+  const g=GPS.on&&POS&&!STALE;
+  return '<span class="rph'+(div?' dv':'')+'"><span class="rpl">'+(dotCol?'<span class="d" style="color:'+dotCol+'">\u25cf</span>':'')+'<span>'+txt+'</span></span><span class="rpg">GS '+(g&&GS!=null?Math.round(GS):"--")+' kt</span></span>';
+}
 function driftUi(){
-  const p1=$("driftPill"), t1=$("driftTxt"), dot=$("driftDot"), p2=$("toPill");
+  const p2=$("toPill");
   if(DRAW.on){
-    const n=DRAW.pts.length; p2.style.display="";
+    const n=DRAW.pts.length;
     if(!n){ p2.className="pillx big2"; p2.textContent="Tap the map to place your first point"; return; }
     const len=ROUTE.layer? ROUTE.len : 0, m=(GS!=null&&GS>=5)? len/GS*60 : null;
     p2.className="pillx big2 col"; p2.innerHTML="<div>Route "+n+(n===1?" point":" points")+"</div><div>Dist "+len.toFixed(1)+" NM"+(m!=null?" · "+fmtMin(m):"")+"</div>"; return;
   }
-  if(!ROUTE.layer){ p1.className="pillx big grey"; dot.style.display="none"; t1.textContent="No route loaded"; p2.style.display="none"; return; }
-  p2.style.display="";
+  if(!ROUTE.layer){ p2.className="pillx big2 grid tlp grey"; p2.innerHTML=rpHead("","No route loaded",false); return; }
   const m=ROUTE.meta[ROUTE.main]||{}, dest=m.e||"End of route";
   if(!DRIFT||STALE){
-    p1.className="pillx big grey"; dot.style.display="none";
-    t1.textContent= (GPS.on&&POS)? "GPS signal lost" : "Waiting for GPS";
-    p2.className="pillx big2 grey"; p2.textContent="Route "+ROUTE.len.toFixed(1)+" NM"; return;
+    p2.className="pillx big2 grid tlp grey";
+    p2.innerHTML=rpHead("",(GPS.on&&POS)? "GPS signal lost" : "Waiting for GPS",true)+'<span class="rpm">Route '+ROUTE.len.toFixed(1)+' NM</span>'; return;
   }
   const t=DRIFT.d/CORR_NM, col=driftCol(t);
-  p1.className="pillx big"; dot.style.display=""; dot.style.color=rgbaC(col,1);
-  t1.textContent= DRIFT.d<0.1? "On route" : (DRIFT.d<10? DRIFT.d.toFixed(1) : Math.round(DRIFT.d))+" NM "+(DRIFT.side>0?"right":"left")+" of route";
+  const head=rpHead(rgbaC(col,1),(DRIFT.d<0.1? "On route" : (DRIFT.d<10? DRIFT.d.toFixed(1) : Math.round(DRIFT.d))+" NM "+(DRIFT.side>0?"right":"left")+" of route"),true);
+  p2.className="pillx big2 grid tlp";
   const wp=ROUTE.wp||[], n=wp.length;
   if(n>=2){
     const i=NX.i;
-    if(i>=n){ p2.className="pillx big2"; p2.textContent="Route complete"; return; }
+    if(i>=n){ p2.innerHTML=head+'<span class="rpm">Route complete</span>'; return; }
     const dN=distNM(POS.lat,POS.lon,wp[i].lat,wp[i].lon), bN=bearing(POS.lat,POS.lon,wp[i].lat,wp[i].lon), e=wp[n-1];
     let dE=dN; for(let k=i;k<n-1;k++) dE+=distNM(wp[k].lat,wp[k].lon,wp[k+1].lat,wp[k+1].lon);
     const bE=bearing(POS.lat,POS.lon,e.lat,e.lon);
-    p2.className="pillx big2 grid"; p2.innerHTML=(i<n-1? trow("Next",wp[i].name,dN,bN) : "")+trow("End",e.name,dE,bE); return;
+    p2.innerHTML=head+(i<n-1? trow("Next",wp[i].name,dN,bN) : "")+trow("End",e.name,dE,bE); return;
   }
   const mm=(GS!=null&&GS>=5)? DRIFT.rem/GS*60 : null;
-  p2.className="pillx big2"; p2.innerHTML="<bdi>"+esc(dest)+"</bdi> · "+DRIFT.rem.toFixed(1)+" NM · "+fmtMin(mm);
+  p2.innerHTML=head+'<span class="rpm"><bdi>'+esc(dest)+'</bdi> · '+DRIFT.rem.toFixed(1)+' NM · '+fmtMin(mm)+'</span>';
 }
 
 /* the corridor: a soft glow along the route, the route line, flags, and the edge light */
@@ -1865,42 +1885,39 @@ function chartUi(){
   const cardOn=!$("chartCard").classList.contains("hid");
   $("bChart").classList.toggle("on",cardOn);
   $("swLsa").className= LSA.on? "on" : "";
-  $("chartCap").textContent= (!cardOn&&LSA.on)? "LSA" : "";
+  $("bChart").innerHTML=ICON.layers+((!cardOn&&LSA.on)? '<span class="tag">LSA</span>' : "");
   $("lsaLinks").style.display=(LSA.stored>0&&!LSA.busy)?"flex":"none";
 }
 function ui(){
   const g=GPS.on&&POS&&!STALE;
   $("bGps").classList.toggle("on",GPS.on&&FOLLOW); $("bGps").classList.toggle("free",GPS.on&&!FOLLOW);
   const fix=GPS.on&&!!POS;   // Rings and Direct stay grey only until the first GPS fix
-  $("bRings").classList.toggle("on",RINGS_ON&&fix); $("bRings").classList.toggle("grey",!fix);
+  const rb=$("bRings"); rb.className="btn rb "+RINGS+(RINGS!=="off"&&fix?" on":"")+(!fix?" grey":"");
+  rb.innerHTML=ICON.ring+'<span class="tag">'+(RINGS==="off"?"OFF":RINGS==="nm"?"NM":"MIN")+'</span>';
   $("bDirect").classList.toggle("on",DIRECT_ON&&fix); $("bDirect").classList.toggle("grey",!fix);
   $("bComp").classList.toggle("on",COMP_ON);
   $("bNorth").classList.toggle("on",TRACKUP); $("bNorth").innerHTML=nglyph(TRACKUP? -ROT : 0);
   $("bRoute").classList.toggle("on",!!ROUTE.layer);
   $("bFull").innerHTML= FULL? ICON.fullx : ICON.full;
   document.documentElement.classList.toggle("full",FULL);
-  const gp=$("gsPill"); gp.className="pillx big2"+(g?"":" grey"); gp.textContent="GS "+(g&&GS!=null?Math.round(GS):"--")+" kt";
   document.body.classList.toggle("drawing",DRAW.on);
   $("dClear").classList.toggle("dis",!DRAW.pts.length); $("dUndo").classList.toggle("dis",!DRAW.pts.length); $("dDone").classList.toggle("dis",DRAW.pts.length<2);
-  driftCalc(); nextAdvance(); driftUi(); dirPillUpdate(); chartUi(); placeCard();
+  driftCalc(); nextAdvance(); driftUi(); dirPillUpdate(); chartUi();
 }
-// the layers card sits just under the pills at the top left
-function placeCard(){
-  const c=$("chartCard"); if(c.classList.contains("hid")) return;
-  let b=0; ["driftPill","toPill"].forEach(id=>{ const e=$(id); if(e&&getComputedStyle(e).display!=="none") b=Math.max(b,e.getBoundingClientRect().bottom); });
-  c.style.top= b? (Math.ceil(b)+8)+"px" : "";
-}
-window.addEventListener("resize",placeCard);
 $("bRoute").innerHTML=ICON.route; $("bChart").innerHTML=ICON.layers;
 $("bRings").innerHTML=ICON.ring; $("bDirect").innerHTML=ICON.dir; $("bGps").innerHTML=ICON.gps; $("bComp").innerHTML=ICON.compass;
 $("dClear").innerHTML=ICON.trash; $("dUndo").innerHTML=ICON.undo; $("dDone").innerHTML=ICON.check;
 $("bRoute").addEventListener("click",routeTap);
 $("dClear").addEventListener("click",drawClearAsk); $("dUndo").addEventListener("click",drawUndo); $("dDone").addEventListener("click",drawDone);
 $("bComp").addEventListener("click",()=>{ if(COMP_ON){ compassStop(); ui(); draw(); } else compassStart(); });   // the motion prompt comes only from this tap
-$("bChart").addEventListener("click",()=>{ $("chartCard").classList.toggle("hid"); chartUi(); placeCard(); draw(); });
+$("bChart").addEventListener("click",()=>{ $("chartCard").classList.toggle("hid"); chartUi(); draw(); });
 // full screen: hide or show the navy header and the footer, the map grows to fill the screen
 $("bFull").addEventListener("click",()=>{ FULL=!FULL; ui(); });
-$("bRings").addEventListener("click",()=>{ RINGS_ON=!RINGS_ON; LS.set("rings",RINGS_ON?"1":"0"); ui(); draw(); });
+$("bRings").addEventListener("click",()=>{   // each tap: Off, then NM, then MIN, then Off
+  RINGS= RINGS==="off"? "nm" : RINGS==="nm"? "min" : "off"; LS.set("rings",RINGS);
+  ui(); draw();
+  toast(RINGS==="off"? "Rings off" : RINGS==="nm"? "Rings in NM (blue)" : ((GS!=null&&GS>=5&&!STALE)? "Rings in minutes (magenta)" : "Rings in minutes (magenta). They appear above 5 kt."),3000);
+});
 $("bDirect").addEventListener("click",()=>{ DIRECT_ON=!DIRECT_ON; LS.set("direct",DIRECT_ON?"1":"0"); ui(); draw(); });
 $("bGps").addEventListener("click",()=>{
   if(!GPS.on){ gpsStart(); return; }   // GPS starts with the app; this only matters if it was blocked
@@ -1909,9 +1926,9 @@ $("bGps").addEventListener("click",()=>{
 });
 $("bNorth").addEventListener("click",()=>{
   TRACKUP=!TRACKUP; LS.set("trackup",TRACKUP?"1":"0");
-  if(TRACKUP){ MAP.dragging.disable(); ROT=LASTTRK!=null? LASTTRK : 0; } else { MAP.dragging.enable(); ROT=0; }
+  if(TRACKUP){ MAP.dragging.disable(); ROT=TRK!=null? TRK : (COMP_ON&&HDG!=null? HDG : (LASTTRK!=null? LASTTRK : 0)); } else { MAP.dragging.enable(); ROT=0; }
   layoutMap(); follow(); ui();
-  toast(TRACKUP? (LASTTRK!=null? "Track up" : "Track up: the map turns once you move faster than 3 kt.") : "North up",3500);
+  toast(TRACKUP? ((TRK!=null||(COMP_ON&&HDG!=null))? "Track up" : "Track up: the map turns with your track above 3 kt. Turn the compass on to turn it when slow.") : "North up",4500);
 });
 window.addEventListener("message",e=>{
   if(e.origin!==location.origin||!e.data||typeof e.data!=="object") return;
@@ -1963,7 +1980,7 @@ try{ parent.postMessage({pfd:"hello",version:VER},location.origin); }catch(e){}
 if(SIM){
   window.pfdSim={
     pos(lat,lon,kt,hdg){ if(!GPS.on){ GPS.on=true; firstFix=true; } onPos({timestamp:Date.now(),coords:{latitude:lat,longitude:lon,accuracy:5,altitude:300,speed:kt==null?null:kt/1.94384,heading:hdg==null?null:hdg}}); },
-    compass(h){ HDG=h; drawSoon(); },
+    compass(h){ HDG=h; compRot(); drawSoon(); },
     state(){ return {ROT,TRACKUP,POS,GS,TRK,TGT,DRIFT,CORR_NM,NX,DRAW,ROUTE,LSA:{on:LSA.on,stored:LSA.stored},zoom:MAP.getZoom(),center:MAP.getCenter()}; },
     map(){ return MAP; }, toScreen
   };
