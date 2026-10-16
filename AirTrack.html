@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.013
+  PFD - Fly page   v0.01.014
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.013"}
+    page -> shell  {pfd:"hello", version:"0.01.014"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -699,15 +699,15 @@ svg.leaflet-image-layer.leaflet-interactive path {
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:var(--font-ui);color:var(--ink);overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-#mapwrap{position:fixed;inset:0;overflow:hidden;touch-action:none;background:#e6e0cf}
+#mapwrap{position:absolute;inset:0;overflow:hidden;touch-action:none;background:#e6e0cf}
 #map{position:absolute;left:0;top:0;width:100%;height:100%;background:#e6e0cf;transform-origin:50% 50%}
 .leaflet-container{touch-action:none !important;background:#e6e0cf;font-family:var(--font-ui)}
-#ov{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
-#capLayer{position:fixed;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+#ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+#capLayer{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden}
 .lsa-inset-border{fill:url(#lsaGrid);fill-opacity:1;stroke:#b00020;stroke-width:3px}
 .lsa-cap{background:#b00020;color:#fff;padding:2px 6px;border-radius:5px;font:700 13px/1.25 var(--font-ui);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.4);transform:translate(-50%,0);position:absolute;box-sizing:border-box;display:none}
-#attr{position:fixed;left:50%;transform:translateX(-50%);bottom:2px;z-index:7;pointer-events:none;font:9px var(--font-mono);color:var(--ink-muted);white-space:nowrap;text-shadow:0 0 3px #fbf6e8,0 0 3px #fbf6e8,0 0 3px #fbf6e8,0 0 3px #fbf6e8}
-.grp{position:fixed;z-index:10;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+#attr{position:absolute;left:50%;transform:translateX(-50%);bottom:2px;z-index:7;pointer-events:none;font:9px var(--font-mono);color:var(--ink-muted);white-space:nowrap;text-shadow:0 0 3px #fbf6e8,0 0 3px #fbf6e8,0 0 3px #fbf6e8,0 0 3px #fbf6e8}
+.grp{position:absolute;z-index:10;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .grp>*{pointer-events:auto}
 .btn{width:44px;height:44px;border-radius:50%;background:rgba(251,246,232,.96);border:1.5px solid var(--ink);color:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 5px rgba(14,35,72,.3);padding:0;cursor:pointer;font-family:var(--font-ui);flex:none}
 .btn svg{width:22px;height:22px}
@@ -716,7 +716,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .btn.free{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-lite),0 1px 5px rgba(14,35,72,.3)}
 .btn:active{filter:brightness(.92)}
 .pillx{background:rgba(251,246,232,.96);border:1px solid var(--ink);border-radius:14px;padding:6px 11px;font:700 11px var(--font-mono);color:var(--ink);box-shadow:0 1px 4px rgba(14,35,72,.25);white-space:nowrap;pointer-events:none !important}
-#corr{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+#corr{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
 .pillx.big{font:700 15px var(--font-ui);padding:7px 14px;border-radius:18px}
 .pillx.big2{font:700 12px var(--font-ui);padding:6px 10px;border-radius:16px;max-width:calc(100vw - 72px)}
 .pillx.big .d{margin-right:7px;font-size:14px}
@@ -724,7 +724,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .pillx .d{color:#c62828}.pillx.pa .d{color:#b36b00}.pillx.grey .d{color:#8a7a5a}
 .pillx small{font-size:8px;font-weight:700;opacity:.8;margin-left:2px;letter-spacing:.06em}
 .cap2{text-align:center;font:700 11px var(--font-mono);color:var(--ink);text-shadow:0 0 3px #fbf6e8,0 0 3px #fbf6e8,0 0 3px #fbf6e8;pointer-events:none !important;margin-top:-4px}
-#chartCard{position:fixed;z-index:10;left:50%;transform:translateX(-50%);top:calc(var(--st) + 92px);display:flex;flex-direction:column;gap:6px;align-items:center}
+#chartCard{position:absolute;z-index:10;left:50%;transform:translateX(-50%);top:calc(var(--st) + 92px);display:flex;flex-direction:column;gap:6px;align-items:center}
 #chartCard.hid{display:none}
 .csw{width:216px;display:flex;background:rgba(251,246,232,.96);border:1.5px solid var(--ink);border-radius:24px;padding:2px;box-shadow:0 1px 5px rgba(14,35,72,.3)}
 .csw button{font:700 14px var(--font-ui);width:70px;height:40px;border:0;background:transparent;border-radius:20px;color:var(--ink);cursor:pointer;padding:0}
@@ -742,7 +742,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 #lsaLinks{display:none;align-items:center;gap:2px;background:rgba(251,246,232,.96);border:1px solid var(--ink);border-radius:14px;padding:0 4px;box-shadow:0 1px 4px rgba(14,35,72,.25)}
 #lsaLinks button{border:0;background:transparent;font:600 12px var(--font-ui);color:var(--ink);padding:0 8px;min-height:36px;cursor:pointer;text-decoration:underline;text-decoration-style:dashed;text-underline-offset:3px}
 #lsaLinks i{color:var(--ink-faint);font-style:normal}
-#toast{position:fixed;z-index:25;left:50%;transform:translateX(-50%);bottom:calc(var(--sb) + 4px);max-width:calc(100% - 140px);min-width:150px;text-align:center;background:rgba(14,35,72,.94);color:#fff;font:600 13px/1.35 var(--font-ui);padding:9px 14px;border-radius:14px;display:none;pointer-events:none}
+#toast{position:absolute;z-index:25;left:50%;transform:translateX(-50%);bottom:calc(var(--sb) + 4px);max-width:calc(100% - 140px);min-width:150px;text-align:center;background:rgba(14,35,72,.94);color:#fff;font:600 13px/1.35 var(--font-ui);padding:9px 14px;border-radius:14px;display:none;pointer-events:none}
 #toast.show{display:block}
 .pillx.big2.grid{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;column-gap:4px;row-gap:1px;align-items:center;line-height:1.5;font-variant-numeric:tabular-nums}
 .pillx.big2.grid .lb{font-weight:600;color:var(--ink);margin-right:2px}
@@ -758,7 +758,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 #drawbar{display:none}
 body.drawing #drawbar{display:block}
 body.drawing #gBL,body.drawing #gBR,body.drawing #driftPill,body.drawing #bRoute{display:none}
-.dg{position:fixed;z-index:10;display:flex;flex-direction:column;align-items:center;gap:8px}
+.dg{position:absolute;z-index:10;display:flex;flex-direction:column;align-items:center;gap:8px}
 .dgi{display:flex;flex-direction:column;align-items:center}
 .dgi .cap2{margin-top:2px}
 .btn.big{width:58px;height:58px}
@@ -766,7 +766,7 @@ body.drawing #gBL,body.drawing #gBR,body.drawing #driftPill,body.drawing #bRoute
 .btn.done{background:var(--ink);color:var(--paper);border-color:var(--ink-dark)}
 .btn.dis{opacity:.38;pointer-events:none}
 .btn:disabled{opacity:.45;pointer-events:none}
-#scrim{position:fixed;inset:0;z-index:30;background:rgba(14,35,72,.22);display:none}
+#scrim{position:absolute;inset:0;z-index:30;background:rgba(14,35,72,.22);display:none}
 #scrim.show{display:block}
 #dlg{position:absolute;width:272px;background:var(--paper-hi);border-radius:18px;box-shadow:0 14px 40px rgba(14,35,72,.35),0 0 0 1px rgba(14,35,72,.12);--ax:130px}
 #dlg:before{content:"";position:absolute;top:-7px;left:var(--ax);width:14px;height:14px;background:var(--paper-hi);transform:rotate(45deg);box-shadow:-1px -1px 0 rgba(14,35,72,.12)}
@@ -829,10 +829,13 @@ button.lsa-foot-slot{cursor:pointer;padding:8px 0;}
 /* AirTrack: fixed header and footer frame the map */
 :root{--hh:calc(58px + env(safe-area-inset-top,0px));--fh:calc(33px + max(8px,calc(env(safe-area-inset-bottom,0px) - 16px)));
   --st:calc(var(--hh) + 10px);--sb:calc(var(--fh) + 10px);--sl:max(10px,env(safe-area-inset-left));--sr:max(10px,env(safe-area-inset-right))}
+html,body{height:100%;height:var(--app-h,100%)}
+body{position:relative}
+html.full #mapwrap,html.full #corr,html.full #ov,html.full #capLayer{inset:0!important}
 html.full{--hh:env(safe-area-inset-top,0px);--fh:env(safe-area-inset-bottom,0px)}
 html.full #lsaHdr,html.full .lsa-foot{display:none}
-#lsaHdr{position:fixed;left:0;right:0;top:0;z-index:20;height:var(--hh)}
-.lsa-foot{position:fixed;left:0;right:0;bottom:0;z-index:20}
+#lsaHdr{position:absolute;left:0;right:0;top:0;z-index:20;height:var(--hh)}
+.lsa-foot{position:absolute;left:0;right:0;bottom:0;z-index:20}
 #mapwrap,#corr,#ov,#capLayer{inset:var(--hh) 0 var(--fh) 0!important;width:auto;height:auto}
 #attr{bottom:calc(var(--fh) + 2px)}
 
@@ -882,7 +885,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.013 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.014 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -897,8 +900,18 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.013";
+const VER="0.01.014";
 const $=id=>document.getElementById(id);
+// Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
+function setAppHeight(){
+  const h=(window.navigator.standalone===true)? Math.max(window.innerHeight,screen.height) : window.innerHeight;
+  document.documentElement.style.setProperty("--app-h",h+"px");
+}
+setAppHeight();
+window.addEventListener("resize",setAppHeight);
+window.addEventListener("orientationchange",()=>setTimeout(setAppHeight,300));
+const refitAppHeight=()=>{ setAppHeight(); setTimeout(setAppHeight,250); setTimeout(setAppHeight,800); };
+window.addEventListener("pageshow",refitAppHeight); window.addEventListener("focus",refitAppHeight);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const alog=()=>{};
 const LS={get(k,d){try{const v=localStorage.getItem("pfdfly_"+k);return v===null?d:v;}catch(e){return d;}},set(k,v){try{localStorage.setItem("pfdfly_"+k,v);}catch(e){}}};
