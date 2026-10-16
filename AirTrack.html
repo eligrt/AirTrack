@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.019
+  PFD - Fly page   v0.01.020
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.019"}
+    page -> shell  {pfd:"hello", version:"0.01.020"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -722,7 +722,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .btn.rb.on.min{border:3px solid #a3207a}
 .btn.rb.on.min .tag{background:#a3207a}
 .btn.rb.off .tag,.btn.rb.grey .tag{background:#8a7a5a}
-.prow{display:flex;align-items:center;gap:8px;pointer-events:none}
+.prow{display:flex;align-items:flex-start;gap:8px;pointer-events:none}
 .prow>.btn{pointer-events:auto}
 .pillx.tlp{width:calc(100vw - var(--sl) - var(--sr) - 102px);box-sizing:border-box}
 .pillx.big2.tlp{padding-left:8px;padding-right:8px}
@@ -741,7 +741,22 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .csw{width:216px;display:flex;background:rgba(251,246,232,.96);border:1.5px solid var(--ink);border-radius:24px;padding:2px;box-shadow:0 1px 5px rgba(14,35,72,.3)}
 .csw button{font:700 14px var(--font-ui);width:70px;height:40px;border:0;background:transparent;border-radius:20px;color:var(--ink);cursor:pointer;padding:0}
 .csw button.on{background:var(--ink);color:var(--paper)}
-.csw button.off{color:#a79d86;font-weight:600;cursor:default}
+.csw button.idle{color:var(--ink)}
+.csw button.emp{color:#a79d86;font-weight:600}
+.csw button.emp b{font-weight:800;margin-left:3px}
+#lsaLinks button.hot{color:var(--red);text-decoration-color:var(--red)}
+.morph{position:relative;overflow:hidden;box-sizing:border-box;border-radius:16px;background:rgba(251,246,232,.96);border:1px solid var(--ink);box-shadow:0 1px 4px rgba(14,35,72,.25);color:var(--ink);pointer-events:none;transition:width .45s cubic-bezier(.4,0,.2,1),height .45s cubic-bezier(.4,0,.2,1),margin-top .45s cubic-bezier(.4,0,.2,1),background .4s,border-color .4s,color .4s,box-shadow .4s}
+.morph.dr{border:1.5px solid var(--red)}
+.morph.gy,.morph.col{background:rgba(244,236,220,.92);border:1px solid #8a7a5a;color:#6b5d3f;box-shadow:0 1px 3px rgba(14,35,72,.12)}
+.morph.col.live{background:rgba(251,246,232,.96);border:1px solid var(--ink);color:var(--ink);box-shadow:0 1px 4px rgba(14,35,72,.25)}
+.morph.noanim,.morph.noanim *{transition:none!important}
+.morph .m-full{position:absolute;left:0;top:0;max-width:none;border:0!important;background:none!important;box-shadow:none!important;border-radius:0!important;transition:opacity .3s .1s}
+.morph.col .m-full{opacity:0;transition-delay:0s}
+.morph .m-full.nat{white-space:nowrap}
+.morph.gy .m-full,.morph.gy .m-full .lb{color:#6b5d3f;font-weight:600}
+.morph .m-ph{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;white-space:nowrap;font:600 12px var(--font-ui);opacity:0;transition:opacity .25s}
+.morph.col .m-ph{opacity:1;transition-delay:.2s}
+.morph.col.live .m-ph{font-weight:700}
 .opw{width:216px;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(251,246,232,.96);border:1.5px solid var(--ink);border-radius:24px;box-shadow:0 1px 5px rgba(14,35,72,.3);color:var(--ink)}
 .opw svg{width:16px;height:16px;flex:none}
 #lsaOp{flex:1;min-width:0;-webkit-appearance:none;appearance:none;height:30px;background:transparent;margin:0;touch-action:none}
@@ -872,8 +887,8 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 
 <!-- top left: Direct button with its pill, Route button with the route pill -->
 <div class="grp" id="gTL" style="left:var(--sl);top:var(--st);align-items:flex-start">
-  <div class="prow" id="rowDir"><button class="btn" id="bDirect" type="button" aria-label="Direct line"></button><div class="pillx grey" id="dirPill">Tap a waypoint</div></div>
-  <div class="prow" id="rowRoute"><button class="btn" id="bRoute" type="button" aria-label="Route"></button><div class="pillx big2 grid tlp grey" id="toPill"></div></div>
+  <div class="prow" id="rowDir"><button class="btn" id="bDirect" type="button" aria-label="Direct line"></button><div class="morph dr noanim" id="dirPill"><div class="pillx big2 grid tlp m-full"></div><div class="m-ph"></div></div></div>
+  <div class="prow" id="rowRoute"><button class="btn" id="bRoute" type="button" aria-label="Route"></button><div class="morph noanim" id="toPill"><div class="pillx big2 grid tlp m-full"></div><div class="m-ph"></div></div></div>
 </div>
 <!-- top right: full screen -->
 <div class="grp" id="gTR" style="right:var(--sr);top:var(--st);align-items:flex-end">
@@ -881,7 +896,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </div>
 <!-- bottom centre: chart controls -->
 <div id="chartCard" class="hid">
-  <div class="csw"><button type="button" id="swLsa">LSA</button><button type="button" class="off" tabindex="-1">CVFR</button><button type="button" class="off" tabindex="-1">HEL</button></div>
+  <div class="csw"><button type="button" id="swLsa">LSA</button><button type="button" id="swCvfr">CVFR</button><button type="button" id="swHel">HEL</button></div>
   <div class="opw"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><input type="range" id="lsaOp" min="0" max="100" value="100" aria-label="Chart transparency"></div>
   <div id="lsaLinks"><button type="button" id="lsaRep">Replace chart</button><i>·</i><button type="button" id="lsaDel">Delete chart</button></div>
   <div id="lsaSt"></div>
@@ -901,7 +916,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.019 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.020 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -916,7 +931,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.019";
+const VER="0.01.020";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -972,8 +987,12 @@ const idbClear=st=>withDb(d=>new Promise((res,rej)=>{ const t=d.transaction(st,"
 const kvGet=k=>idbGet("kv",k).catch(()=>undefined);
 const kvSet=(k,v)=>idbSet("kv",k,v).catch(()=>{});
 const kvDel=k=>idbDel("kv",k).catch(()=>{});
-const lsaPutMany=items=>withDb(d=>new Promise((res,rej)=>{ const t=d.transaction("tiles","readwrite"), s=t.objectStore("tiles"); items.forEach(it=>s.put(it[1],it[0])); t.oncomplete=()=>res(); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error); }));
-const lsaCount=()=>withDb(d=>new Promise((res,rej)=>{ const q=d.transaction("tiles").objectStore("tiles").count(); q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); })).catch(()=>-1);
+// the three charts share the "tiles" store: LSA keys start with a digit (as before), the others with "cvfr/" or "hel/"
+const chKey=(k,key)=>k==="lsa"? key : k+"/"+key;
+const chRange=k=>k==="lsa"? IDBKeyRange.bound("0","9￿") : IDBKeyRange.bound(k+"/",k+"/￿");
+const chPutMany=(k,items)=>withDb(d=>new Promise((res,rej)=>{ const t=d.transaction("tiles","readwrite"), st=t.objectStore("tiles"); items.forEach(it=>st.put(it[1],chKey(k,it[0]))); t.oncomplete=()=>res(); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error); }));
+const chCount=k=>withDb(d=>new Promise((res,rej)=>{ const q=d.transaction("tiles").objectStore("tiles").count(chRange(k)); q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); })).catch(()=>-1);
+const chClear=k=>withDb(d=>new Promise((res,rej)=>{ const t=d.transaction("tiles","readwrite"); t.objectStore("tiles").delete(chRange(k)); t.oncomplete=()=>res(); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error); }));
 
 /* ───────── map and rotation ───────── */
 let MAP=null, ROT=0, TRACKUP=LS.get("trackup","0")==="1";
@@ -1156,7 +1175,10 @@ function snapNearest(vx,vy){
 }
 
 /* ───────── LSA chart (from the device, imported once from the zip) ───────── */
-const LSA={on:false,op:1,stored:0,busy:false,replacing:false,chart:null,inset:null,caps:[],file:null,stT:0};
+const LSA={on:false,op:1,stored:0,busy:false,replacing:false,chart:null,inset:null,caps:[],file:null,stT:0,k:"lsa",name:"LSA",z:340,min:7,max:12,mime:"image/webp",pend:"lsa"};
+const CH={lsa:LSA, cvfr:{k:"cvfr",name:"CVFR",on:false,stored:0,chart:null,z:341,min:7,max:12,mime:"image/webp"}, hel:{k:"hel",name:"HEL",on:false,stored:0,chart:null,z:342,min:7,max:12,mime:"image/webp"}};
+const CHK=["lsa","cvfr","hel"];
+const chSel=()=>CHK.find(o=>CH[o].on)||null;
 const LSA_TXT="Enlarged view - do not navigate by its geographic position";
 const LSA_TXT_SHORT="Not at real position";
 const LSA_INSETS=[[[32.54932, 34.83566], [32.54909, 34.74687], [32.5488, 34.65808], [32.54845, 34.56929], [32.54803, 34.4805], [32.54755, 34.39171], [32.54701, 34.30293], [32.54641, 34.21414], [32.54574, 34.12535], [32.61548, 34.12434], [32.68522, 34.12333], [32.75497, 34.12231], [32.82471, 34.1213], [32.89445, 34.12028], [32.96419, 34.11926], [33.03393, 34.11823], [33.10367, 34.11721], [33.10472, 34.22939], [33.10566, 34.34156], [33.10651, 34.45374], [33.10726, 34.56593], [33.1079, 34.67811], [33.10845, 34.7903], [33.10889, 34.90248], [33.10924, 35.01467], [33.06892, 34.99904], [33.0286, 34.98343], [32.98828, 34.96783], [32.94796, 34.95225], [32.90763, 34.93668], [32.8673, 34.92112], [32.82697, 34.90558], [32.78664, 34.89005], [32.75698, 34.88323], [32.72731, 34.87642], [32.69765, 34.86962], [32.66798, 34.86282], [32.63832, 34.85602], [32.60865, 34.84923], [32.57898, 34.84244]], [[32.53885, 34.12547], [32.53944, 34.21358], [32.53996, 34.3017], [32.54042, 34.38982], [32.54082, 34.47794], [32.54115, 34.56606], [32.54143, 34.65418], [32.54164, 34.7423], [32.54179, 34.83042], [32.47002, 34.80976], [32.39825, 34.78913], [32.32648, 34.76853], [32.25471, 34.74796], [32.18293, 34.72743], [32.11115, 34.70693], [32.03936, 34.68646], [31.96758, 34.66602], [31.96729, 34.59931], [31.96697, 34.5326], [31.96661, 34.46589], [31.96622, 34.39918], [31.96579, 34.33247], [31.96532, 34.26576], [31.96482, 34.19905], [31.96428, 34.13234], [32.0361, 34.13149], [32.10792, 34.13063], [32.17974, 34.12977], [32.25156, 34.12892], [32.32339, 34.12806], [32.39521, 34.12719], [32.46703, 34.12633]]];
@@ -1182,37 +1204,43 @@ function lsaReadZip(file){
 }
 // copy the REAL bytes of each tile (a file slice stored as it is would only be a pointer to the picked file on iPhone, and goes stale)
 const lsaReadEntry=(file,e)=>file.slice(e.lho,e.lho+30).arrayBuffer().then(hb=>{ const h=new DataView(hb), start=e.lho+30+lsa16(h,26)+lsa16(h,28); return file.slice(start,start+e.csize).arrayBuffer(); });
-async function lsaImport(file){
+async function chImport(k,file){
   const entries=await lsaReadZip(file);
-  const tiles=entries.filter(e=>/(^|\/)(\d+)\/(\d+)\/(\d+)\.webp$/i.test(e.name));
+  const re=/(^|\/)(\d+)\/(\d+)\/(\d+)\.(webp|png|jpe?g)$/i;
+  const tiles=entries.filter(e=>re.test(e.name));
   if(!tiles.length) throw new Error("no tiles");
   if(tiles.some(e=>e.method!==0)) throw new Error("compressed zip");
-  if(LSA.replacing) await idbClear("tiles");   // the new file is checked: now the old copy can go
+  let zmin=99, zmax=0; tiles.forEach(e=>{ const z=+e.name.match(re)[2]; if(z<zmin) zmin=z; if(z>zmax) zmax=z; });
+  const ext=tiles[0].name.match(re)[5].toLowerCase(), mime= ext==="webp"? "image/webp" : ext==="png"? "image/png" : "image/jpeg";
+  if(LSA.replacing) await chClear(k);   // the new file is checked: now the old copy can go
   for(let i=0;i<tiles.length;i+=60){
     const part=tiles.slice(i,i+60);
-    const items=await Promise.all(part.map(e=>{ const m=e.name.match(/(\d+)\/(\d+)\/(\d+)\.webp$/i); return lsaReadEntry(file,e).then(b=>[m[1]+"/"+m[2]+"/"+m[3],b]); }));
-    await lsaPutMany(items);
+    const items=await Promise.all(part.map(e=>{ const m=e.name.match(re); return lsaReadEntry(file,e).then(b=>[m[2]+"/"+m[3]+"/"+m[4],b]); }));
+    await chPutMany(k,items);
     lsaStatus("Loading "+Math.min(100,Math.round((i+60)/tiles.length*100))+"%...");
   }
-  return tiles.length;
+  const meta={min:zmin,max:zmax,mime}; await kvSet("chart_"+k,meta);
+  return {n:tiles.length,meta};
 }
 function lsaStatus(t,err,keep){
   const s=$("lsaSt"); clearTimeout(LSA.stT);
   s.textContent=t||""; s.classList.toggle("show",!!t); s.classList.toggle("err",!!err);
   if(t&&keep) LSA.stT=setTimeout(()=>lsaStatus(""),keep);
 }
-function lsaMakeLayers(){
-  if(LSA.chart) return;
+let ChartLayer=null;
+function chMakeLayer(k){
+  const c=CH[k]; if(c.chart) return;
   const mk=(n,z)=>{ const pn=MAP.createPane(n); pn.style.zIndex=z; pn.style.pointerEvents="none"; };
-  mk("lsa_chart",340); mk("lsa_inset",345);
-  const Chart=L.TileLayer.extend({
+  mk(k==="lsa"?"lsa_chart":"ch_"+k,c.z);
+  if(k==="lsa") mk("lsa_inset",345);
+  if(!ChartLayer) ChartLayer=L.TileLayer.extend({
     createTile(coords,done){
       const img=document.createElement("img"); img.alt=""; img.setAttribute("role","presentation");
-      const key=coords.z+"/"+coords.x+"/"+coords.y;
+      const key=this.options.pfx+coords.z+"/"+coords.x+"/"+coords.y, mime=this.options.mime;
       let fin=false; const end=e=>{ if(fin) return; fin=true; done(e,img); };
       idbGet("tiles",key).then(blob=>{
         if(!blob){ end(null); return; }       // a miss is normal: blank (white) parts of the chart have no tile
-        if(!(blob instanceof Blob)) blob=new Blob([blob],{type:"image/webp"});
+        if(!(blob instanceof Blob)) blob=new Blob([blob],{type:mime});
         const url=URL.createObjectURL(blob);
         const rel=()=>URL.revokeObjectURL(url);
         img.onload=()=>{ rel(); end(null); };
@@ -1222,14 +1250,16 @@ function lsaMakeLayers(){
       return img;
     }
   });
-  LSA.chart=new Chart("",{pane:"lsa_chart",minZoom:7,maxNativeZoom:12,maxZoom:19,opacity:LSA.op,updateWhenZooming:false,keepBuffer:1,tileSize:256});
-  // warning overlay on the two enlarged insets (they sit over the sea, not at their real place): fine red grid + caption
-  LSA.inset=L.layerGroup();
-  LSA_INSETS.forEach(P=>{
-    L.polygon(P,{className:"lsa-inset-border",interactive:false,pane:"lsa_inset"}).addTo(LSA.inset);
-    const el=document.createElement("div"); el.className="lsa-cap"; $("capLayer").appendChild(el);
-    LSA.caps.push({P,el});
-  });
+  c.chart=new ChartLayer("",{pane:k==="lsa"?"lsa_chart":"ch_"+k,minZoom:c.min,maxNativeZoom:c.max,maxZoom:19,opacity:LSA.op,updateWhenZooming:false,keepBuffer:1,tileSize:256,pfx:k==="lsa"?"":k+"/",mime:c.mime});
+  if(k==="lsa"){
+    // warning overlay on the two enlarged insets (they sit over the sea, not at their real place): fine red grid + caption
+    LSA.inset=L.layerGroup();
+    LSA_INSETS.forEach(P=>{
+      L.polygon(P,{className:"lsa-inset-border",interactive:false,pane:"lsa_inset"}).addTo(LSA.inset);
+      const el=document.createElement("div"); el.className="lsa-cap"; $("capLayer").appendChild(el);
+      LSA.caps.push({P,el});
+    });
+  }
 }
 // both captions get the same box (same words, size, width, lines); they stay inside the visible part of their inset
 function lsaCaptions(){
@@ -1275,38 +1305,53 @@ function lsaInsetSync(){
   MAP.getPane("lsa_inset").style.opacity=Math.min(1,0.25+LSA.op);
   lsaCaptions();
 }
-function lsaSet(on){
-  LSA.on=!!on; LS.set("lsa",LSA.on?"1":"0");
-  if(LSA.on){ lsaMakeLayers(); if(!MAP.hasLayer(LSA.chart)) LSA.chart.addTo(MAP); }
-  else if(LSA.chart){ if(MAP.hasLayer(LSA.chart)) MAP.removeLayer(LSA.chart); if(MAP.hasLayer(LSA.inset)) MAP.removeLayer(LSA.inset); LSA.caps.forEach(c=>c.el.style.display="none"); }
+function chOff(k){
+  const c=CH[k]; c.on=false;
+  if(c.chart&&MAP.hasLayer(c.chart)) MAP.removeLayer(c.chart);
+  if(k==="lsa"){ if(LSA.inset&&MAP.hasLayer(LSA.inset)) MAP.removeLayer(LSA.inset); LSA.caps.forEach(q=>q.el.style.display="none"); }
+}
+// only one chart shows at a time: turning one on turns the others off
+function chSet(k,on){
+  const c=CH[k];
+  if(on){ CHK.forEach(o=>{ if(o!==k&&CH[o].on) chOff(o); }); c.on=true; chMakeLayer(k); if(!MAP.hasLayer(c.chart)) c.chart.addTo(MAP); }
+  else chOff(k);
+  LS.set("chart",chSel()||"");
   chartUi(); lsaInsetSync();
 }
-function lsaPick(rep){ LSA.replacing=!!rep; lsaStatus("Choose the LSA chart zip file"); LSA.file.value=""; LSA.file.click(); }
-function lsaTap(){
+function chPick(k,rep){ LSA.replacing=!!rep; LSA.pend=k; lsaStatus("Choose the "+CH[k].name+" chart zip file"); LSA.file.value=""; LSA.file.click(); }
+function chTap(k){
   if(LSA.busy) return;
-  if(LSA.on) return lsaSet(false);
-  if(LSA.stored>0) return lsaSet(true);
-  lsaPick();
+  const c=CH[k];
+  if(c.on) return chSet(k,false);
+  if(c.stored>0) return chSet(k,true);
+  chPick(k,false);
 }
-function lsaReplace(){ if(LSA.busy) return; lsaPick(true); }
-function lsaDelete(){
-  if(LSA.busy) return;
-  dlg("Delete the LSA chart?","It is removed from this device. You can load it again from the zip file.",[["Keep chart","keep"],["Delete chart","stp2",async()=>{
-    try{ await idbClear("tiles"); }catch(e){ lsaStatus("Could not delete the chart",true,5000); return; }
-    LSA.stored=0; lsaSet(false); lsaStatus("Chart deleted",false,3000);
-  }]],$("lsaDel"),"down");
+function chReplace(){ const k=chSel(); if(!k||LSA.busy) return; chPick(k,true); }
+function chDelete(){
+  const k=chSel(); if(!k||LSA.busy) return;
+  $("lsaDel").classList.add("hot");
+  dlg("Delete the "+CH[k].name+" chart?","It is removed from this device. You can load it again from the zip file.",[["Keep chart","keep"],["Delete chart","stp2",async()=>{
+    try{ await chClear(k); await kvDel("chart_"+k); }catch(e){ lsaStatus("Could not delete the chart",true,5000); return; }
+    CH[k].stored=0; chSet(k,false); lsaStatus("Chart deleted",false,3000);
+  }]],$("lsaDel"),"up");
 }
 async function lsaOnFile(){
+  const k=LSA.pend||"lsa", c=CH[k];
   const f=LSA.file.files&&LSA.file.files[0]; if(!f){ LSA.replacing=false; lsaStatus(""); return; }
   LSA.busy=true; chartUi(); lsaStatus("Reading the file...");
   try{
-    await lsaImport(f); LSA.stored=await lsaCount();
-    LSA.busy=false; lsaSet(true);
-    if(LSA.chart) LSA.chart.redraw();
+    const r=await chImport(k,f); c.stored=await chCount(k);
+    c.min=r.meta.min; c.max=r.meta.max; c.mime=r.meta.mime;
+    LSA.busy=false;
+    if(c.chart){ c.chart.options.minZoom=c.min; c.chart.options.maxNativeZoom=c.max; c.chart.options.mime=c.mime; }
+    chSet(k,true);
+    if(c.chart) c.chart.redraw();
     lsaStatus("Ready - the chart is kept on this device only",false,3500);
     try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
   }catch(e){
-    LSA.busy=false; chartUi(); lsaStatus("Could not load the file, try again",true,6000);
+    LSA.busy=false; chartUi();
+    const m=e&&e.message;
+    lsaStatus(m==="compressed zip"? "This zip is compressed. Save it without compression." : m==="no tiles"? "No chart tiles found in this file" : "Could not load the file, try again",true,6000);
   }
   LSA.replacing=false; LSA.file.value="";
 }
@@ -1315,22 +1360,26 @@ function lsaInit(){
   LSA.file=document.createElement("input"); LSA.file.type="file"; LSA.file.accept=".zip,application/zip,application/x-zip-compressed"; LSA.file.style.display="none";
   LSA.file.addEventListener("change",lsaOnFile); document.body.appendChild(LSA.file);
   const op=$("lsaOp"); op.value=Math.round(LSA.op*100);
-  op.addEventListener("input",()=>{ LSA.op=op.value/100; if(LSA.chart) LSA.chart.setOpacity(LSA.op); lsaInsetSync(); LS.set("lsa_op",String(op.value)); });
-  $("swLsa").addEventListener("click",lsaTap);
-  $("lsaRep").addEventListener("click",lsaReplace); $("lsaDel").addEventListener("click",lsaDelete);
+  op.addEventListener("input",()=>{ LSA.op=op.value/100; CHK.forEach(o=>{ if(CH[o].chart) CH[o].chart.setOpacity(LSA.op); }); lsaInsetSync(); LS.set("lsa_op",String(op.value)); });
+  $("swLsa").addEventListener("click",()=>chTap("lsa")); $("swCvfr").addEventListener("click",()=>chTap("cvfr")); $("swHel").addEventListener("click",()=>chTap("hel"));
+  $("lsaRep").addEventListener("click",chReplace); $("lsaDel").addEventListener("click",chDelete);
   document.addEventListener("visibilitychange",()=>{ if(document.visibilityState!=="hidden") DBP=null; });
   window.addEventListener("pageshow",e=>{ if(e.persisted) DBP=null; });
   chartUi();
-  lsaCount().then(n=>{
-    LSA.stored=n>0?n:0;
-    if(LS.get("lsa","0")==="1"&&LSA.stored>0) lsaSet(true); else chartUi();
-  });
+  (async()=>{
+    for(const k of CHK){
+      const n=await chCount(k); CH[k].stored=n>0?n:0;
+      const m=await kvGet("chart_"+k); if(m&&m.min!=null){ CH[k].min=m.min; CH[k].max=m.max; CH[k].mime=m.mime||CH[k].mime; }
+    }
+    let want=LS.get("chart",null); if(want===null) want= LS.get("lsa","0")==="1"? "lsa" : "";
+    if(want&&CH[want]&&CH[want].stored>0) chSet(want,true); else chartUi();
+  })();
 }
 
 /* ───────── toast and popup ───────── */
 let toastT=0;
 function toast(t,ms){ const e=$("toast"); e.textContent=t; e.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>e.classList.remove("show"),ms||4500); }
-function closeDlg(){ $("scrim").classList.remove("show"); }
+function closeDlg(){ $("scrim").classList.remove("show"); const d=$("lsaDel"); if(d) d.classList.remove("hot"); }
 const DLG_IC={
   pen:'<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
   file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
@@ -1468,12 +1517,12 @@ function onTap(vx,vy){
   ui(); draw();
 }
 function dirPillUpdate(){
-  const el=$("dirPill");
-  if(!DIRECT_ON){ el.className="pillx big2 grey tlp"; el.textContent="Direct line off"; return; }
-  if(!TGT){ el.className="pillx big2 grey tlp"; el.textContent="Tap a waypoint"; return; }
-  if(!POS||!GPS.on||STALE){ el.className="pillx big2 grey tlp"; el.innerHTML="<bdi>"+esc(TGT.name)+"</bdi> · GPS off"; return; }
+  const exp=h=>(44-h)/2;
+  if(!DIRECT_ON){ setPill("dirPill",{collapsed:true,ph:"Direct off",exp}); return; }
+  if(!TGT){ setPill("dirPill",{collapsed:true,ph:"No target",exp}); return; }
+  if(!POS||!GPS.on||STALE){ setPill("dirPill",{html:'<span class="rpm"><bdi>'+esc(TGT.name)+'</bdi> · GPS off</span>',gy:true,exp}); return; }
   const d=distNM(POS.lat,POS.lon,TGT.lat,TGT.lon), b=bearing(POS.lat,POS.lon,TGT.lat,TGT.lon);
-  el.className="pillx big2 grid dirp tlp"; el.innerHTML=trow("To",TGT.name,d,b);
+  setPill("dirPill",{html:trow("To",TGT.name,d,b),exp});
 }
 
 /* ───────── drawing on top of the map (lines, rings, plane, names) ───────── */
@@ -1734,33 +1783,32 @@ function rpHead(dotCol,txt,div){   // top line of the route pill: drift on the l
   return '<span class="rph'+(div?' dv':'')+'"><span class="rpl">'+(dotCol?'<span class="d" style="color:'+dotCol+'">\u25cf</span>':'')+'<span>'+txt+'</span></span><span class="rpg">GS '+(g&&GS!=null?Math.round(GS):"--")+' kt</span></span>';
 }
 function driftUi(){
-  const p2=$("toPill");
+  const g=GPS.on&&POS&&!STALE, gsTxt="GS "+(g&&GS!=null?Math.round(GS):"--")+" kt", exp=h=>0;
   if(DRAW.on){
-    const n=DRAW.pts.length;
-    if(!n){ p2.className="pillx big2"; p2.textContent="Tap the map to place your first point"; return; }
-    const len=ROUTE.layer? ROUTE.len : 0, m=(GS!=null&&GS>=5)? len/GS*60 : null;
-    p2.className="pillx big2 col"; p2.innerHTML="<div>Route "+n+(n===1?" point":" points")+"</div><div>Dist "+len.toFixed(1)+" NM"+(m!=null?" · "+fmtMin(m):"")+"</div>"; return;
+    const n=DRAW.pts.length; let html;
+    if(!n) html='<span class="rpm">Tap the map to place your first point</span>';
+    else { const len=ROUTE.layer? ROUTE.len : 0, m=(GS!=null&&GS>=5)? len/GS*60 : null;
+      html='<span class="rpm">Route '+n+(n===1?" point":" points")+'</span><span class="rpm">Dist '+len.toFixed(1)+' NM'+(m!=null?" · "+fmtMin(m):"")+'</span>'; }
+    setPill("toPill",{html,natural:true,exp}); return;
   }
-  if(!ROUTE.layer){ p2.className="pillx big2 grid tlp grey"; p2.innerHTML=rpHead("","No route loaded",false); return; }
+  if(!ROUTE.layer){ setPill("toPill",{collapsed:true,ph:gsTxt,live:g,exp}); return; }
   const m=ROUTE.meta[ROUTE.main]||{}, dest=m.e||"End of route";
   if(!DRIFT||STALE){
-    p2.className="pillx big2 grid tlp grey";
-    p2.innerHTML=rpHead("",(GPS.on&&POS)? "GPS signal lost" : "Waiting for GPS",true)+'<span class="rpm">Route '+ROUTE.len.toFixed(1)+' NM</span>'; return;
+    setPill("toPill",{html:rpHead("",(GPS.on&&POS)? "GPS signal lost" : "Waiting for GPS",true)+'<span class="rpm">Route '+ROUTE.len.toFixed(1)+' NM</span>',gy:true,exp}); return;
   }
   const t=DRIFT.d/CORR_NM, col=driftCol(t);
   const head=rpHead(rgbaC(col,1),(DRIFT.d<0.1? "On route" : (DRIFT.d<10? DRIFT.d.toFixed(1) : Math.round(DRIFT.d))+" NM "+(DRIFT.side>0?"right":"left")+" of route"),true);
-  p2.className="pillx big2 grid tlp";
   const wp=ROUTE.wp||[], n=wp.length;
   if(n>=2){
     const i=NX.i;
-    if(i>=n){ p2.innerHTML=head+'<span class="rpm">Route complete</span>'; return; }
+    if(i>=n){ setPill("toPill",{html:head+'<span class="rpm">Route complete</span>',exp}); return; }
     const dN=distNM(POS.lat,POS.lon,wp[i].lat,wp[i].lon), bN=bearing(POS.lat,POS.lon,wp[i].lat,wp[i].lon), e=wp[n-1];
     let dE=dN; for(let k=i;k<n-1;k++) dE+=distNM(wp[k].lat,wp[k].lon,wp[k+1].lat,wp[k+1].lon);
     const bE=bearing(POS.lat,POS.lon,e.lat,e.lon);
-    p2.innerHTML=head+(i<n-1? trow("Next",wp[i].name,dN,bN) : "")+trow("End",e.name,dE,bE); return;
+    setPill("toPill",{html:head+(i<n-1? trow("Next",wp[i].name,dN,bN) : "")+trow("End",e.name,dE,bE),exp}); return;
   }
   const mm=(GS!=null&&GS>=5)? DRIFT.rem/GS*60 : null;
-  p2.innerHTML=head+'<span class="rpm"><bdi>'+esc(dest)+'</bdi> · '+DRIFT.rem.toFixed(1)+' NM · '+fmtMin(mm)+'</span>';
+  setPill("toPill",{html:head+'<span class="rpm"><bdi>'+esc(dest)+'</bdi> · '+DRIFT.rem.toFixed(1)+' NM · '+fmtMin(mm)+'</span>',exp});
 }
 
 /* the corridor: a soft glow along the route, the route line, flags, and the edge light */
@@ -1881,28 +1929,55 @@ function corrTag(txt,x,y,font,fill,stroke,color){   // a small rounded tag centr
 
 /* ───────── buttons and their looks ───────── */
 let FULL=false;
+const setHtml=(el,h)=>{ if(el._h!==h){ el.innerHTML=h; el._h=h; } };   // only touch a button when its picture really changes, so a tap is never lost
 function chartUi(){
-  const cardOn=!$("chartCard").classList.contains("hid");
+  const cardOn=!$("chartCard").classList.contains("hid"), sel=chSel();
   $("bChart").classList.toggle("on",cardOn);
-  $("swLsa").className= LSA.on? "on" : "";
-  $("bChart").innerHTML=ICON.layers+((!cardOn&&LSA.on)? '<span class="tag">LSA</span>' : "");
-  $("lsaLinks").style.display=(LSA.stored>0&&!LSA.busy)?"flex":"none";
+  const ids={lsa:"swLsa",cvfr:"swCvfr",hel:"swHel"};
+  CHK.forEach(k=>{ const c=CH[k], b=$(ids[k]); b.className= c.on? "on" : (c.stored>0? "idle" : "emp"); setHtml(b,c.name+(c.stored>0?"":"<b>+</b>")); });
+  setHtml($("bChart"),ICON.layers+((!cardOn&&sel)? '<span class="tag">'+CH[sel].name+'</span>' : ""));
+  $("lsaLinks").style.display=(sel&&!LSA.busy)?"flex":"none";
+  if(sel){ $("lsaRep").textContent="Replace "+CH[sel].name; $("lsaDel").textContent="Delete "+CH[sel].name; }
 }
+/* the two pills at the top left grow to full size when there is something to show, and shrink to a small placeholder when not */
+const PILL={W:268,cw:80,key:"",first:true};
+function phW(txt){ const m=document.createElement("span"); m.style.cssText="position:absolute;left:-999px;visibility:hidden;white-space:nowrap;font:600 12px var(--font-ui)"; m.textContent=txt; document.body.appendChild(m); const w=Math.ceil(m.offsetWidth)+24; m.remove(); return w; }
+function pillPrep(){
+  const key=innerWidth+"|"+FULL; if(PILL.key===key) return; PILL.key=key;
+  const p=document.createElement("div"); p.style.cssText="position:absolute;left:-999px;visibility:hidden;width:calc(100vw - var(--sl) - var(--sr) - 102px)";
+  document.body.appendChild(p); PILL.W=Math.max(180,p.offsetWidth); p.remove();
+  PILL.cw=Math.max(phW("GS 999 kt"),phW("Direct off"),phW("No target"));
+}
+function setPill(id,o){
+  const el=$(id), full=el.querySelector(".m-full"), ph=el.querySelector(".m-ph");
+  if(o.html!=null&&full._h!==o.html){ full.innerHTML=o.html; full._h=o.html; }
+  if(o.ph!=null&&ph.textContent!==o.ph) ph.textContent=o.ph;
+  const bw=(el.classList.contains("dr")&&!o.gy)?3:2;
+  full.classList.toggle("nat",!!o.natural);
+  let W=PILL.W;
+  if(o.natural){ full.style.width="max-content"; W=Math.ceil(full.offsetWidth)+bw; } else full.style.width=(W-bw)+"px";
+  const fh=Math.ceil(full.offsetHeight)+bw;
+  el.classList.toggle("col",!!o.collapsed); el.classList.toggle("gy",!!o.gy); el.classList.toggle("live",!!o.live);
+  el.style.width=(o.collapsed?PILL.cw:W)+"px";
+  el.style.height=(o.collapsed?30:fh)+"px";
+  el.style.marginTop=(o.collapsed?7:Math.max(0,o.exp(fh)))+"px";
+}
+function pillsDone(){ if(!PILL.first) return; PILL.first=false; requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll(".morph").forEach(e=>e.classList.remove("noanim")))); }
 function ui(){
   const g=GPS.on&&POS&&!STALE;
   $("bGps").classList.toggle("on",GPS.on&&FOLLOW); $("bGps").classList.toggle("free",GPS.on&&!FOLLOW);
   const fix=GPS.on&&!!POS;   // Rings and Direct stay grey only until the first GPS fix
   const rb=$("bRings"); rb.className="btn rb "+RINGS+(RINGS!=="off"&&fix?" on":"")+(!fix?" grey":"");
-  rb.innerHTML=ICON.ring+'<span class="tag">'+(RINGS==="off"?"OFF":RINGS==="nm"?"NM":"MIN")+'</span>';
-  $("bDirect").classList.toggle("on",DIRECT_ON&&fix); $("bDirect").classList.toggle("grey",!fix);
+  setHtml(rb,ICON.ring+'<span class="tag">'+(RINGS==="off"?"OFF":RINGS==="nm"?"NM":"MIN")+'</span>');
+  $("bDirect").classList.toggle("on",DIRECT_ON&&fix&&!!TGT); $("bDirect").classList.toggle("grey",!fix);
   $("bComp").classList.toggle("on",COMP_ON);
-  $("bNorth").classList.toggle("on",TRACKUP); $("bNorth").innerHTML=nglyph(TRACKUP? -ROT : 0);
+  $("bNorth").classList.toggle("on",TRACKUP); setHtml($("bNorth"),nglyph(TRACKUP? -ROT : 0));
   $("bRoute").classList.toggle("on",!!ROUTE.layer);
-  $("bFull").innerHTML= FULL? ICON.fullx : ICON.full;
+  setHtml($("bFull"),FULL? ICON.fullx : ICON.full);
   document.documentElement.classList.toggle("full",FULL);
   document.body.classList.toggle("drawing",DRAW.on);
   $("dClear").classList.toggle("dis",!DRAW.pts.length); $("dUndo").classList.toggle("dis",!DRAW.pts.length); $("dDone").classList.toggle("dis",DRAW.pts.length<2);
-  driftCalc(); nextAdvance(); driftUi(); dirPillUpdate(); chartUi();
+  driftCalc(); nextAdvance(); pillPrep(); driftUi(); dirPillUpdate(); chartUi(); pillsDone();
 }
 $("bRoute").innerHTML=ICON.route; $("bChart").innerHTML=ICON.layers;
 $("bRings").innerHTML=ICON.ring; $("bDirect").innerHTML=ICON.dir; $("bGps").innerHTML=ICON.gps; $("bComp").innerHTML=ICON.compass;
@@ -1918,7 +1993,8 @@ $("bRings").addEventListener("click",()=>{   // each tap: Off, then NM, then MIN
   ui(); draw();
   toast(RINGS==="off"? "Rings off" : RINGS==="nm"? "Rings in NM (blue)" : ((GS!=null&&GS>=5&&!STALE)? "Rings in minutes (magenta)" : "Rings in minutes (magenta). They appear above 5 kt."),3000);
 });
-$("bDirect").addEventListener("click",()=>{ DIRECT_ON=!DIRECT_ON; LS.set("direct",DIRECT_ON?"1":"0"); ui(); draw(); });
+$("bDirect").addEventListener("click",()=>{ DIRECT_ON=!DIRECT_ON; LS.set("direct",DIRECT_ON?"1":"0"); ui(); draw(); if(DIRECT_ON&&!TGT) toast("Tap a waypoint on the map",3000); });
+window.addEventListener("resize",()=>{ PILL.key=""; ui(); });
 $("bGps").addEventListener("click",()=>{
   if(!GPS.on){ gpsStart(); return; }   // GPS starts with the app; this only matters if it was blocked
   FOLLOW=true; if(POS) follow(); else toast("Looking for GPS...",2500);   // the button centres the map on the plane
