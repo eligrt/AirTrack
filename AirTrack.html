@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.015
+  PFD - Fly page   v0.01.016
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.015"}
+    page -> shell  {pfd:"hello", version:"0.01.016"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -831,6 +831,8 @@ button.lsa-foot-slot{cursor:pointer;padding:8px 0;}
   --st:calc(var(--hh) + 10px);--sb:calc(var(--fh) + 10px);--sl:max(10px,env(safe-area-inset-left));--sr:max(10px,env(safe-area-inset-right))}
 html,body{height:100%;height:var(--app-h,100%)}
 body{position:relative}
+#corr,#ov{width:100%!important;height:calc(100% - var(--hh) - var(--fh))!important}   /* canvas and svg do not stretch between top and bottom, so give them their size */
+html.full #corr,html.full #ov{height:100%!important}
 #mapwrap{z-index:0;isolation:isolate}   /* keeps the map's own layers (z-index up to 1000) below the buttons */
 html.full #mapwrap,html.full #corr,html.full #ov,html.full #capLayer{inset:0!important}
 html.full{--hh:env(safe-area-inset-top,0px);--fh:env(safe-area-inset-bottom,0px)}
@@ -886,7 +888,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.015 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.016 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -901,7 +903,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.015";
+const VER="0.01.016";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
