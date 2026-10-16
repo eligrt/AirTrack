@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.007
+  PFD - Fly page   v0.01.008
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.007"}
+    page -> shell  {pfd:"hello", version:"0.01.008"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -765,6 +765,7 @@ body.drawing #gBL,body.drawing #gBR,body.drawing #driftPill,body.drawing #bRoute
 .btn.big svg{width:28px;height:28px}
 .btn.done{background:var(--ink);color:var(--paper);border-color:var(--ink-dark)}
 .btn.dis{opacity:.38;pointer-events:none}
+.btn:disabled{opacity:.45;pointer-events:none}
 #scrim{position:fixed;inset:0;z-index:30;background:rgba(14,35,72,.22);display:none}
 #scrim.show{display:block}
 #dlg{position:absolute;width:272px;background:var(--paper-hi);border-radius:18px;box-shadow:0 14px 40px rgba(14,35,72,.35),0 0 0 1px rgba(14,35,72,.12);--ax:130px}
@@ -841,7 +842,7 @@ body.drawing #gBL,body.drawing #gBR,body.drawing #driftPill,body.drawing #bRoute
 </script>
 <script>
 "use strict";
-const VER="0.01.007";
+const VER="0.01.008";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const alog=()=>{};
@@ -1825,15 +1826,8 @@ $("bRoute").addEventListener("click",routeTap);
 $("dClear").addEventListener("click",drawClearAsk); $("dUndo").addEventListener("click",drawUndo); $("dDone").addEventListener("click",drawDone);
 $("bComp").addEventListener("click",()=>{ if(COMP_ON){ compassStop(); ui(); draw(); } else compassStart(); });   // the motion prompt comes only from this tap
 $("bChart").addEventListener("click",()=>{ $("chartCard").classList.toggle("hid"); chartUi(); placeCard(); draw(); });
-$("bFull").addEventListener("click",()=>{
-  if(window.parent!==window){ FULL=!FULL; ui(); try{ parent.postMessage({pfd:"fullscreen",on:FULL},location.origin); }catch(e){} return; }
-  // opened on its own (not inside LSA Toolbox): use the browser's full screen
-  const d=document, el=d.documentElement, on=!!(d.fullscreenElement||d.webkitFullscreenElement);
-  const f=on? (d.exitFullscreen||d.webkitExitFullscreen) : (el.requestFullscreen||el.webkitRequestFullscreen);
-  if(!f){ toast("Full screen is not available here. Open AirTrack from LSA Toolbox, or add it to the Home Screen.",6000); return; }
-  try{ const r=f.call(on?d:el); if(r&&r.catch) r.catch(()=>toast("Full screen was blocked by the browser.",4000)); }catch(e){}
-});
-["fullscreenchange","webkitfullscreenchange"].forEach(n=>document.addEventListener(n,()=>{ if(window.parent===window){ FULL=!!(document.fullscreenElement||document.webkitFullscreenElement); ui(); } }));
+// full screen is a placeholder for now: the button is shown but disabled
+$("bFull").disabled=true; $("bFull").classList.add("grey");
 $("bRings").addEventListener("click",()=>{ RINGS_ON=!RINGS_ON; LS.set("rings",RINGS_ON?"1":"0"); ui(); draw(); });
 $("bDirect").addEventListener("click",()=>{ DIRECT_ON=!DIRECT_ON; LS.set("direct",DIRECT_ON?"1":"0"); ui(); draw(); });
 $("bGps").addEventListener("click",()=>{
