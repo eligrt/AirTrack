@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.020
+  PFD - Fly page   v0.01.021
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.020"}
+    page -> shell  {pfd:"hello", version:"0.01.021"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -769,7 +769,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 #lsaLinks{display:none;align-items:center;gap:2px;background:rgba(251,246,232,.96);border:1px solid var(--ink);border-radius:14px;padding:0 4px;box-shadow:0 1px 4px rgba(14,35,72,.25)}
 #lsaLinks button{border:0;background:transparent;font:600 12px var(--font-ui);color:var(--ink);padding:0 8px;min-height:36px;cursor:pointer;text-decoration:underline;text-decoration-style:dashed;text-underline-offset:3px}
 #lsaLinks i{color:var(--ink-faint);font-style:normal}
-#toast{position:absolute;z-index:25;left:50%;transform:translateX(-50%);bottom:calc(var(--sb) + 4px);max-width:calc(100% - 140px);min-width:150px;text-align:center;background:rgba(14,35,72,.94);color:#fff;font:600 13px/1.35 var(--font-ui);padding:9px 14px;border-radius:14px;display:none;pointer-events:none}
+#toast{position:absolute;z-index:25;left:50%;transform:translateX(-50%);top:calc(var(--st) + 104px);max-width:calc(100% - 140px);min-width:150px;text-align:center;background:rgba(14,35,72,.94);color:#fff;font:600 13px/1.35 var(--font-ui);padding:9px 14px;border-radius:14px;display:none;pointer-events:none}
 #toast.show{display:block}
 .pillx.big2.grid{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;column-gap:4px;row-gap:1px;align-items:center;line-height:1.5;font-variant-numeric:tabular-nums}
 .pillx.big2.grid .lb{font-weight:600;color:var(--ink);margin-right:2px}
@@ -916,7 +916,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.020 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.021 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -931,7 +931,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.020";
+const VER="0.01.021";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1453,7 +1453,7 @@ function onPos(p){
   // Track up: GPS track when moving (3 kt or more), the compass below that
   const rt=(TRK!=null)? TRK : (COMP_ON&&HDG!=null? HDG : LASTTRK);
   if(TRACKUP&&rt!=null) setRot(ROT===null||!isFinite(ROT)? rt : lerpAng(ROT,rt,0.6));
-  if(firstFix){ firstFix=false; MAP.setView([POS.lat,POS.lon],Math.max(MAP.getZoom(),10),{animate:false}); toast("GPS found",1800); }
+  if(firstFix){ firstFix=false; MAP.setView([POS.lat,POS.lon],Math.max(MAP.getZoom(),10),{animate:false}); }
   follow(); ui(); draw();
 }
 // keep the plane a little below the middle, so there is more map ahead
@@ -1716,7 +1716,7 @@ function drawStart(pts){
 }
 function drawTap(vx,vy){
   const o=snapNearest(vx,vy); let p;
-  if(o){ p={lat:o.lat,lon:o.lon,name:o.name}; toast("Snapped to "+o.name,1800); }
+  if(o){ p={lat:o.lat,lon:o.lon,name:o.name};  }
   else { const ll=MAP.containerPointToLatLng(v2cp(vx,vy)); p={lat:ll.lat,lon:ll.lng,name:""}; toast("Free point. Zoom in to snap to a reporting point.",2500); }
   const l=DRAW.pts[DRAW.pts.length-1]; if(l&&l.lat===p.lat&&l.lon===p.lon) return;
   DRAW.pts.push(p); routeBuild(DRAW.pts); ui(); draw();
@@ -1991,7 +1991,6 @@ $("bFull").addEventListener("click",()=>{ FULL=!FULL; ui(); });
 $("bRings").addEventListener("click",()=>{   // each tap: Off, then NM, then MIN, then Off
   RINGS= RINGS==="off"? "nm" : RINGS==="nm"? "min" : "off"; LS.set("rings",RINGS);
   ui(); draw();
-  toast(RINGS==="off"? "Rings off" : RINGS==="nm"? "Rings in NM (blue)" : ((GS!=null&&GS>=5&&!STALE)? "Rings in minutes (magenta)" : "Rings in minutes (magenta). They appear above 5 kt."),3000);
 });
 $("bDirect").addEventListener("click",()=>{ DIRECT_ON=!DIRECT_ON; LS.set("direct",DIRECT_ON?"1":"0"); ui(); draw(); if(DIRECT_ON&&!TGT) toast("Tap a waypoint on the map",3000); });
 window.addEventListener("resize",()=>{ PILL.key=""; ui(); });
@@ -2004,7 +2003,6 @@ $("bNorth").addEventListener("click",()=>{
   TRACKUP=!TRACKUP; LS.set("trackup",TRACKUP?"1":"0");
   if(TRACKUP){ MAP.dragging.disable(); ROT=TRK!=null? TRK : (COMP_ON&&HDG!=null? HDG : (LASTTRK!=null? LASTTRK : 0)); } else { MAP.dragging.enable(); ROT=0; }
   layoutMap(); follow(); ui();
-  toast(TRACKUP? ((TRK!=null||(COMP_ON&&HDG!=null))? "Track up" : "Track up: the map turns with your track above 3 kt. Turn the compass on to turn it when slow.") : "North up",4500);
 });
 window.addEventListener("message",e=>{
   if(e.origin!==location.origin||!e.data||typeof e.data!=="object") return;
