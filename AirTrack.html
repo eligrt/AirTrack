@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.024
+  PFD - Fly page   v0.01.025
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.023"}
+    page -> shell  {pfd:"hello", version:"0.01.025"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -948,7 +948,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.024 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.025 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -963,7 +963,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.023";
+const VER="0.01.025";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1651,7 +1651,14 @@ function draw(){
   if(showPos) P=toScreen([POS.lat,POS.lon]);
   if(showPos&&RINGS!=="off"){
     const mpp=40075016.686*Math.cos(POS.lat*RAD)/(256*Math.pow(2,MAP.getZoom())), isMin=RINGS==="min", col=isMin?"#a3207a":"#d9622b";
-    if(!isMin||(GS!=null&&GS>=5&&!STALE)) [5,10,20].forEach(v=>{
+    const minOk=!isMin||(GS!=null&&GS>=5&&!STALE);
+    if(!minOk){   // no usable ground speed: one small ring with a short pill at 01:30, so the screen never looks broken
+      const r0=46, px=P.x.toFixed(1), py=P.y.toFixed(1), txt=(STALE||GS==null&&!GPS.on)?"No GPS":"No speed", w=txt.length*7.2+18, a45=Math.PI/4, lx=P.x+r0*Math.sin(a45), ly=P.y-r0*Math.cos(a45);
+      o+='<circle cx="'+px+'" cy="'+py+'" r="'+r0+'" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="6"/>';
+      o+='<circle cx="'+px+'" cy="'+py+'" r="'+r0+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-dasharray="9 6"/>';
+      o+='<rect x="'+(lx-w/2).toFixed(1)+'" y="'+(ly-10).toFixed(1)+'" width="'+w.toFixed(1)+'" height="20" rx="10" fill="#fbf6e8" stroke="'+col+'" stroke-width="1.6"/><text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" font-size="11" font-family="JetBrains Mono,monospace" font-weight="800" text-anchor="middle" fill="'+col+'">'+txt+'</text>';
+    }
+    if(minOk) [5,10,20].forEach(v=>{
       const nm=isMin? GS*v/60 : v, r=nm*1852/mpp; if(r<28||r>Math.max(VW,VH)*1.6) return;
       const txt=v+(isMin?" min":" NM"), w=txt.length*8.2+22, px=P.x.toFixed(1), py=P.y.toFixed(1);
       o+='<circle cx="'+px+'" cy="'+py+'" r="'+r.toFixed(1)+'" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="6"/>';
@@ -1681,8 +1688,8 @@ function draw(){
     if(showPos){
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+T.x.toFixed(1)+'" y2="'+T.y.toFixed(1)+'" stroke="#b3261e" stroke-width="2.5"/>';
       const ang=norm360(Math.atan2(T.x-P.x,-(T.y-P.y))/RAD), len=Math.hypot(T.x-P.x,T.y-P.y);
-      const top=labelTop();
-      o+=lineLabel(P.x,P.y,ang,Math.max(50,Math.min(len-40,edgeD(P.x,P.y,ang,top)-22)),"DIRECT","#b3261e","TRUE");
+      const top=labelTop(), uys=len>0?(T.y-P.y)/len:0, pinExt=(TGT.snapped?12:Math.max(0,33*uys)+12), half=Math.round(6*7.1+4*4.6+4+20)/2;   // pill sits just short of the pin, not on it
+      o+=lineLabel(P.x,P.y,ang,Math.max(50,Math.min(len-half-pinExt-3,edgeD(P.x,P.y,ang,top)-22)),"DIRECT","#b3261e","TRUE");
     }
     if(TGT.snapped) o+='<circle cx="'+T.x.toFixed(1)+'" cy="'+T.y.toFixed(1)+'" r="11" fill="none" stroke="#b3261e" stroke-width="3"/>';
     else o+='<path transform="translate('+T.x.toFixed(1)+' '+T.y.toFixed(1)+')" d="M0 0 c-9 -12 -11 -16 -11 -21 a11 11 0 1 1 22 0 c0 5 -2 9 -11 21z" fill="#b3261e" stroke="#fff" stroke-width="1.5"/><circle cx="'+T.x.toFixed(1)+'" cy="'+(T.y-21).toFixed(1)+'" r="4" fill="#fff"/>';
