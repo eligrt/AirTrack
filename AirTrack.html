@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.023
+  PFD - Fly page   v0.01.024
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
     page -> shell  {pfd:"hello", version:"0.01.023"}
@@ -865,6 +865,12 @@ button.lsa-foot-slot{cursor:pointer;padding:8px 0;}
 .hdr-clock>.hdr-clock-lbl,.strip-clock>.strip-clock-lbl{order:2;font-size:9px!important;line-height:1;letter-spacing:.22em;margin:0!important;}
 .hdr-clock>:not(.hdr-clock-lbl),.strip-clock>:not(.strip-clock-lbl){order:1;}
 .hdr-clock-row{display:flex;flex-direction:column-reverse!important;align-items:center!important;gap:3px!important;}
+/* fonts pinned in every app: header text IBM Plex Sans Hebrew, clock and footer JetBrains Mono */
+.hdr-fam .hdr-title h1,.hdr-fam .hdr-title p{font-family:'IBM Plex Sans Hebrew',sans-serif}
+.hdr-fam .hdr-clock,.hdr-fam .hdr-utc,.hdr-fam .hdr-clock-lbl{font-family:'JetBrains Mono',monospace}
+.lsa-foot,.lsa-foot-ver,.lsa-foot-slot{font-family:'JetBrains Mono',monospace}
+.lsa-foot-reload{font-family:'IBM Plex Sans Hebrew',sans-serif}
+.lsa-hdr.hdr-fam .hdr-clock-lbl{font-size:9px;letter-spacing:.22em;opacity:.75}
 /* LSA-ALIGN v1 END */
 
 /* LSA header family v2: icon+name LEFT, optional middle, UTC RIGHT */
@@ -942,7 +948,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.023 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.024 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
