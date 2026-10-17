@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.027
+  PFD - Fly page   v0.01.028
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.027"}
+    page -> shell  {pfd:"hello", version:"0.01.028"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -721,6 +721,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .btn.rb.on.nm .tag{background:#d9622b}
 .btn.rb.on.min{border:3px solid #a3207a}
 .btn.rb.on.min .tag{background:#a3207a}
+.btn.az:not(.on) .tag{background:#7b8794}
 .btn.rb.off .tag,.btn.rb.grey .tag{background:#7b8794}   /* cool grey: amber means active, so OFF must not look amber */
 .prow{display:flex;align-items:flex-start;gap:8px;pointer-events:none}
 .prow>.btn{pointer-events:auto}
@@ -935,6 +936,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </div>
 <!-- bottom left: layers, centre on the plane -->
 <div class="grp" id="gBL" style="left:var(--sl);bottom:var(--sb);align-items:flex-start">
+  <button class="btn az" id="bAuto" type="button" aria-label="Auto zoom"></button>
   <button class="btn" id="bChart" type="button" aria-label="Chart"></button>
   <button class="btn" id="bGps" type="button" aria-label="GPS"></button>
 </div>
@@ -948,7 +950,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.027 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.028 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -963,7 +965,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.027";
+const VER="0.01.028";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -984,6 +986,7 @@ const SIM=/[?&]sim\b/.test(location.search);
 /* ───────── icons ───────── */
 const SV=(p,x)=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'+(x||"")+'>'+p+'</svg>';
 const ICON={
+  az:SV('<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M8 10.5h5M10.5 8v5"/>'),
   full:SV('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'),
   fullx:SV('<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>'),
   layers:SV('<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>'),
@@ -1051,7 +1054,7 @@ function applyRot(){ mapEl.style.transform= (TRACKUP&&ROT)? "rotate("+(-ROT)+"de
 function setRot(r){ ROT=TRACKUP? r : 0; applyRot(); }
 
 function initMap(){
-  MAP=L.map("map",{center:[31.5,35.0],zoom:8,minZoom:6,maxZoom:18,zoomControl:false,attributionControl:false,zoomAnimation:false,markerZoomAnimation:false,fadeAnimation:false});
+  MAP=L.map("map",{center:[31.5,35.0],zoom:8,minZoom:6,maxZoom:18,zoomControl:false,zoomSnap:0,attributionControl:false,zoomAnimation:false,markerZoomAnimation:false,fadeAnimation:false});
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,referrerPolicy:"strict-origin-when-cross-origin"}).addTo(MAP);
   // mouse / finger positions have to be turned back when the map box is turned
   MAP.mouseEventToContainerPoint=function(e){ const r=wrap.getBoundingClientRect(); return v2cp(e.clientX-r.left,e.clientY-r.top); };
@@ -1504,9 +1507,9 @@ function onPos(p){
   follow(); ui(); draw();
 }
 // keep the plane a little below the middle, so there is more map ahead
-function follow(){
+function follow(zo){
   if(!POS||!GPS.on||!FOLLOW) return;
-  const z=MAP.getZoom(), pp=MAP.project([POS.lat,POS.lon],z), dy=VH*0.10, c=Math.cos(ROT*RAD), n=Math.sin(ROT*RAD);
+  const z=zo!=null? zo : MAP.getZoom(), pp=MAP.project([POS.lat,POS.lon],z), dy=VH*0.10, c=Math.cos(ROT*RAD), n=Math.sin(ROT*RAD);
   const mx=-dy*n, my=dy*c;   // that screen offset, in the map's own frame
   MAP.setView(MAP.unproject(L.point(pp.x-mx,pp.y-my),z),z,{animate:false});
 }
@@ -1804,6 +1807,27 @@ function drawDone(){
   FOLLOW=false; MAP.fitBounds(L.latLngBounds(ROUTE.al[0]),{padding:[70,70],animate:false});
   ui(); draw();
 }
+/* AUTO ZOOM: the map keeps the plane and the next waypoint on the screen. Zooms in as you near a point, eases out after you pass it. */
+let AZ_ON=LS.get("az","1")==="1", AZ_T=0;
+function azLive(){ return AZ_ON&&FOLLOW&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length; }
+function azTarget(){
+  const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), z=MAP.getZoom(), dx=N.x-P.x, dy=N.y-P.y;
+  const g=$("gTL").getBoundingClientRect(), wr=wrap.getBoundingClientRect(), topL=Math.max(70,g.bottom-wr.top)+28, side=56, bot=72;
+  const rm=v=>Math.max(8,v), c=[];
+  if(dx>0.5) c.push(Math.log2(rm(VW-side-P.x)/dx)); else if(dx<-0.5) c.push(Math.log2(rm(P.x-side)/-dx));
+  if(dy>0.5) c.push(Math.log2(rm(VH-bot-P.y)/dy)); else if(dy<-0.5) c.push(Math.log2(rm(P.y-topL)/-dy));
+  const zt=z+(c.length? Math.min(...c) : 9), k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852), zf=px=>Math.log2(px*k);   // zoom that gives px pixels per nautical mile
+  return Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),Math.max(zf(14),Math.min(zf(75),zt))));
+}
+setInterval(()=>{
+  const now=performance.now(), dt=Math.min(0.5,(now-AZ_T)/1000); AZ_T=now;
+  if(!MAP||!azLive()) return;
+  const z=MAP.getZoom(), d=azTarget()-z, tau=d>0? 1.6 : 3.2;
+  let st=d*(1-Math.exp(-dt/tau)); const cap=0.43*dt; st=Math.max(-cap,Math.min(cap,st));
+  if(Math.abs(st)<0.003) return;
+  follow(z+st); draw();
+},100);
+function azOff(){ if(!AZ_ON) return; AZ_ON=false; LS.set("az","0"); ui(); }   // the pilot zooms by hand: auto zoom steps aside until the button is tapped again
 // Next waypoint: passed when the plane crosses the line that stands across the route at that point (the bisector at a turn)
 function nextAdvance(){
   const wp=ROUTE.wp; if(!wp||wp.length<2||!POS||!GPS.on||STALE||DRAW.on) return;
@@ -2077,6 +2101,7 @@ function ui(){
   const rb=$("bRings"); rb.className="btn rb "+RINGS+(RINGS!=="off"&&fix?" on":"")+(!fix?" grey":"");
   setHtml(rb,ICON.ring+'<span class="tag">'+(RINGS==="off"?"OFF":RINGS==="nm"?"NM":"MIN")+'</span>');
   $("bDirect").classList.toggle("on",DIRECT_ON&&fix&&!!TGT); $("bDirect").classList.toggle("grey",!fix);
+  $("bAuto").classList.toggle("on",AZ_ON); setHtml($("bAuto"),ICON.az+'<span class="tag">AUTO</span>');
   $("bComp").classList.toggle("on",COMP_ON);
   $("bNorth").classList.toggle("on",TRACKUP); setHtml($("bNorth"),nglyph(TRACKUP? -ROT : 0));
   $("bRoute").classList.toggle("on",!!ROUTE.layer);
@@ -2109,6 +2134,7 @@ $("bRings").addEventListener("click",()=>{   // each tap: Off, then NM, then MIN
   RINGS= RINGS==="off"? "nm" : RINGS==="nm"? "min" : "off"; LS.set("rings",RINGS);
   ui(); draw();
 });
+$("bAuto").addEventListener("click",()=>{ AZ_ON=!AZ_ON; LS.set("az",AZ_ON?"1":"0"); ui(); if(AZ_ON&&!(ROUTE.wp&&ROUTE.wp.length>=2)) toast("Auto zoom follows your route",3000); });
 $("bDirect").addEventListener("click",()=>{ DIRECT_ON=!DIRECT_ON; LS.set("direct",DIRECT_ON?"1":"0"); ui(); draw(); if(DIRECT_ON&&!TGT) toast("Tap a waypoint on the map",3000); });
 window.addEventListener("resize",()=>{ PILL.key=""; ui(); });
 $("bGps").addEventListener("click",()=>{
@@ -2138,9 +2164,10 @@ window.addEventListener("message",e=>{
 /* ───────── touches on the map: tap = pick a point; in Track up one finger drags the turned map ───────── */
 {
   const ptrs=new Set(); let tap=null, last=null;
+  wrap.addEventListener("wheel",()=>azOff(),{passive:true}); wrap.addEventListener("dblclick",()=>azOff());
   wrap.addEventListener("pointerdown",e=>{
     ptrs.add(e.pointerId);
-    if(ptrs.size>1){ tap=null; last=null; return; }
+    if(ptrs.size>1){ tap=null; last=null; azOff(); return; }
     tap={x:e.clientX,y:e.clientY,t:Date.now(),id:e.pointerId,moved:false}; last={x:e.clientX,y:e.clientY};
   });
   wrap.addEventListener("pointermove",e=>{
