@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.025
+  PFD - Fly page   v0.01.026
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.025"}
+    page -> shell  {pfd:"hello", version:"0.01.026"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -948,7 +948,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.025 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.026 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -963,7 +963,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.025";
+const VER="0.01.026";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1563,6 +1563,7 @@ document.addEventListener("visibilitychange",()=>{
 let DIRECT_ON=LS.get("direct","1")==="1", TGT=null;
 let RINGS=(()=>{ const v=LS.get("rings","nm"); return v==="1"? "nm" : v==="0"? "off" : (v==="off"||v==="nm"||v==="min")? v : "nm"; })();   // rings: Off, NM or MIN
 function onTap(vx,vy){
+  if(uiRects(14).some(c=>vx>=c.x1&&vx<=c.x2&&vy>=c.y1&&vy<=c.y2)) return;   // the area around buttons, pills and panels is sterile: a tap there never picks a point
   if(DRAW.on){ drawTap(vx,vy); return; }
   if(!DIRECT_ON) return;
   const cp=v2cp(vx,vy), ll=MAP.containerPointToLatLng(cp);
@@ -1600,7 +1601,7 @@ const TAG=t=>'<tspan font-size="7.5" dx="3" letter-spacing=".04em">'+t+'</tspan>
 function labelTop(){ return 58; }
 function rayEnd(cx,cy,ang,len){ const a=ang*RAD; return [cx+len*Math.sin(a), cy-len*Math.cos(a)]; }
 function nameLabels(){
-  if(!SNAP_PTS||MAP.getZoom()<11) return "";
+  NAMER=[]; if(!SNAP_PTS||MAP.getZoom()<11) return "";
   const V=[];
   SNAP_PTS.forEach(o=>{ const on=o.srcs.filter(x=>RT[x].on); if(!on.length) return; const p=toScreen([o.lat,o.lon]); if(p.x>-30&&p.x<VW+30&&p.y>-20&&p.y<VH+20) V.push({o,p,w:o.name.length*6.4+3,pos:"",op:Math.max(...on.map(x=>RT[x].op))}); });
   if(V.length>120) return "";
@@ -1611,6 +1612,7 @@ function nameLabels(){
     const P=V[i], Q=V[j]; if(Math.abs(P.p.y-Q.p.y)>16 || Math.abs(P.p.x-Q.p.x)>P.w+Q.w+16) continue;
     if(ovl(rb(P),rb(Q))||ovl(rb(P),db(Q))||ovl(rb(Q),db(P))){ const n=P.p.y<=Q.p.y? P : Q; n.pos="u"; (n===P?Q:P).pos="d"; }
   }
+  NAMER=V.map(a=>({x1:a.p.x-4,x2:a.p.x+7+a.w,y1:a.p.y-17,y2:a.p.y+17}));
   return V.map(a=>{ let x=a.p.x+7,y=a.p.y+3.5,an="start"; if(a.pos==="u"){ x=a.p.x; y=a.p.y-8; an="middle"; } else if(a.pos==="d"){ x=a.p.x; y=a.p.y+15; an="middle"; }
     return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" font-size="10.5" font-weight="700" font-family="IBM Plex Sans Hebrew,Heebo,sans-serif" text-anchor="'+an+'" fill="#1a1308" stroke="#fbf6e8" stroke-width="3" paint-order="stroke" opacity="'+a.op+'">'+esc(a.o.name)+'</text>'; }).join("");
 }
@@ -1649,6 +1651,10 @@ function draw(){
   const showPos=POS&&GPS.on;
   let P=null;
   if(showPos) P=toScreen([POS.lat,POS.lon]);
+  OCC=uiRects(5);
+  if(showPos){ OCC.push({x1:P.x-32,x2:P.x+32,y1:P.y-32,y2:P.y+32});
+    if(TGT&&DIRECT_ON&&!DRAW.on){ const Tq=toScreen([TGT.lat,TGT.lon]); OCC.push({x1:Tq.x-15,x2:Tq.x+15,y1:Tq.y-38,y2:Tq.y+6}); }
+    if(ROUTE.wp&&ROUTE.wp.length&&!DRAW.on) ROUTE.wp.forEach(w=>{ const q=toScreen([w.lat,w.lon]); OCC.push({x1:q.x-15,x2:q.x+15,y1:q.y-15,y2:q.y+15}); }); }
   if(showPos&&RINGS!=="off"){
     const mpp=40075016.686*Math.cos(POS.lat*RAD)/(256*Math.pow(2,MAP.getZoom())), isMin=RINGS==="min", col=isMin?"#a3207a":"#d9622b";
     const minOk=!isMin||(GS!=null&&GS>=5&&!STALE);
@@ -1656,6 +1662,7 @@ function draw(){
       const r0=46, px=P.x.toFixed(1), py=P.y.toFixed(1), txt=(STALE||GS==null&&!GPS.on)?"No GPS":"No speed", w=txt.length*7.2+18, a45=Math.PI/4, lx=P.x+r0*Math.sin(a45), ly=P.y-r0*Math.cos(a45);
       o+='<circle cx="'+px+'" cy="'+py+'" r="'+r0+'" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="6"/>';
       o+='<circle cx="'+px+'" cy="'+py+'" r="'+r0+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-dasharray="9 6"/>';
+      OCC.push({x1:lx-w/2-2,x2:lx+w/2+2,y1:ly-12,y2:ly+12});
       o+='<rect x="'+(lx-w/2).toFixed(1)+'" y="'+(ly-10).toFixed(1)+'" width="'+w.toFixed(1)+'" height="20" rx="10" fill="#fbf6e8" stroke="'+col+'" stroke-width="1.6"/><text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" font-size="11" font-family="JetBrains Mono,monospace" font-weight="800" text-anchor="middle" fill="'+col+'">'+txt+'</text>';
     }
     if(minOk) [5,10,20].forEach(v=>{
@@ -1663,6 +1670,7 @@ function draw(){
       const txt=v+(isMin?" min":" NM"), w=txt.length*8.2+22, px=P.x.toFixed(1), py=P.y.toFixed(1);
       o+='<circle cx="'+px+'" cy="'+py+'" r="'+r.toFixed(1)+'" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="6"/>';
       o+='<circle cx="'+px+'" cy="'+py+'" r="'+r.toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-dasharray="9 6"/>';
+      OCC.push({x1:P.x-w/2-2,x2:P.x+w/2+2,y1:P.y-r-14,y2:P.y-r+14});
       o+='<rect x="'+(P.x-w/2).toFixed(1)+'" y="'+(P.y-r-12).toFixed(1)+'" width="'+w.toFixed(1)+'" height="24" rx="12" fill="#fbf6e8" stroke="'+col+'" stroke-width="1.8"/><text x="'+px+'" y="'+(P.y-r+4.6).toFixed(1)+'" font-size="13" font-family="JetBrains Mono,monospace" font-weight="800" text-anchor="middle" fill="'+col+'">'+txt+'</text>';
     });
   }
@@ -1672,11 +1680,11 @@ function draw(){
     if(HDG!=null){ const a=norm360(HDG-ROT), e=rayEnd(P.x,P.y,a,L0);
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#fff" stroke-width="7" stroke-opacity=".9" stroke-linecap="round"/>';
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#111111" stroke-width="3.2" stroke-dasharray="8 6" stroke-linecap="round"/>';
-      o+=lineLabel(P.x,P.y,a,Math.max(30,edgeD(P.x,P.y,a,top)-78),"COMPASS "+p3(HDG)+"\u00b0","#111111","MAG"); }
+      { const ed=edgeD(P.x,P.y,a,top), wl=Math.round(("COMPASS 000\u00b0").length*7.1+3*4.6+4+20)/2; o+=placeLabel(P.x,P.y,a,ed-wl-10,34,ed-wl-10,"COMPASS "+p3(HDG)+"\u00b0","#111111","MAG"); } }
     // TRACK: direction of travel (only while moving)
     if(TRK!=null&&!STALE){ const a=norm360(TRK-ROT), e=rayEnd(P.x,P.y,a,L0);
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#1a1308" stroke-width="2.4" stroke-dasharray="2 7" stroke-linecap="round"/>';
-      o+=lineLabel(P.x,P.y,a,Math.max(30,edgeD(P.x,P.y,a,top)-22),"TRACK","#1a1308","TRUE"); }
+      { const ed=edgeD(P.x,P.y,a,top), wl=Math.round(5*7.1+4*4.6+4+20)/2; o+=placeLabel(P.x,P.y,a,ed-wl-10,34,ed-wl-10,"TRACK","#1a1308","TRUE"); } }
   }
   if(showPos&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length){
     const w=ROUTE.wp[NX.i], N=toScreen([w.lat,w.lon]);
@@ -1689,7 +1697,8 @@ function draw(){
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+T.x.toFixed(1)+'" y2="'+T.y.toFixed(1)+'" stroke="#b3261e" stroke-width="2.5"/>';
       const ang=norm360(Math.atan2(T.x-P.x,-(T.y-P.y))/RAD), len=Math.hypot(T.x-P.x,T.y-P.y);
       const top=labelTop(), uys=len>0?(T.y-P.y)/len:0, pinExt=(TGT.snapped?12:Math.max(0,33*uys)+12), half=Math.round(6*7.1+4*4.6+4+20)/2;   // pill sits just short of the pin, not on it
-      o+=lineLabel(P.x,P.y,ang,Math.max(50,Math.min(len-half-pinExt-3,edgeD(P.x,P.y,ang,top)-22)),"DIRECT","#b3261e","TRUE");
+      const dmax=Math.min(len-half-pinExt-3,edgeD(P.x,P.y,ang,top)-half-8);   // no room between the plane and the pin (zoomed far out): the pill is left out
+      if(dmax>=50) o+=placeLabel(P.x,P.y,ang,dmax,50,dmax,"DIRECT","#b3261e","TRUE");
     }
     if(TGT.snapped) o+='<circle cx="'+T.x.toFixed(1)+'" cy="'+T.y.toFixed(1)+'" r="11" fill="none" stroke="#b3261e" stroke-width="3"/>';
     else o+='<path transform="translate('+T.x.toFixed(1)+' '+T.y.toFixed(1)+')" d="M0 0 c-9 -12 -11 -16 -11 -21 a11 11 0 1 1 22 0 c0 5 -2 9 -11 21z" fill="#b3261e" stroke="#fff" stroke-width="1.5"/><circle cx="'+T.x.toFixed(1)+'" cy="'+(T.y-21).toFixed(1)+'" r="4" fill="#fff"/>';
@@ -2042,6 +2051,23 @@ function setPill(id,o){
   el.style.marginTop=(o.collapsed?7:Math.max(0,o.exp(fh)))+"px";
 }
 // both small pills always have the same width, wide enough for the longer text
+// everything on screen that a line label must never cover (buttons, pills, panels, ring names, the plane, route pins); rebuilt on every draw
+let OCC=[], NAMER=[];
+function uiRects(m){ const wr=wrap.getBoundingClientRect(), out=[];
+  document.querySelectorAll(".grp .btn,.grp .morph,#chartCard:not(.hid),#routeCard:not(.hid),#toast.show").forEach(e=>{ const r=e.getBoundingClientRect(); if(r.width<2||r.height<2) return; out.push({x1:r.left-wr.left-m,x2:r.right-wr.left+m,y1:r.top-wr.top-m,y2:r.bottom-wr.top+m}); });
+  return out; }
+const hit=(A,B)=>A.x1<B.x2&&B.x1<A.x2&&A.y1<B.y2&&B.y1<A.y2;
+// puts a line's name pill at the preferred spot, or the nearest spot along the line that is free; hides it when the line has no free room
+function placeLabel(cx,cy,ang,d0,dMin,dMax,txt,col,tag){
+  const a=ang*RAD, w=Math.round(txt.length*7.1+(tag?tag.length*4.6+4:0)+20); let r=ang-90; r=((r+180)%360+360)%360-180; if(r>90) r-=180; if(r<-90) r+=180;
+  const cr=Math.abs(Math.cos(r*RAD)), sr=Math.abs(Math.sin(r*RAD)), ex=cr*w/2+sr*9+2, ey=sr*w/2+cr*9+2;
+  const box=d=>{ const x=cx+d*Math.sin(a), y=cy-d*Math.cos(a); return {x1:x-ex,x2:x+ex,y1:y-ey,y2:y+ey}; };
+  if(dMax<dMin) return "";
+  for(const useNames of [true,false]) for(let k=0;k<=60;k++) for(const sg of (k?[1,-1]:[1])){
+    const d=Math.min(dMax,Math.max(dMin,d0))+sg*k*6; if(d<dMin||d>dMax) continue; const b=box(d);
+    if(OCC.some(c=>hit(b,c))||(useNames&&NAMER.some(c=>hit(b,c)))) continue;
+    OCC.push(b); return lineLabel(cx,cy,ang,d,txt,col,tag); }
+  return ""; }
 function pillsFit(){ const w=Math.min(PILL.W,Math.max(PILL.cw,PILL.need.dirPill||0,PILL.need.toPill||0)); document.querySelectorAll(".morph.col").forEach(e=>{ e.style.width=w+"px"; }); }
 function pillsDone(){ if(!PILL.first) return; PILL.first=false; requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll(".morph").forEach(e=>e.classList.remove("noanim")))); }
 function ui(){
