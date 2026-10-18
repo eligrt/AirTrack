@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.030
+  PFD - Fly page   v0.01.032
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.030"}
+    page -> shell  {pfd:"hello", version:"0.01.032"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -954,7 +954,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.030 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.032 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -969,7 +969,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.030";
+const VER="0.01.032";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1561,11 +1561,37 @@ function compassStart(){
   else go();
 }
 function compassStop(){ COMP_ON=false; HRAW=null; HDG=null; CV=null; if(COMP_T){ cancelAnimationFrame(COMP_T); COMP_T=0; } window.removeEventListener("deviceorientationabsolute",onOri,true); window.removeEventListener("deviceorientation",onOri,true); }
-async function wakeOn(){ try{ if(navigator.wakeLock&&!WL){ WL=await navigator.wakeLock.request("screen"); WL.addEventListener("release",()=>{ WL=null; }); } }catch(e){} }
-function wakeOff(){ try{ if(WL) WL.release(); }catch(e){} WL=null; }
+// backup for iPhones whose screen-on request is ignored (home-screen apps on older iOS): a tiny silent looping video keeps the screen awake. It starts from the GPS button tap.
+let WV=null;
+function wakeVideo(){ try{ if(!WV){ WV=document.createElement("video"); WV.setAttribute("playsinline",""); WV.setAttribute("muted",""); WV.setAttribute("title","AirTrack"); WV.muted=true; WV.loop=true; WV.style.cssText="position:fixed;left:0;top:0;width:2px;height:2px;opacity:.02;pointer-events:none;z-index:-1"; WV.src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAANMbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAB9AAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAnZ0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAB9AAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAEAAAABAAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAfQAAAAAAABAAAAAAHubWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAoAAAAUABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABmW1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAVlzdGJsAAAAuXN0c2QAAAAAAAAAAQAAAKlhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAEAAQABIAAAASAAAAAAAAAABFUxhdmM2MC4zMS4xMDIgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAAL2F2Y0MBQsAe/+EAF2dCwB7ZBCbARAAAAwAEAAADACg8WLkgAQAFaMuDyyAAAAAQcGFzcAAAAAEAAAABAAAAFGJ0cnQAAAAAAAALqAAAC6gAAAAYc3R0cwAAAAAAAAABAAAACgAACAAAAAAUc3RzcwAAAAAAAAABAAAAAQAAABxzdHNjAAAAAAAAAAEAAAABAAAACgAAAAEAAAA8c3RzegAAAAAAAAAAAAAACgAAAo8AAAAKAAAACwAAAAoAAAAKAAAACgAAAAoAAAAKAAAACgAAAAoAAAAUc3RjbwAAAAAAAAABAAADfAAAAGJ1ZHRhAAAAWm1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAAAQAAAABMYXZmNjAuMTYuMTAwAAAACGZyZWUAAALybWRhdAAAAnAGBf//bNxF6b3m2Ui3lizYINkj7u94MjY0IC0gY29yZSAxNjQgcjMxMDggMzFlMTlmOSAtIEguMjY0L01QRUctNCBBVkMgY29kZWMgLSBDb3B5bGVmdCAyMDAzLTIwMjMgLSBodHRwOi8vd3d3LnZpZGVvbGFuLm9yZy94MjY0Lmh0bWwgLSBvcHRpb25zOiBjYWJhYz0wIHJlZj0zIGRlYmxvY2s9MTowOjAgYW5hbHlzZT0weDE6MHgxMTEgbWU9aGV4IHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTAgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz0yIGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWlnaHRwPTAga2V5aW50PTI1MCBrZXlpbnRfbWluPTUgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD00MCByYz1jcmYgbWJ0cmVlPTEgY3JmPTIzLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MToxLjAwAIAAAAAXZYiEBHyYoAA2IycnJ1111111111114AAAAAGQZo4CPhGAAAAB0GaVAI+EYAAAAAGQZpgEfCMAAAABkGagBHwjAAAAAZBmqAR8IwAAAAGQZrAEfCMAAAABkGa4BHwjAAAAAZBmwAQ8IwAAAAGQZsgP8Iw"; ["playing","pause","ended","stalled","suspend","error","waiting"].forEach(n=>WV.addEventListener(n,()=>logAdd("Video event: "+n+(n==="error"&&WV.error?" code "+WV.error.code:"")))); document.body.appendChild(WV); } const pr=WV.play(); if(pr&&pr.then) pr.then(()=>logAdd("Video play started"),e=>logAdd("Video play REFUSED: "+(e&&e.name||"")+" "+(e&&e.message||""))); }catch(e){} }
+async function wakeOn(){ wakeVideo(); try{ if(navigator.wakeLock&&!WL){ WL=await navigator.wakeLock.request("screen"); logAdd("Screen-on request ACCEPTED"); WL.addEventListener("release",()=>{ WL=null; logAdd("Screen-on TAKEN BACK by the phone"); }); } else if(!navigator.wakeLock){ logAdd("Screen-on request not supported by this phone"); } }catch(e){ logAdd("Screen-on request REFUSED: "+(e&&e.name||"")+" "+(e&&e.message||"")); } }
+function wakeOff(){ try{ if(WL) WL.release(); }catch(e){} WL=null; try{ if(WV) WV.pause(); }catch(e){} logAdd("Screen-on switched off by the app"); }
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="visible"){ if(GPS.on) wakeOn(); }
 });
+
+
+/* ───────── test log (for exploration only; tap the version text in the footer) ───────── */
+let LOGA=[]; try{ LOGA=JSON.parse(localStorage.getItem("at_log")||"[]"); }catch(e){}
+function logAdd(t){ const d=new Date(), p=n=>String(n).padStart(2,"0"); LOGA.push(p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds())+"  "+t); if(LOGA.length>400) LOGA.splice(0,LOGA.length-400); try{ localStorage.setItem("at_log",JSON.stringify(LOGA)); }catch(e){} const b=document.getElementById("logBox"); if(b&&b.style.display!=="none"){ b.querySelector("pre").textContent=LOGA.join("\n"); } }
+function logOpen(){
+  let b=document.getElementById("logBox");
+  if(!b){ b=document.createElement("div"); b.id="logBox"; b.style.cssText="position:fixed;left:8px;right:8px;top:60px;bottom:60px;z-index:99999;background:#fff;border:2px solid #1c3d6e;border-radius:12px;display:flex;flex-direction:column;padding:8px;font:12px/1.35 monospace;color:#111";
+    b.innerHTML='<div style="display:flex;gap:8px;margin-bottom:6px"><button id="lgC" style="flex:1;font-size:16px;padding:10px;border-radius:8px;border:1px solid #1c3d6e;background:#1c3d6e;color:#fff">Copy log</button><button id="lgX" style="flex:1;font-size:16px;padding:10px;border-radius:8px;border:1px solid #888;background:#eee">Clear</button><button id="lgK" style="flex:1;font-size:16px;padding:10px;border-radius:8px;border:1px solid #888;background:#eee">Close</button></div><pre style="flex:1;overflow:auto;margin:0;white-space:pre-wrap"></pre>';
+    document.body.appendChild(b);
+    b.querySelector("#lgK").onclick=()=>{ b.style.display="none"; };
+    b.querySelector("#lgX").onclick=()=>{ LOGA=[]; try{ localStorage.removeItem("at_log"); }catch(e){} b.querySelector("pre").textContent=""; };
+    b.querySelector("#lgC").onclick=async()=>{ const t=LOGA.join("\n"); let ok=false; try{ await navigator.clipboard.writeText(t); ok=true; }catch(e){} if(!ok){ try{ const r=document.createRange(); r.selectNodeContents(b.querySelector("pre")); const se=getSelection(); se.removeAllRanges(); se.addRange(r); ok=document.execCommand("copy"); }catch(e){} } b.querySelector("#lgC").textContent=ok?"Copied":"Select text and copy"; setTimeout(()=>{ b.querySelector("#lgC").textContent="Copy log"; },2000); };
+  }
+  b.style.display="flex"; const pre=b.querySelector("pre"); pre.textContent=LOGA.join("\n"); pre.scrollTop=pre.scrollHeight;
+}
+let LOG_LAST=Date.now();
+setInterval(()=>{ const n=Date.now(), gap=n-LOG_LAST; LOG_LAST=n; if(gap>20000) logAdd("GAP: app was frozen for "+Math.round(gap/1000)+" s"); },5000);
+setInterval(()=>{ logAdd("alive | "+document.visibilityState+" | screen-on "+(typeof WL!=="undefined"&&WL?"held":"not held")+" | video "+(typeof WV!=="undefined"&&WV?(WV.paused?"paused":"playing"):"none")+" | GPS "+(GPS&&GPS.on?"on":"off")); },30000);
+document.addEventListener("visibilitychange",()=>logAdd("Page is now "+document.visibilityState));
+window.addEventListener("pagehide",()=>logAdd("pagehide"));
+window.addEventListener("pageshow",()=>logAdd("pageshow"));
+logAdd("--- app started v"+VER+" | "+navigator.userAgent.replace(/^Mozilla\/5.0 /,"").slice(0,90)+" | standalone "+(navigator.standalone?"yes":"no")+" ---");
 
 /* ───────── direct line ───────── */
 let DIRECT_ON=LS.get("direct","1")==="1", TGT=null;
