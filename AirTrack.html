@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.028
+  PFD - Fly page   v0.01.029
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.028"}
+    page -> shell  {pfd:"hello", version:"0.01.029"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -728,6 +728,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .pillx.tlp{width:calc(100vw - var(--sl) - var(--sr) - 102px);box-sizing:border-box}
 .pillx.big2.tlp{padding-left:8px;padding-right:8px}
 .pillx.big2.grid.tlp{column-gap:3px}
+/* top pills: big text for reading at arm's length, no small icons, both pills the same width */
+.pillx.big2.grid.tlp{font-size:15px;font-weight:700;padding-left:7px;padding-right:7px}
+.pillx.big2.grid.tlp .r:before{display:none}
+.pillx.big2.grid.tlp .r{justify-content:flex-end}
 .pillx{background:rgba(251,246,232,.96);border:1px solid var(--ink);border-radius:14px;padding:6px 11px;font:700 11px var(--font-mono);color:var(--ink);box-shadow:0 1px 4px rgba(14,35,72,.25);white-space:nowrap;pointer-events:none !important}
 #corr{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
 .pillx.big{font:700 15px var(--font-ui);padding:7px 14px;border-radius:18px}
@@ -774,7 +778,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .morph.col .m-full{opacity:0;transition-delay:0s}
 .morph .m-full.nat{white-space:nowrap}
 .morph.gy .m-full,.morph.gy .m-full .lb{color:#6b5d3f;font-weight:600}
-.morph .m-ph{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;white-space:nowrap;font:600 12px var(--font-ui);opacity:0;transition:opacity .25s}
+.morph .m-ph{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;white-space:nowrap;font:600 14px var(--font-ui);opacity:0;transition:opacity .25s}
 .morph.col .m-ph{opacity:1;transition-delay:.2s}
 .morph.col.live .m-ph{font-weight:700}
 .opw{width:216px;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(251,246,232,.96);border:3px solid var(--pc,var(--ink));border-radius:24px;box-shadow:0 1px 5px rgba(14,35,72,.3);color:var(--ink)}
@@ -950,7 +954,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.028 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">AirTrack · v0.01.029 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -965,7 +969,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.028";
+const VER="0.01.029";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1055,6 +1059,7 @@ function setRot(r){ ROT=TRACKUP? r : 0; applyRot(); }
 
 function initMap(){
   MAP=L.map("map",{center:[31.5,35.0],zoom:8,minZoom:6,maxZoom:18,zoomControl:false,zoomSnap:0,attributionControl:false,zoomAnimation:false,markerZoomAnimation:false,fadeAnimation:false});
+  MAP.doubleClickZoom.disable();   // the double-tap gesture is our own one-finger zoom
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,referrerPolicy:"strict-origin-when-cross-origin"}).addTo(MAP);
   // mouse / finger positions have to be turned back when the map box is turned
   MAP.mouseEventToContainerPoint=function(e){ const r=wrap.getBoundingClientRect(); return v2cp(e.clientX-r.left,e.clientY-r.top); };
@@ -2051,7 +2056,7 @@ function chartUi(){
 const PILL={W:268,cw:80,key:"",first:true,need:{}};
 const PWC={};
 const lostTxt=()=>(GPS.on&&POS)? "GPS signal lost" : "Waiting for GPS";
-function phW(txt){ if(PWC[txt]) return PWC[txt]; const m=document.createElement("span"); m.style.cssText="position:absolute;left:-999px;visibility:hidden;white-space:nowrap;font:600 12px var(--font-ui)"; m.textContent=txt; document.body.appendChild(m); const w=Math.ceil(m.offsetWidth)+24; m.remove(); PWC[txt]=w; return w; }
+function phW(txt){ if(PWC[txt]) return PWC[txt]; const m=document.createElement("span"); m.style.cssText="position:absolute;left:-999px;visibility:hidden;white-space:nowrap;font:600 14px var(--font-ui)"; m.textContent=txt; document.body.appendChild(m); const w=Math.ceil(m.offsetWidth)+24; m.remove(); PWC[txt]=w; return w; }
 function pillPrep(){
   PILL.need={};
   const key=innerWidth+"|"+FULL; if(PILL.key===key) return; PILL.key=key;
@@ -2163,14 +2168,21 @@ window.addEventListener("message",e=>{
 
 /* ───────── touches on the map: tap = pick a point; in Track up one finger drags the turned map ───────── */
 {
-  const ptrs=new Set(); let tap=null, last=null;
+  const ptrs=new Set(); let tap=null, last=null, LASTUP=null, PENDING=null, DZ=null;   // DZ: one-finger zoom (double-tap, keep the finger down, slide)
   wrap.addEventListener("wheel",()=>azOff(),{passive:true}); wrap.addEventListener("dblclick",()=>azOff());
   wrap.addEventListener("pointerdown",e=>{
     ptrs.add(e.pointerId);
-    if(ptrs.size>1){ tap=null; last=null; azOff(); return; }
+    if(ptrs.size>1){ tap=null; last=null; azOff(); if(DZ){ if(DZ.drag) MAP.dragging.enable(); DZ=null; } return; }
+    if(LASTUP&&Date.now()-LASTUP.t<300&&Math.hypot(e.clientX-LASTUP.x,e.clientY-LASTUP.y)<40){   // second tap of a double-tap: the finger stays down and slides to zoom
+      clearTimeout(PENDING); PENDING=null; LASTUP=null; tap=null; last=null;
+      DZ={id:e.pointerId,y:e.clientY,z:MAP.getZoom(),moved:false,drag:MAP.dragging.enabled()}; if(DZ.drag) MAP.dragging.disable(); return; }
     tap={x:e.clientX,y:e.clientY,t:Date.now(),id:e.pointerId,moved:false}; last={x:e.clientX,y:e.clientY};
   });
   wrap.addEventListener("pointermove",e=>{
+    if(DZ&&e.pointerId===DZ.id){   // slide down = zoom in, slide up = zoom out
+      const dy=e.clientY-DZ.y; if(Math.abs(dy)>6) DZ.moved=true;
+      if(DZ.moved){ azOff(); const z=Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),DZ.z+dy/110)); if(FOLLOW&&POS&&GPS.on) follow(z); else MAP.setZoom(z,{animate:false}); }
+      return; }
     if(!tap||e.pointerId!==tap.id) return;
     if(Math.hypot(e.clientX-tap.x,e.clientY-tap.y)>8) tap.moved=true;
     if(TRACKUP&&ptrs.size===1&&tap.moved&&last){
@@ -2182,7 +2194,9 @@ window.addEventListener("message",e=>{
   });
   const up=e=>{
     ptrs.delete(e.pointerId);
-    if(tap&&e.pointerId===tap.id&&!tap.moved&&e.type==="pointerup"&&Date.now()-tap.t<600){ const r=wrap.getBoundingClientRect(); onTap(e.clientX-r.left,e.clientY-r.top); }
+    if(DZ&&e.pointerId===DZ.id){ if(!DZ.moved&&e.type==="pointerup"){ azOff(); const z=Math.min(MAP.getMaxZoom(),MAP.getZoom()+1); if(FOLLOW&&POS&&GPS.on) follow(z); else MAP.setZoom(z,{animate:false}); }   // a plain double-tap zooms in one step
+      if(DZ.drag) MAP.dragging.enable(); DZ=null; return; }
+    if(tap&&e.pointerId===tap.id&&!tap.moved&&e.type==="pointerup"&&Date.now()-tap.t<600){ const r=wrap.getBoundingClientRect(), px=e.clientX-r.left, py=e.clientY-r.top; LASTUP={x:e.clientX,y:e.clientY,t:Date.now()}; clearTimeout(PENDING); PENDING=setTimeout(()=>{ PENDING=null; onTap(px,py); },230); }   // the tap waits a moment, in case it is the first half of a double-tap
     if(tap&&e.pointerId===tap.id) tap=null;
   };
   wrap.addEventListener("pointerup",up); wrap.addEventListener("pointercancel",up);
