@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.046
+  PFD - Fly page   v0.01.047
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.046"}
+    page -> shell  {pfd:"hello", version:"0.01.047"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.046 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.047 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.046";
+const VER="0.01.047";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1964,7 +1964,7 @@ function drawDone(){
   ui(); draw();
 }
 /* AUTO ZOOM: the map keeps the plane and the next waypoint on the screen. Zooms in as you near a point, eases out after you pass it. */
-const AZ_FILL=0.70, AZ_MINPX=5, AZ_MAXPX=1500;   // the plane-to-next-point line fills 70% of the free screen diagonal; limits in pixels per nautical mile
+const AZ_FILL=0.70, AZ_MINPX=5, AZ_MAXPX=300;   // the plane-to-next-point line fills 70% of the free screen diagonal; limits in pixels per nautical mile
 let AZ_ON=LS.get("az","1")==="1", AZ_T=0, AZ_HINT=false;   // AZ_HINT: the "tap Center" tip was already shown for this route
 function azLive(){ return AZ_ON&&FOLLOW&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length; }
 function azBox(){   // the free part of the screen: below the top pills, clear of the side buttons and the bottom row
@@ -1988,14 +1988,18 @@ setInterval(()=>{
   if(!MAP) return;
   const live=azLive(), def={x:0,y:VH*0.10};
   let tgt=def;
-  if(live){ const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), b=azBox(); tgt={x:(b.cx-VW/2)+(P.x-N.x)/2, y:(b.cy-VH/2)+(P.y-N.y)/2}; }   // the middle of the leg goes to the middle of the free screen
+  let zT=null;
+  if(live){ const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), b=azBox(); zT=azTarget();
+    const f=Math.pow(2,Math.max(-8,Math.min(8,zT-MAP.getZoom())));   // the picture is still at the old zoom: place the plane where it will stand at the new one, and never outside the free screen
+    let ox=(P.x-N.x)/2*f, oy=(P.y-N.y)/2*f; const hx=b.w/2-14, hy=b.h/2-14; ox=Math.max(-hx,Math.min(hx,ox)); oy=Math.max(-hy,Math.min(hy,oy));
+    tgt={x:(b.cx-VW/2)+ox, y:(b.cy-VH/2)+oy}; }   // the middle of the leg goes to the middle of the free screen
   if(!live&&!AZ_OFF) return;
   const cur=AZ_OFF||def, ke=1-Math.exp(-dt/1.2), nx=cur.x+(tgt.x-cur.x)*ke, ny=cur.y+(tgt.y-cur.y)*ke;
   const moved=Math.hypot(nx-cur.x,ny-cur.y);
   AZ_OFF=(!live&&Math.hypot(nx-def.x,ny-def.y)<0.5)? null : {x:nx,y:ny};
   let st=0;
-  if(live){ const z=MAP.getZoom(), d=azTarget()-z, tau=d>0? 1.6 : 3.2; st=d*(1-Math.exp(-dt/tau)); const cap=0.43*dt; st=Math.max(-cap,Math.min(cap,st)); if(Math.abs(st)<0.003) st=0; }
-  if(st===0&&moved<0.3&&AZ_OFF) return;
+  if(live){ const z=MAP.getZoom(), d=zT-z, tau=d>0? 1.6 : 3.2; st=Math.abs(d)<0.03? 0 : d*(1-Math.exp(-dt/tau)); const cap=0.43*dt; st=Math.max(-cap,Math.min(cap,st)); if(Math.abs(st)<0.003) st=0; }   // a dead zone: GPS noise must not make the zoom twitch
+  if(st===0&&moved<0.6&&AZ_OFF) return;
   follow(MAP.getZoom()+st); draw();
 },100);
 function azOff(){ if(!AZ_ON) return; AZ_ON=false; LS.set("az","0"); ui(); }   // the pilot zooms by hand: auto zoom steps aside until the button is tapped again
