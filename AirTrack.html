@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.044
+  PFD - Fly page   v0.01.045
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.044"}
+    page -> shell  {pfd:"hello", version:"0.01.045"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.044 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.045 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.044";
+const VER="0.01.045";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1539,8 +1539,8 @@ function onPos(p){
 // keep the plane a little below the middle, so there is more map ahead
 function follow(zo){
   if(!POS||!GPS.on||!FOLLOW) return;
-  const z=zo!=null? zo : MAP.getZoom(), pp=MAP.project([POS.lat,POS.lon],z), dy=VH*0.10, c=Math.cos(ROT*RAD), n=Math.sin(ROT*RAD);
-  const mx=-dy*n, my=dy*c;   // that screen offset, in the map's own frame
+  const z=zo!=null? zo : MAP.getZoom(), pp=MAP.project([POS.lat,POS.lon],z), o=AZ_OFF||{x:0,y:VH*0.10}, c=Math.cos(ROT*RAD), n=Math.sin(ROT*RAD);
+  const mx=o.x*c-o.y*n, my=o.x*n+o.y*c;   // where the plane stands on the screen (normally a little below the middle), in the map's own frame
   MAP.setView(MAP.unproject(L.point(pp.x-mx,pp.y-my),z),z,{animate:false});
 }
 // no new position for a while: ask once for a fresh one (a phone that stands still sends few updates), and after 12 s call it lost
@@ -1892,26 +1892,39 @@ function drawDone(){
   ui(); draw();
 }
 /* AUTO ZOOM: the map keeps the plane and the next waypoint on the screen. Zooms in as you near a point, eases out after you pass it. */
-const AZ_MAXPX=250;   // closest auto zoom goes: pixels per nautical mile (it was 75, which kept several points on screen even one mile from the next)
+const AZ_FILL=0.70, AZ_MINPX=5, AZ_MAXPX=1500;   // the plane-to-next-point line fills 70% of the free screen diagonal; limits in pixels per nautical mile
 let AZ_ON=LS.get("az","1")==="1", AZ_T=0, AZ_HINT=false;   // AZ_HINT: the "tap Center" tip was already shown for this route
 function azLive(){ return AZ_ON&&FOLLOW&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length; }
-function azTarget(){
-  const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), z=MAP.getZoom(), dx=N.x-P.x, dy=N.y-P.y;
-  const g=$("gTL").getBoundingClientRect(), wr=wrap.getBoundingClientRect(), topL=Math.max(70,g.bottom-wr.top)+28, side=56, bot=72;
-  const rm=v=>Math.max(8,v), c=[];
-  if(dx>0.5) c.push(Math.log2(rm(VW-side-P.x)/dx)); else if(dx<-0.5) c.push(Math.log2(rm(P.x-side)/-dx));
-  if(dy>0.5) c.push(Math.log2(rm(VH-bot-P.y)/dy)); else if(dy<-0.5) c.push(Math.log2(rm(P.y-topL)/-dy));
-  const zt=z+(c.length? Math.min(...c) : 9), k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852), zf=px=>Math.log2(px*k);   // zoom that gives px pixels per nautical mile
-  return Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),Math.max(zf(14),Math.min(zf(AZ_MAXPX),zt))));
+function azBox(){   // the free part of the screen: below the top pills, clear of the side buttons and the bottom row
+  const g=$("gTL").getBoundingClientRect(), wr=wrap.getBoundingClientRect(), y1=Math.max(70,g.bottom-wr.top)+28, x1=56, x2=VW-56, y2=VH-72;
+  return {w:x2-x1,h:y2-y1,cx:(x1+x2)/2,cy:(y1+y2)/2};
 }
+let AZ_OFF=null;   // where the plane stands on the screen while auto zoom frames the leg (null = the normal spot)
+function azTarget(){
+  const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), z=MAP.getZoom(), dx=N.x-P.x, dy=N.y-P.y, len=Math.hypot(dx,dy);
+  const k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852), zf=px=>Math.log2(px*k), lim=zt=>Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),Math.max(zf(AZ_MINPX),Math.min(zf(AZ_MAXPX),zt))));
+  if(len<1) return lim(99);
+  // the one rule: the line from the plane to the next point covers 70% of the free screen's diagonal, and always stays inside it (15% room each end)
+  const b=AZ_BOX=azBox(), ux=Math.abs(dx)/len, uy=Math.abs(dy)/len;
+  const L=Math.min(AZ_FILL*Math.hypot(b.w,b.h), ux>0.001? 0.85*b.w/ux : 1e9, uy>0.001? 0.85*b.h/uy : 1e9);
+  return lim(z+Math.log2(L/len));
+}
+let AZ_BOX=null;
 setInterval(()=>{
   const now=performance.now(), dt=Math.min(0.5,(now-AZ_T)/1000); AZ_T=now;
   if(MAP&&AZ_ON&&!FOLLOW&&!AZ_HINT&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2){ AZ_HINT=true; toast("Auto zoom works while the map follows you. Tap Center.",4500); }   // after drawing or loading a route the map stands still, so auto zoom waits
-  if(!MAP||!azLive()) return;
-  const z=MAP.getZoom(), d=azTarget()-z, tau=d>0? 1.6 : 3.2;
-  let st=d*(1-Math.exp(-dt/tau)); const cap=0.43*dt; st=Math.max(-cap,Math.min(cap,st));
-  if(Math.abs(st)<0.003) return;
-  follow(z+st); draw();
+  if(!MAP) return;
+  const live=azLive(), def={x:0,y:VH*0.10};
+  let tgt=def;
+  if(live){ const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), b=azBox(); tgt={x:(b.cx-VW/2)+(P.x-N.x)/2, y:(b.cy-VH/2)+(P.y-N.y)/2}; }   // the middle of the leg goes to the middle of the free screen
+  if(!live&&!AZ_OFF) return;
+  const cur=AZ_OFF||def, ke=1-Math.exp(-dt/1.2), nx=cur.x+(tgt.x-cur.x)*ke, ny=cur.y+(tgt.y-cur.y)*ke;
+  const moved=Math.hypot(nx-cur.x,ny-cur.y);
+  AZ_OFF=(!live&&Math.hypot(nx-def.x,ny-def.y)<0.5)? null : {x:nx,y:ny};
+  let st=0;
+  if(live){ const z=MAP.getZoom(), d=azTarget()-z, tau=d>0? 1.6 : 3.2; st=d*(1-Math.exp(-dt/tau)); const cap=0.43*dt; st=Math.max(-cap,Math.min(cap,st)); if(Math.abs(st)<0.003) st=0; }
+  if(st===0&&moved<0.3&&AZ_OFF) return;
+  follow(MAP.getZoom()+st); draw();
 },100);
 function azOff(){ if(!AZ_ON) return; AZ_ON=false; LS.set("az","0"); ui(); }   // the pilot zooms by hand: auto zoom steps aside until the button is tapped again
 // Next waypoint: passed when the plane crosses the line that stands across the route at that point (the bisector at a turn)
