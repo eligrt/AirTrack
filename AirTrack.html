@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.036
+  PFD - Fly page   v0.01.037
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.036"}
+    page -> shell  {pfd:"hello", version:"0.01.037"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -954,7 +954,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.036 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.037 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -969,7 +969,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.036";
+const VER="0.01.037";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1570,6 +1570,18 @@ document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="visible"){ if(GPS.on) wakeOn(); }
 });
 
+
+/* ───────── welcome note: its tap lets the phone accept the screen-on request ───────── */
+function welcomeShow(){
+  if(document.getElementById("welcome")||WL) return;
+  const w=document.createElement("div"); w.id="welcome";
+  w.style.cssText="position:fixed;left:0;top:0;right:0;bottom:0;z-index:9000;background:rgba(14,35,72,.55);display:flex;align-items:center;justify-content:center;padding:24px";
+  w.innerHTML='<div style="background:#fff;border-radius:18px;padding:28px 22px 22px;max-width:320px;width:100%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.35);font-family:-apple-system,system-ui,sans-serif"><div style="font-size:26px;font-weight:700;color:#0e2348;margin-bottom:8px">Hi pilot</div><div style="font-size:18px;color:#333;margin-bottom:22px">Welcome to AirTrack</div><button type="button" style="width:100%;font-size:20px;font-weight:700;padding:16px;border-radius:12px;border:0;background:#1c3d6e;color:#fff">Tap to continue</button></div>';
+  w.addEventListener("click",()=>{ wakeOn("tap"); w.remove(); });
+  document.body.appendChild(w);
+}
+setTimeout(welcomeShow,500);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") setTimeout(welcomeShow,700); });
 
 /* ───────── test log (for exploration only; tap the version text in the footer) ───────── */
 let LOGA=[]; try{ LOGA=JSON.parse(localStorage.getItem("at_log")||"[]"); }catch(e){}
