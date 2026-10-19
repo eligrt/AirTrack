@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.037
+  PFD - Fly page   v0.01.038
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.037"}
+    page -> shell  {pfd:"hello", version:"0.01.038"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -744,6 +744,25 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 #chartCard{position:absolute;z-index:10;left:50%;transform:translateX(-50%);bottom:var(--sb);display:flex;flex-direction:column-reverse;gap:6px;align-items:center}
 #chartCard.hid{display:none}
 #chartCard{--pc:#1c3d6e}
+/* base map choice: slim selector under the chart switch; its popup stays open so the effect on the map is visible */
+#chartCard .bsel{width:216px;height:40px;display:flex;align-items:center;gap:8px;padding:0 12px 0 5px;margin-bottom:6px;background:rgba(251,246,232,.96);border:1.5px solid #44505c;border-radius:22px;box-shadow:0 1px 4px rgba(14,35,72,.25);color:var(--ink);cursor:pointer}
+.bsw{width:30px;height:30px;border-radius:50%;border:1.5px solid #44505c;flex:none;display:block}
+.bsel .bnm{flex:1;min-width:0;text-align:left}
+.bsel .bnm i{display:block;font:700 9px var(--font-mono);letter-spacing:.06em;color:#44505c;font-style:normal}
+.bsel .bnm b{display:block;font:700 14px var(--font-ui);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bsel .bch{color:#44505c;font-size:13px;flex:none}
+.bpop{position:absolute;left:50%;transform:translateX(-50%);bottom:52px;width:268px;display:none;background:var(--paper-hi);border:1.5px solid var(--ink);border-radius:14px;box-shadow:0 4px 16px rgba(14,35,72,.4);padding:6px;grid-template-columns:1fr 1fr;gap:8px;z-index:3}
+.bpop.show{display:grid}
+.bpop .tl{text-align:center;font:700 12.5px var(--font-ui);line-height:1.15;color:var(--ink);padding:3px;border-radius:12px;cursor:pointer}
+.bpop .tl .bsw{width:100%;height:54px;border-radius:10px;border-width:1px;margin-bottom:3px}
+.bpop .tl.on{background:var(--gold-lite);color:var(--ink-dark)}
+.bpop .tl.on .bsw{border:3px solid #44505c}
+.bsw.std{background:linear-gradient(112deg,#b9d7ea 0 25%,transparent 25%),#efeadf}
+.bsw.sat{background:radial-gradient(circle at 30% 30%,#55683f 0 20%,transparent 21%),radial-gradient(circle at 70% 70%,#6b5f43 0 25%,transparent 26%),#3b4a32}
+.bsw.sat2{background:radial-gradient(circle at 30% 30%,#6f7f55 0 22%,transparent 23%),radial-gradient(circle at 70% 65%,#8a7d5f 0 26%,transparent 27%),linear-gradient(112deg,#2a4660 0 17%,transparent 17%),#5a6a48}
+.bsw.estreet{background:linear-gradient(112deg,#a9cfe3 0 25%,transparent 25%),#f1ede2}
+.bsw.topo{background:repeating-radial-gradient(circle at 65% 40%,transparent 0 5px,#b9a97a 5px 6px),linear-gradient(112deg,#b9d7ea 0 25%,transparent 25%),#dfe8c8}
+.bsw.shade{background:radial-gradient(ellipse at 35% 30%,#fff 0 12%,transparent 40%),radial-gradient(ellipse at 70% 65%,#6d6d6d 0 10%,transparent 45%),linear-gradient(135deg,#d8d8d2,#a9a9a2)}
 #routeCard{position:absolute;z-index:10;left:50%;transform:translateX(-50%);bottom:var(--sb);display:flex;flex-direction:column-reverse;gap:6px;align-items:center;--pc:#1f7a6d}
 #routeCard.hid{display:none}
 .phd{align-self:center;background:rgba(251,246,232,.96);border:1px solid var(--ink);border-radius:16px;padding:5px 12px;font:700 12.5px var(--font-ui);color:var(--ink);box-shadow:0 1px 4px rgba(14,35,72,.25);white-space:nowrap}
@@ -926,6 +945,8 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </div>
 <!-- bottom centre: chart controls -->
 <div id="chartCard" class="hid">
+  <div id="basePick" class="bsel" role="button" aria-label="Base map"><span class="bsw"></span><span class="bnm"><i>BASE MAP</i><b></b></span><span class="bch">&#9650;</span></div>
+  <div id="basePop" class="bpop"></div>
   <div class="csw"><button type="button" id="swLsa">LSA</button><button type="button" id="swCvfr">CVFR</button><button type="button" id="swHel">HEL</button></div>
   <div class="opw"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><input type="range" id="lsaOp" min="0" max="100" value="100" aria-label="Chart transparency"></div>
   <div id="lsaLinks"><button type="button" id="lsaRep">Replace chart</button><i>·</i><button type="button" id="lsaDel">Delete chart</button></div>
@@ -954,7 +975,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.037 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.038 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -969,7 +990,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.037";
+const VER="0.01.038";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1060,7 +1081,7 @@ function setRot(r){ ROT=TRACKUP? r : 0; applyRot(); }
 function initMap(){
   MAP=L.map("map",{center:[31.5,35.0],zoom:8,minZoom:6,maxZoom:18,zoomControl:false,zoomSnap:0,attributionControl:false,zoomAnimation:false,markerZoomAnimation:false,fadeAnimation:false});
   MAP.doubleClickZoom.disable();   // the double-tap gesture is our own one-finger zoom
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,referrerPolicy:"strict-origin-when-cross-origin"}).addTo(MAP);
+  baseSet(BASE_K,true);
   // mouse / finger positions have to be turned back when the map box is turned
   MAP.mouseEventToContainerPoint=function(e){ const r=wrap.getBoundingClientRect(); return v2cp(e.clientX-r.left,e.clientY-r.top); };
   if(TRACKUP) MAP.dragging.disable();
@@ -1609,6 +1630,7 @@ logAdd("--- app started v"+VER+" | "+navigator.userAgent.replace(/^Mozilla\/5.0 
 let DIRECT_ON=LS.get("direct","1")==="1", TGT=null;
 let RINGS=(()=>{ const v=LS.get("rings","nm"); return v==="1"? "nm" : v==="0"? "off" : (v==="off"||v==="nm"||v==="min")? v : "nm"; })();   // rings: Off, NM or MIN
 function onTap(vx,vy){
+  if($("basePop").classList.contains("show")){ basePopSet(false); return; }   // a tap on the map only closes the base map list
   if(uiRects(14).some(c=>vx>=c.x1&&vx<=c.x2&&vy>=c.y1&&vy<=c.y2)) return;   // the area around buttons, pills and panels is sterile: a tap there never picks a point
   if(DRAW.on){ drawTap(vx,vy); return; }
   if(!DIRECT_ON) return;
@@ -2118,7 +2140,7 @@ function setPill(id,o){
 // everything on screen that a line label must never cover (buttons, pills, panels, ring names, the plane, route pins); rebuilt on every draw
 let OCC=[], NAMER=[];
 function uiRects(m){ const wr=wrap.getBoundingClientRect(), out=[];
-  document.querySelectorAll(".grp .btn,.grp .morph,#chartCard:not(.hid),#routeCard:not(.hid),#toast.show").forEach(e=>{ const r=e.getBoundingClientRect(); if(r.width<2||r.height<2) return; out.push({x1:r.left-wr.left-m,x2:r.right-wr.left+m,y1:r.top-wr.top-m,y2:r.bottom-wr.top+m}); });
+  document.querySelectorAll(".grp .btn,.grp .morph,#chartCard:not(.hid),#routeCard:not(.hid),.bpop.show,#toast.show").forEach(e=>{ const r=e.getBoundingClientRect(); if(r.width<2||r.height<2) return; out.push({x1:r.left-wr.left-m,x2:r.right-wr.left+m,y1:r.top-wr.top-m,y2:r.bottom-wr.top+m}); });
   return out; }
 const hit=(A,B)=>A.x1<B.x2&&B.x1<A.x2&&A.y1<B.y2&&B.y1<A.y2;
 // puts a line's name pill at the preferred spot, or the nearest spot along the line that is free; hides it when the line has no free room
@@ -2157,8 +2179,38 @@ $("dClear").innerHTML=ICON.trash; $("dUndo").innerHTML=ICON.undo; $("dDone").inn
 $("bRoute").addEventListener("click",routeTap);
 $("dClear").addEventListener("click",drawClearAsk); $("dUndo").addEventListener("click",drawUndo); $("dDone").addEventListener("click",drawDone);
 $("bComp").addEventListener("click",()=>{ if(COMP_ON){ compassStop(); ui(); draw(); } else compassStart(); });   // the motion prompt comes only from this tap
+/* base maps: the map picture under the charts. OSM is the default; the others come from Esri and EOX */
+const ESRI="https://server.arcgisonline.com/ArcGIS/rest/services/";
+const BASES=[
+ {k:"std",n:"Street (OSM)",u:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",z:19,a:"© OpenStreetMap contributors"},
+ {k:"sat",n:"Satellite",u:ESRI+"World_Imagery/MapServer/tile/{z}/{y}/{x}",z:19,a:"Imagery © Esri and its data providers"},
+ {k:"sat2",n:"Satellite 2",u:"https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg",z:14,a:"Sentinel-2 cloudless by EOX"},
+ {k:"estreet",n:"Roads (Esri)",u:ESRI+"World_Street_Map/MapServer/tile/{z}/{y}/{x}",z:19,a:"Tiles © Esri"},
+ {k:"topo",n:"Terrain",u:ESRI+"World_Topo_Map/MapServer/tile/{z}/{y}/{x}",z:19,a:"Tiles © Esri"},
+ {k:"shade",n:"Terrain shaded",u:ESRI+"World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}",z:13,a:"Tiles © Esri"}
+];
+let BASE_K=LS.get("base","std"); if(!BASES.some(b=>b.k===BASE_K)) BASE_K="std";
+let BASE_L=null;
+function baseSet(k,quiet){
+  const b=BASES.find(x=>x.k===k)||BASES[0]; BASE_K=b.k; LS.set("base",b.k);
+  if(BASE_L){ MAP.removeLayer(BASE_L); BASE_L=null; }
+  BASE_L=L.tileLayer(b.u,{maxZoom:19,maxNativeZoom:b.z,referrerPolicy:"strict-origin-when-cross-origin"}).addTo(MAP); BASE_L.bringToBack();
+  $("attr").textContent=b.a+" · Layers: IAA GIS";
+  baseUi();
+}
+function baseUi(){
+  const b=BASES.find(x=>x.k===BASE_K);
+  const sw=document.querySelector("#basePick .bsw"); if(sw) sw.className="bsw "+b.k;
+  const nm=document.querySelector("#basePick .bnm b"); if(nm) nm.textContent=b.n;
+  const pop=$("basePop"); const h=BASES.map(x=>'<div class="tl'+(x.k===BASE_K?" on":"")+'" data-k="'+x.k+'"><span class="bsw '+x.k+'"></span>'+x.n+'</div>').join("");
+  if(pop._h!==h){ pop.innerHTML=h; pop._h=h; }
+  $("basePick").querySelector(".bch").innerHTML=pop.classList.contains("show")?"&#9660;":"&#9650;";
+}
+function basePopSet(on){ $("basePop").classList.toggle("show",!!on); baseUi(); }
+$("basePick").addEventListener("click",()=>basePopSet(!$("basePop").classList.contains("show")));
+$("basePop").addEventListener("click",e=>{ const t=e.target.closest(".tl"); if(t) baseSet(t.dataset.k); });   // stays open, so the pilot sees the real effect on the map
 // one layers button: each tap moves on - Charts, then Routes, then closed
-function lpSet(m){ LPANEL=m; $("chartCard").classList.toggle("hid",m!=="charts"); $("routeCard").classList.toggle("hid",m!=="routes"); chartUi(); draw(); }
+function lpSet(m){ LPANEL=m; basePopSet(false); $("chartCard").classList.toggle("hid",m!=="charts"); $("routeCard").classList.toggle("hid",m!=="routes"); chartUi(); draw(); }
 $("bChart").addEventListener("click",()=>lpSet(LPANEL===""? "charts" : LPANEL==="charts"? "routes" : ""));
 const RTK=[["sport","Lsa"],["cvfr","Cvfr"]];
 function rtUi(){ RTK.forEach(([id,n])=>{ const r=RT[id]; $("rw"+n).classList.toggle("on",r.on); const sl=$("ro"+n), v=Math.round(r.op*100); if(+sl.value!==v) sl.value=v; }); }
