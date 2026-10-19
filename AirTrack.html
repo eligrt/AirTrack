@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.049
+  PFD - Fly page   v0.01.050
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.049"}
+    page -> shell  {pfd:"hello", version:"0.01.050"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.049 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.050 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.049";
+const VER="0.01.050";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1978,9 +1978,9 @@ function azTarget(){
   const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), z=MAP.getZoom(), dx=N.x-P.x, dy=N.y-P.y, len=Math.hypot(dx,dy);
   const k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852), zf=px=>Math.log2(px*k), lim=zt=>Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),Math.max(zf(AZ_MINPX),Math.min(zf(AZ_MAXPX),zt))));
   if(len<1) return lim(99);
-  // the one rule: the line from the plane to the next point covers 70% of the free screen's diagonal, and always stays inside it (15% room each end)
+  // the plane stays in the middle of the free screen; the line to the next point reaches 70% of the way from the plane to the screen edge
   const b=AZ_BOX=azBox(), ux=Math.abs(dx)/len, uy=Math.abs(dy)/len;
-  const L=Math.min(AZ_FILL*Math.hypot(b.w,b.h), ux>0.001? 0.85*b.w/ux : 1e9, uy>0.001? 0.85*b.h/uy : 1e9);
+  const L=AZ_FILL*Math.min(ux>0.001? (b.w/2)/ux : 1e9, uy>0.001? (b.h/2)/uy : 1e9);
   return lim(z+Math.log2(L/len));
 }
 let AZ_BOX=null;
@@ -2001,9 +2001,7 @@ function frameTick(now){
   if(AZ_ON&&!FOLLOW&&!AZ_HINT&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2){ AZ_HINT=true; toast("Auto zoom works while the map follows you. Tap Center.",4500); }   // after drawing or loading a route the map stands still, so auto zoom waits
   const live=azLive(), def={x:0,y:VH*0.10}; let tgt=def, zT=null;
   if(live){ const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), b=azBox(); zT=azTarget();
-    const f=Math.pow(2,Math.max(-8,Math.min(8,zT-MAP.getZoom())));   // the picture is still at the old zoom: place the plane where it will stand at the new one, and never outside the free screen
-    let ox=(P.x-N.x)/2*f, oy=(P.y-N.y)/2*f; const hx=b.w/2-14, hy=b.h/2-14; ox=Math.max(-hx,Math.min(hx,ox)); oy=Math.max(-hy,Math.min(hy,oy));
-    tgt={x:(b.cx-VW/2)+ox, y:(b.cy-VH/2)+oy}; }   // the middle of the leg goes to the middle of the free screen
+    tgt={x:b.cx-VW/2, y:b.cy-VH/2}; }   // the plane stands still in the middle of the free screen, the map moves under it
   let offMoved=0;
   if(live||AZ_OFF){ const cur=AZ_OFF||def, ke=1-Math.exp(-dt/1.2), nx=cur.x+(tgt.x-cur.x)*ke, ny=cur.y+(tgt.y-cur.y)*ke; offMoved=Math.hypot(nx-cur.x,ny-cur.y);
     AZ_OFF=(!live&&Math.hypot(nx-def.x,ny-def.y)<0.5)? null : {x:nx,y:ny}; }
