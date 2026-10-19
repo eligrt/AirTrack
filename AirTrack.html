@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.041
+  PFD - Fly page   v0.01.043
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.041"}
+    page -> shell  {pfd:"hello", version:"0.01.043"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -973,10 +973,10 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <button class="btn" id="bNorth" type="button" aria-label="North up or Track up"></button>
 </div>
 <div id="drawbar">
-  <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
+  <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.041 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.043 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.041";
+const VER="0.01.043";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1025,7 +1025,8 @@ const ICON={
   compass:SV('<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>'),
   trash:SV('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>'),
   undo:SV('<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>'),
-  check:SV('<path d="M5 12.5l4.5 4.5L19 7"/>',' stroke-width="2.4"')
+  check:SV('<path d="M5 12.5l4.5 4.5L19 7"/>',' stroke-width="2.4"'),
+  cancel:SV('<path d="M6 6l12 12M18 6L6 18"/>',' stroke-width="2.4"')
 };
 const nglyph=rot=>'<svg viewBox="0 0 24 24" style="width:30px;height:30px"><g transform="rotate('+rot.toFixed(1)+' 12 12)"><path d="M12 1.5 L16 9 L8 9Z" fill="#c62828"/><text x="12" y="21.5" font-size="12.5" font-weight="800" font-family="IBM Plex Sans Hebrew,system-ui,sans-serif" text-anchor="middle" fill="currentColor">N</text></g></svg>';
 
@@ -1586,6 +1587,7 @@ function compassStart(){
 }
 function compassStop(){ COMP_ON=false; HRAW=null; HDG=null; CV=null; if(COMP_T){ cancelAnimationFrame(COMP_T); COMP_T=0; } window.removeEventListener("deviceorientationabsolute",onOri,true); window.removeEventListener("deviceorientation",onOri,true); }
 let WL_BUSY=false;
+setTimeout(()=>{ try{ logEnv(); }catch(e){} },1500);
 async function wakeOn(why){ if(WL_BUSY||WL) return; WL_BUSY=true; logAdd("Screen-on request ("+(why||"auto")+") | focus "+(document.hasFocus()?"yes":"no")+" | visible "+document.visibilityState+" | supported "+(navigator.wakeLock?"yes":"no")); try{ if(navigator.wakeLock&&!WL){ WL=await navigator.wakeLock.request("screen"); logAdd("Screen-on request ACCEPTED"); WL.addEventListener("release",()=>{ WL=null; logAdd("Screen-on TAKEN BACK by the phone"); }); } else if(!navigator.wakeLock){ logAdd("Screen-on request not supported by this phone"); } }catch(e){ logAdd("Screen-on request REFUSED: "+(e&&e.name||"")+" "+(e&&e.message||"")); }  WL_BUSY=false; }
 function wakeOff(){ try{ if(WL) WL.release(); }catch(e){} WL=null;  logAdd("Screen-on switched off by the app"); }
 // the first tap asks again: some phones only accept the screen-on request right after a touch
@@ -1610,7 +1612,12 @@ document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==
 /* ───────── test log (for exploration only; tap the version text in the footer) ───────── */
 let LOGA=[]; try{ LOGA=JSON.parse(localStorage.getItem("at_log")||"[]"); }catch(e){}
 function logAdd(t){ const d=new Date(), p=n=>String(n).padStart(2,"0"); LOGA.push(p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds())+"  "+t); if(LOGA.length>400) LOGA.splice(0,LOGA.length-400); try{ localStorage.setItem("at_log",JSON.stringify(LOGA)); }catch(e){} const b=document.getElementById("logBox"); if(b&&b.style.display!=="none"){ b.querySelector("pre").textContent=LOGA.join("\n"); } }
+function logEnv(){   // screen facts for the top-strip question: the phone's own insets, sizes, and how the page was opened
+  try{ const p=document.createElement("div"); p.style.cssText="position:fixed;left:0;top:0;visibility:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)"; document.body.appendChild(p); const c=getComputedStyle(p);
+    logAdd("ENV inset t/r/b/l="+c.paddingTop+"/"+c.paddingRight+"/"+c.paddingBottom+"/"+c.paddingLeft+" inner="+innerWidth+"x"+innerHeight+" screen="+screen.width+"x"+screen.height+" standalone="+(navigator.standalone===true)+" full="+FULL+" hh="+getComputedStyle(document.documentElement).getPropertyValue("--hh")); p.remove(); }catch(e){}
+}
 function logOpen(){
+  logEnv();
   let b=document.getElementById("logBox");
   if(!b){ b=document.createElement("div"); b.id="logBox"; b.style.cssText="position:fixed;left:8px;right:8px;top:60px;bottom:60px;z-index:99999;background:#fff;border:2px solid #1c3d6e;border-radius:12px;display:flex;flex-direction:column;padding:8px;font:12px/1.35 monospace;color:#111";
     b.innerHTML='<div style="display:flex;gap:8px;margin-bottom:6px"><button id="lgC" style="flex:1;font-size:16px;padding:10px;border-radius:8px;border:1px solid #1c3d6e;background:#1c3d6e;color:#fff">Copy log</button><button id="lgX" style="flex:1;font-size:16px;padding:10px;border-radius:8px;border:1px solid #888;background:#eee">Clear</button><button id="lgK" style="flex:1;font-size:16px;padding:10px;border-radius:8px;border:1px solid #888;background:#eee">Close</button></div><pre style="flex:1;overflow:auto;margin:0;white-space:pre-wrap"></pre>';
@@ -1794,7 +1801,7 @@ function draw(){
 /* ───────── route from a GPX file, with the corridor around it ───────── */
 let ROUTE={layer:null,name:"",al:[],meta:[],dots:[],len:0,wp:[],pins:false,drawn:false};   // wp = the waypoints in order: {lat,lon,name}
 let NX={i:1,pc:0,lastT:0};   // Next waypoint: index into wp, how many fixes in a row are past it, time of the last fix used
-const DRAW={on:false,pts:[]};
+const DRAW={on:false,pts:[],prev:null};   // prev: the route that was on the map before drawing began, so Cancel can bring it back
 const CORR_NM=1;   // corridor: 1 NM each side, fixed
 let DRIFT=null;   // where the plane is compared with the route: {d NM, side +1 right / -1 left, rem NM, q = nearest point on the route}
 const lineNM=a=>{ let t=0; for(let i=0;i<a.length-1;i++) t+=distNM(a[i][0],a[i][1],a[i+1][0],a[i+1][1]); return t; };
@@ -1853,7 +1860,7 @@ function routeBuild(pts){   // a drawn route: the points in order, with the same
   ROUTE={layer:g,name:"My route",al:[a],meta:[{s:wp[0].name,e:wp[wp.length-1].name}],dots:[],len:lineNM(a),main:0,wp,pins:true,drawn:true};
 }
 function drawStart(pts){
-  DRAW.on=true; DRAW.pts=pts; FOLLOW=false; snapLoad().catch(()=>{});
+  DRAW.prev=ROUTE.layer? ROUTE : null; DRAW.on=true; DRAW.pts=pts; FOLLOW=false; snapLoad().catch(()=>{});
   routeBuild(DRAW.pts); ui(); draw();
 }
 function drawTap(vx,vy){
@@ -1864,19 +1871,28 @@ function drawTap(vx,vy){
   DRAW.pts.push(p); routeBuild(DRAW.pts); ui(); draw();
 }
 function drawUndo(){ if(!DRAW.pts.length) return; DRAW.pts.pop(); routeBuild(DRAW.pts); ui(); draw(); }
+function drawExit(){   // leave drawing without saving: the old route (if there was one) comes back
+  DRAW.on=false; DRAW.pts=[]; routeClear();
+  if(DRAW.prev&&DRAW.prev.layer){ ROUTE=DRAW.prev; ROUTE.layer.addTo(MAP); }
+  DRAW.prev=null; ui(); draw();
+}
+function drawCancelAsk(){
+  if(!DRAW.pts.length){ drawExit(); return; }
+  dlg("Leave without saving?","Your points will be lost.",[["Leave","stp2",drawExit],["Keep drawing","keep"]],$("dCancel"),"up");
+}
 function drawClearAsk(){
   if(!DRAW.pts.length) return;
   dlg("Clear all points?","",[["Clear all points","stp2",()=>{ DRAW.pts=[]; routeBuild([]); ui(); draw(); }],["Keep drawing","keep"]],$("dClear"),"up");
 }
 function drawDone(){
   if(DRAW.pts.length<2) return;
-  routeBuild(DRAW.pts); DRAW.on=false;
+  routeBuild(DRAW.pts); DRAW.on=false; DRAW.prev=null;
   kvSet("route",{drawn:true,pts:DRAW.pts.map(p=>({lat:p.lat,lon:p.lon,name:p.name})),name:"My route"});
-  FOLLOW=false; MAP.fitBounds(L.latLngBounds(ROUTE.al[0]),{padding:[70,70],animate:false});
+  FOLLOW=false; AZ_HINT=false; MAP.fitBounds(L.latLngBounds(ROUTE.al[0]),{padding:[70,70],animate:false});
   ui(); draw();
 }
 /* AUTO ZOOM: the map keeps the plane and the next waypoint on the screen. Zooms in as you near a point, eases out after you pass it. */
-let AZ_ON=LS.get("az","1")==="1", AZ_T=0;
+let AZ_ON=LS.get("az","1")==="1", AZ_T=0, AZ_HINT=false;   // AZ_HINT: the "tap Center" tip was already shown for this route
 function azLive(){ return AZ_ON&&FOLLOW&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length; }
 function azTarget(){
   const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), z=MAP.getZoom(), dx=N.x-P.x, dy=N.y-P.y;
@@ -1889,6 +1905,7 @@ function azTarget(){
 }
 setInterval(()=>{
   const now=performance.now(), dt=Math.min(0.5,(now-AZ_T)/1000); AZ_T=now;
+  if(MAP&&AZ_ON&&!FOLLOW&&!AZ_HINT&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2){ AZ_HINT=true; toast("Auto zoom works while the map follows you. Tap Center.",4500); }   // after drawing or loading a route the map stands still, so auto zoom waits
   if(!MAP||!azLive()) return;
   const z=MAP.getZoom(), d=azTarget()-z, tau=d>0? 1.6 : 3.2;
   let st=d*(1-Math.exp(-dt/tau)); const cap=0.43*dt; st=Math.max(-cap,Math.min(cap,st));
@@ -2180,9 +2197,9 @@ function ui(){
 }
 $("bRoute").innerHTML=ICON.draw+'<span class="tag">DRAW</span>';
 $("bRings").innerHTML=ICON.ring; $("bDirect").innerHTML=ICON.dir+'<span class="tag">DIRECT</span>'; $("bGps").innerHTML=ICON.gps+'<span class="tag">CENTER</span>'; $("bComp").innerHTML=ICON.compass+'<span class="tag">COMPASS</span>';
-$("dClear").innerHTML=ICON.trash; $("dUndo").innerHTML=ICON.undo; $("dDone").innerHTML=ICON.check;
+$("dCancel").innerHTML=ICON.cancel; $("dClear").innerHTML=ICON.trash; $("dUndo").innerHTML=ICON.undo; $("dDone").innerHTML=ICON.check;
 $("bRoute").addEventListener("click",routeTap);
-$("dClear").addEventListener("click",drawClearAsk); $("dUndo").addEventListener("click",drawUndo); $("dDone").addEventListener("click",drawDone);
+$("dClear").addEventListener("click",drawClearAsk); $("dCancel").addEventListener("click",drawCancelAsk); $("dUndo").addEventListener("click",drawUndo); $("dDone").addEventListener("click",drawDone);
 $("bComp").addEventListener("click",()=>{ if(COMP_ON){ compassStop(); ui(); draw(); } else compassStart(); });   // the motion prompt comes only from this tap
 /* base maps: the map picture under the charts. OSM is the default; the others come from Esri and EOX */
 const ESRI="https://server.arcgisonline.com/ArcGIS/rest/services/";
@@ -2232,7 +2249,7 @@ $("bRings").addEventListener("click",()=>{   // each tap: Off, then NM, then MIN
   RINGS= RINGS==="off"? "nm" : RINGS==="nm"? "min" : "off"; LS.set("rings",RINGS);
   ui(); draw();
 });
-$("bAuto").addEventListener("click",()=>{ AZ_ON=!AZ_ON; LS.set("az",AZ_ON?"1":"0"); ui(); if(AZ_ON&&!(ROUTE.wp&&ROUTE.wp.length>=2)) toast("Auto zoom follows your route",3000); });
+$("bAuto").addEventListener("click",()=>{ AZ_ON=!AZ_ON; LS.set("az",AZ_ON?"1":"0"); if(AZ_ON){ AZ_HINT=true; FOLLOW=true; if(POS&&GPS.on) follow(); } ui(); draw(); if(AZ_ON&&!(ROUTE.wp&&ROUTE.wp.length>=2)) toast("Auto zoom follows your route",3000); });
 $("bDirect").addEventListener("click",()=>{ DIRECT_ON=!DIRECT_ON; LS.set("direct",DIRECT_ON?"1":"0"); ui(); draw(); if(DIRECT_ON&&!TGT) toast("Tap a waypoint on the map",3000); });
 window.addEventListener("resize",()=>{ PILL.key=""; ui(); });
 $("bGps").addEventListener("click",()=>{
