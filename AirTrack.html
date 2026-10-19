@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.039
+  PFD - Fly page   v0.01.041
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.039"}
+    page -> shell  {pfd:"hello", version:"0.01.041"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -711,6 +711,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .grp>*{pointer-events:auto}
 .btn{width:44px;height:44px;border-radius:50%;background:rgba(251,246,232,.96);border:1.5px solid var(--ink);color:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 5px rgba(14,35,72,.3);padding:0;cursor:pointer;font-family:var(--font-ui);flex:none}
 .btn svg{width:22px;height:22px}
+#bDirect svg,#bRoute svg,#bAuto svg,#bLyrR svg,#bChart svg,#bGps svg,#bComp svg,#bRings svg{transform:translateY(-3px)}   /* lifted so the small label never hides the picture */
 .btn.on{background:var(--gold-lite);color:var(--ink-dark)}
 .btn.grey{color:var(--ink-muted);border-color:#8a7a5a;background:rgba(244,236,220,.96)}
 .btn.free{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-lite),0 1px 5px rgba(14,35,72,.3)}
@@ -773,11 +774,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 .rrow input{flex:1;min-width:0;-webkit-appearance:none;appearance:none;height:30px;background:transparent;margin:0;touch-action:none}
 .rrow input::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:#d8cba8}
 .rrow input::-moz-range-track{height:8px;border-radius:4px;background:#d8cba8}
-.rrow input::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-11px;border-radius:50%;background:var(--gold-lite);border:2.5px solid var(--pc)}
-.rrow input::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--gold-lite);border:2.5px solid var(--pc)}
+.rrow input::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-11px;border-radius:50%;background:var(--tb,var(--gold-lite));border:2.5px solid var(--pc)}
+.rrow input::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--tb,var(--gold-lite));border:2.5px solid var(--pc)}
 .rrow:not(.on) input{opacity:.45}
 .rrow:not(.on) input::-webkit-slider-thumb{background:#e6e0cf;border-color:#a79d86}
-.btn.lyr.lc,.btn.lyr.lr{background:var(--gold-lite);color:var(--ink-dark)}
+.btn.lyr.on{background:var(--gold-lite);color:var(--ink-dark)}
+#bDirect.grey .tag{background:#7b8794}
 .btn.lyr.lc{border:3px solid #1c3d6e}.btn.lyr.lr{border:3px solid #1f7a6d}
 .btn.lyr.lc .tag{background:#1c3d6e}.btn.lyr.lr .tag{background:#1f7a6d}
 .btn.lyr .tag{right:-8px}
@@ -805,8 +807,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#e6e0cf;font-family:va
 #lsaOp{flex:1;min-width:0;-webkit-appearance:none;appearance:none;height:30px;background:transparent;margin:0;touch-action:none}
 #lsaOp::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:#d8cba8}
 #lsaOp::-moz-range-track{height:8px;border-radius:4px;background:#d8cba8}
-#lsaOp::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-11px;border-radius:50%;background:var(--gold-lite);border:2.5px solid var(--pc,var(--ink))}
-#lsaOp::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--gold-lite);border:2.5px solid var(--pc,var(--ink))}
+#lsaOp::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-11px;border-radius:50%;background:var(--tb,var(--gold-lite));border:2.5px solid var(--pc,var(--ink))}
+#lsaOp::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--tb,var(--gold-lite));border:2.5px solid var(--pc,var(--ink))}
 #lsaSt{display:none;background:rgba(251,246,232,.96);border:1px solid var(--ink);border-radius:14px;padding:5px 11px;font:600 11.5px var(--font-ui);color:var(--ink);max-width:240px;text-align:center}
 #lsaSt.show{display:block}#lsaSt.err{color:#b00020;border-color:#b00020}
 #lsaLinks{display:none;align-items:center;gap:2px;background:rgba(251,246,232,.96);border:1px solid var(--ink);border-radius:14px;padding:0 4px;box-shadow:0 1px 4px rgba(14,35,72,.25)}
@@ -942,6 +944,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 <!-- top right: full screen -->
 <div class="grp" id="gTR" style="right:var(--sr);top:var(--st);align-items:flex-end">
   <button class="btn" id="bFull" type="button" aria-label="Full screen"></button>
+  <button class="btn az" id="bAuto" type="button" aria-label="Auto zoom"></button>
 </div>
 <!-- bottom centre: chart controls -->
 <div id="chartCard" class="hid">
@@ -950,19 +953,17 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="csw"><button type="button" id="swLsa">LSA</button><button type="button" id="swCvfr">CVFR</button><button type="button" id="swHel">HEL</button></div>
   <div class="opw"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg><input type="range" id="lsaOp" min="0" max="100" value="100" aria-label="Chart transparency"></div>
   <div id="lsaLinks"><button type="button" id="lsaRep">Replace chart</button><i>·</i><button type="button" id="lsaDel">Delete chart</button></div>
-  <div class="phd">Charts<span> · tap again for Routes</span></div>
   <div id="lsaSt"></div>
 </div>
 <!-- bottom centre: route layers (LSA and CVFR route lines and points), each with its own on/off and transparency -->
 <div id="routeCard" class="hid">
   <div class="rrow" id="rwCvfr"><button type="button" class="rl" id="rbCvfr">CVFR</button><input type="range" id="roCvfr" min="5" max="100" value="100" aria-label="CVFR routes transparency"></div>
   <div class="rrow" id="rwLsa"><button type="button" class="rl" id="rbLsa">LSA</button><input type="range" id="roLsa" min="5" max="100" value="100" aria-label="LSA routes transparency"></div>
-  <div class="phd">Routes<span> · tap again to close</span></div>
 </div>
 <!-- bottom left: layers, centre on the plane -->
 <div class="grp" id="gBL" style="left:var(--sl);bottom:var(--sb);align-items:flex-start">
-  <button class="btn az" id="bAuto" type="button" aria-label="Auto zoom"></button>
-  <button class="btn" id="bChart" type="button" aria-label="Chart"></button>
+  <button class="btn" id="bLyrR" type="button" aria-label="Routes"></button>
+  <button class="btn" id="bChart" type="button" aria-label="Charts"></button>
   <button class="btn" id="bGps" type="button" aria-label="GPS"></button>
 </div>
 <!-- bottom right: compass line, rings (Off, NM, MIN), north up or track up -->
@@ -975,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.039 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.041 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -990,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.039";
+const VER="0.01.041";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1010,12 +1011,14 @@ const SIM=/[?&]sim\b/.test(location.search);
 
 /* ───────── icons ───────── */
 const SV=(p,x)=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'+(x||"")+'>'+p+'</svg>';
+const thumbA=(el,a,rgb)=>el.style.setProperty("--tb","rgba("+rgb+","+Math.max(.1,a).toFixed(2)+")");   // the round handle fades with the slider: solid at the right, see-through at the left
 const ICON={
   az:SV('<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M8 10.5h5M10.5 8v5"/>'),
   full:SV('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'),
   fullx:SV('<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>'),
   layers:SV('<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>'),
   gps:SV('<circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>'),
+  draw:SV('<path d="M13 12l.8-3 6.7-7 2.5 2.5-7 6.7z"/><circle cx="3.5" cy="21" r="1.8"/><path d="M4.6 19.4L7 13.5L10 19.5L13 12"/>'),
   route:SV('<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/>'),
   ring:SV('<circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="6" stroke-dasharray="2.5 2.5"/><circle cx="12" cy="12" r="10" stroke-dasharray="2.5 2.5"/>'),
   dir:SV('<circle cx="6" cy="18" r="2.5"/><path d="M8 16L17 7"/><path d="M13 6h5v5"/>',' stroke-width="2.2"'),
@@ -1433,8 +1436,8 @@ function lsaInit(){
   LSA.op=Math.max(0,Math.min(1,(parseInt(LS.get("lsa_op","100"),10)||0)/100)); if(LS.get("lsa_op",null)===null) LSA.op=1;
   LSA.file=document.createElement("input"); LSA.file.type="file"; LSA.file.accept=".zip,application/zip,application/x-zip-compressed"; LSA.file.style.display="none";
   LSA.file.addEventListener("change",lsaOnFile); document.body.appendChild(LSA.file);
-  const op=$("lsaOp"); op.value=Math.round(LSA.op*100);
-  op.addEventListener("input",()=>{ LSA.op=op.value/100; CHK.forEach(o=>{ if(CH[o].chart) CH[o].chart.setOpacity(LSA.op); }); lsaInsetSync(); LS.set("lsa_op",String(op.value)); });
+  const op=$("lsaOp"); op.value=Math.round(LSA.op*100); thumbA(op,op.value/100,"28,61,110");
+  op.addEventListener("input",()=>{ LSA.op=op.value/100; CHK.forEach(o=>{ if(CH[o].chart) CH[o].chart.setOpacity(LSA.op); }); lsaInsetSync(); LS.set("lsa_op",String(op.value)); thumbA(op,op.value/100,"28,61,110"); });
   $("swLsa").addEventListener("click",()=>chTap("lsa")); $("swCvfr").addEventListener("click",()=>chTap("cvfr")); $("swHel").addEventListener("click",()=>chTap("hel"));
   $("lsaRep").addEventListener("click",chReplace); $("lsaDel").addEventListener("click",chDelete);
   document.addEventListener("visibilitychange",()=>{ if(document.visibilityState!=="hidden") DBP=null; });
@@ -2104,8 +2107,10 @@ function chartUi(){
   const cardOn=LPANEL!=="", sel=chSel();
   const ids={lsa:"swLsa",cvfr:"swCvfr",hel:"swHel"};
   CHK.forEach(k=>{ const c=CH[k], b=$(ids[k]); b.className= c.on? "on" : (c.stored>0? "idle" : "emp"); setHtml(b,c.name+(c.stored>0?"":"<b>+</b>")); });
-  const bc=$("bChart"); bc.className="btn lyr"+(LPANEL==="charts"?" lc":LPANEL==="routes"?" lr":"");
-  setHtml(bc,ICON.layers+(LPANEL==="charts"? '<span class="tag">CHARTS</span>' : LPANEL==="routes"? '<span class="tag">ROUTES</span>' : (sel? '<span class="tag">'+CH[sel].name+'</span>' : "")));
+  const bc=$("bChart"); bc.className="btn lyr lc"+(LPANEL==="charts"?" on":"");
+  setHtml(bc,ICON.layers+'<span class="tag">CHARTS</span>');
+  const br=$("bLyrR"); br.className="btn lyr lr"+(LPANEL==="routes"?" on":"");
+  setHtml(br,ICON.route+'<span class="tag">ROUTES</span>');
   $("lsaLinks").style.display=(sel&&!LSA.busy)?"flex":"none";
   if(sel){ $("lsaRep").textContent="Replace "+CH[sel].name; $("lsaDel").textContent="Delete "+CH[sel].name; }
 }
@@ -2173,8 +2178,8 @@ function ui(){
   $("dClear").classList.toggle("dis",!DRAW.pts.length); $("dUndo").classList.toggle("dis",!DRAW.pts.length); $("dDone").classList.toggle("dis",DRAW.pts.length<2);
   driftCalc(); nextAdvance(); pillPrep(); driftUi(); dirPillUpdate(); pillsFit(); chartUi(); pillsDone();
 }
-$("bRoute").innerHTML=ICON.route; $("bChart").innerHTML=ICON.layers;
-$("bRings").innerHTML=ICON.ring; $("bDirect").innerHTML=ICON.dir; $("bGps").innerHTML=ICON.gps; $("bComp").innerHTML=ICON.compass;
+$("bRoute").innerHTML=ICON.draw+'<span class="tag">DRAW</span>';
+$("bRings").innerHTML=ICON.ring; $("bDirect").innerHTML=ICON.dir+'<span class="tag">DIRECT</span>'; $("bGps").innerHTML=ICON.gps+'<span class="tag">CENTER</span>'; $("bComp").innerHTML=ICON.compass+'<span class="tag">COMPASS</span>';
 $("dClear").innerHTML=ICON.trash; $("dUndo").innerHTML=ICON.undo; $("dDone").innerHTML=ICON.check;
 $("bRoute").addEventListener("click",routeTap);
 $("dClear").addEventListener("click",drawClearAsk); $("dUndo").addEventListener("click",drawUndo); $("dDone").addEventListener("click",drawDone);
@@ -2209,11 +2214,12 @@ function baseUi(){
 function basePopSet(on){ $("basePop").classList.toggle("show",!!on); baseUi(); }
 $("basePick").addEventListener("click",()=>basePopSet(!$("basePop").classList.contains("show")));
 $("basePop").addEventListener("click",e=>{ const t=e.target.closest(".tl"); if(t) baseSet(t.dataset.k); });   // stays open, so the pilot sees the real effect on the map
-// one layers button: each tap moves on - Charts, then Routes, then closed
+// two layers buttons: Charts and Routes. Opening one closes the other panel only; the layers keep their settings
 function lpSet(m){ LPANEL=m; basePopSet(false); $("chartCard").classList.toggle("hid",m!=="charts"); $("routeCard").classList.toggle("hid",m!=="routes"); chartUi(); draw(); }
-$("bChart").addEventListener("click",()=>lpSet(LPANEL===""? "charts" : LPANEL==="charts"? "routes" : ""));
+$("bChart").addEventListener("click",()=>lpSet(LPANEL==="charts"? "" : "charts"));
+$("bLyrR").addEventListener("click",()=>lpSet(LPANEL==="routes"? "" : "routes"));
 const RTK=[["sport","Lsa"],["cvfr","Cvfr"]];
-function rtUi(){ RTK.forEach(([id,n])=>{ const r=RT[id]; $("rw"+n).classList.toggle("on",r.on); const sl=$("ro"+n), v=Math.round(r.op*100); if(+sl.value!==v) sl.value=v; }); }
+function rtUi(){ RTK.forEach(([id,n])=>{ const r=RT[id]; $("rw"+n).classList.toggle("on",r.on); const sl=$("ro"+n), v=Math.round(r.op*100); if(+sl.value!==v) sl.value=v; thumbA(sl,r.op,"31,122,109"); }); }
 function rtSave(){ LS.set("rt",JSON.stringify(RT)); }
 RTK.forEach(([id,n])=>{
   $("rb"+n).addEventListener("click",()=>{ RT[id].on=!RT[id].on; rtApply(id); rtSave(); rtUi(); draw(); });
