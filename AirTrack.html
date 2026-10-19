@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.043
+  PFD - Fly page   v0.01.044
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.043"}
+    page -> shell  {pfd:"hello", version:"0.01.044"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.043 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.044 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.043";
+const VER="0.01.044";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1892,6 +1892,7 @@ function drawDone(){
   ui(); draw();
 }
 /* AUTO ZOOM: the map keeps the plane and the next waypoint on the screen. Zooms in as you near a point, eases out after you pass it. */
+const AZ_MAXPX=250;   // closest auto zoom goes: pixels per nautical mile (it was 75, which kept several points on screen even one mile from the next)
 let AZ_ON=LS.get("az","1")==="1", AZ_T=0, AZ_HINT=false;   // AZ_HINT: the "tap Center" tip was already shown for this route
 function azLive(){ return AZ_ON&&FOLLOW&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length; }
 function azTarget(){
@@ -1901,7 +1902,7 @@ function azTarget(){
   if(dx>0.5) c.push(Math.log2(rm(VW-side-P.x)/dx)); else if(dx<-0.5) c.push(Math.log2(rm(P.x-side)/-dx));
   if(dy>0.5) c.push(Math.log2(rm(VH-bot-P.y)/dy)); else if(dy<-0.5) c.push(Math.log2(rm(P.y-topL)/-dy));
   const zt=z+(c.length? Math.min(...c) : 9), k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852), zf=px=>Math.log2(px*k);   // zoom that gives px pixels per nautical mile
-  return Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),Math.max(zf(14),Math.min(zf(75),zt))));
+  return Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),Math.max(zf(14),Math.min(zf(AZ_MAXPX),zt))));
 }
 setInterval(()=>{
   const now=performance.now(), dt=Math.min(0.5,(now-AZ_T)/1000); AZ_T=now;
