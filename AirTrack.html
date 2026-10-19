@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.047
+  PFD - Fly page   v0.01.049
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.047"}
+    page -> shell  {pfd:"hello", version:"0.01.049"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.047 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.049 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.047";
+const VER="0.01.049";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1065,9 +1065,10 @@ const wrap=$("mapwrap"), mapEl=$("map");
 let VW=innerWidth, VH=innerHeight;
 const RAD=Math.PI/180;
 // container point (inside the map box) <-> viewport point (the map box can be a turned, bigger square in Track up)
+let RS={x:0,y:0};   // the last fraction of a pixel: the map itself moves in whole pixels, so the box is slid by the rest to make the movement perfectly smooth
 function cp2v(p){ const s=MAP.getSize(), dx=p.x-s.x/2, dy=p.y-s.y/2, c=Math.cos(ROT*RAD), n=Math.sin(ROT*RAD);
-  return {x:VW/2+dx*c+dy*n, y:VH/2-dx*n+dy*c}; }
-function v2cp(vx,vy){ const s=MAP.getSize(), ox=vx-VW/2, oy=vy-VH/2, c=Math.cos(ROT*RAD), n=Math.sin(ROT*RAD);
+  return {x:VW/2+dx*c+dy*n+RS.x, y:VH/2-dx*n+dy*c+RS.y}; }
+function v2cp(vx,vy){ vx-=RS.x; vy-=RS.y; const s=MAP.getSize(), ox=vx-VW/2, oy=vy-VH/2, c=Math.cos(ROT*RAD), n=Math.sin(ROT*RAD);
   return L.point(s.x/2+ox*c-oy*n, s.y/2+ox*n+oy*c); }
 const toScreen=ll=>cp2v(MAP.latLngToContainerPoint(ll));
 function layoutMap(){
@@ -1079,7 +1080,7 @@ function layoutMap(){
   if(MAP) MAP.invalidateSize({animate:false,pan:false});
   draw();
 }
-function applyRot(){ mapEl.style.transform= (TRACKUP&&ROT)? "rotate("+(-ROT)+"deg)" : "none"; }
+function applyRot(){ const t=[]; if(RS.x||RS.y) t.push("translate("+RS.x.toFixed(2)+"px,"+RS.y.toFixed(2)+"px)"); if(TRACKUP&&ROT) t.push("rotate("+(-ROT)+"deg)"); mapEl.style.transform=t.length? t.join(" ") : "none"; }
 function setRot(r){ ROT=TRACKUP? r : 0; applyRot(); }
 
 function initMap(){
@@ -1089,14 +1090,14 @@ function initMap(){
   // mouse / finger positions have to be turned back when the map box is turned
   MAP.mouseEventToContainerPoint=function(e){ const r=wrap.getBoundingClientRect(); return v2cp(e.clientX-r.left,e.clientY-r.top); };
   if(TRACKUP) MAP.dragging.disable();
-  MAP.on("move zoom viewreset resize",drawSoon);
+  MAP.on("move zoom viewreset resize",()=>{ if(!QUIET) drawSoon(); });
   MAP.on("dragstart",()=>{ if(FOLLOW){ FOLLOW=false; ui(); } });
-  MAP.on("zoomend moveend",()=>{ gisPts(); snapSync(); draw(); lsaInsetSync(); });
+  MAP.on("zoomend moveend",()=>{ if(QUIET) return; gisPts(); snapSync(); draw(); lsaInsetSync(); });
   gisInit(); lsaInit();
   new ResizeObserver(()=>layoutMap()).observe(wrap);
   layoutMap();
 }
-let DRAW_RAF=0;
+let DRAW_RAF=0, QUIET=false;   // QUIET: the frame loop is moving the map and redraws by itself, once per frame
 function drawSoon(){ if(DRAW_RAF) return; DRAW_RAF=requestAnimationFrame(()=>{ DRAW_RAF=0; draw(); lsaInsetSync(); }); }
 
 /* ───────── GIS layers (from AirNotam-ISR: sportive routes, CVFR, state border) ───────── */
@@ -1508,7 +1509,7 @@ function fmtMin(m){ if(m==null||!isFinite(m)) return "-- min"; m=Math.round(m); 
 /* ───────── GPS, compass, screen on ───────── */
 const GPS={on:false,id:null};
 let TD={run:false,drawing:false,playing:false,pts:[],sp:20,kt:100,nz:1,d:0,tm:null,out:0,rev:0,wasOut:false,sgn:0,z0:0,layer:null}, TS=1;   // TD: the test drive (exploration only); TS: how much faster than real time the clock runs while it plays
-let POS=null, GS=null, TRK=null, LASTTRK=null, HDG=null, STALE=false, WL=null, firstFix=true, FOLLOW=true;
+let RAW=null, POS=null, GS=null, TRK=null, LASTTRK=null, HDG=null, STALE=false, WL=null, firstFix=true, FOLLOW=true;
 function gpsStart(){
   if(GPS.on) return;
   if(!navigator.geolocation){ toast("This device has no GPS."); return; }
@@ -1527,7 +1528,10 @@ function onPosErr(e){
 function onPos(p){
   if(TD.run&&!p._td) return;   // during a test drive the phone's own GPS is ignored
   const c=p.coords;
+  const prev=POS;
   POS={lat:c.latitude,lon:c.longitude,acc:c.accuracy,alt:c.altitude,t:Date.now()};   // the time we received it (the phone may report an older stamp)
+  RAW={lat:c.latitude,lon:c.longitude,t:POS.t};   // the real fix; POS itself glides toward it (see the frame loop), so the picture moves smoothly between fixes
+  if(prev&&!firstFix&&!STALE&&distNM(prev.lat,prev.lon,RAW.lat,RAW.lon)<2){ POS.lat=prev.lat; POS.lon=prev.lon; }
   GS=(c.speed!=null&&isFinite(c.speed))? c.speed*1.94384 : null;
   TRK=(c.heading!=null&&isFinite(c.heading)&&GS!=null&&GS>=3)? c.heading : null;
   if(TRK!=null) LASTTRK=TRK;
@@ -1543,7 +1547,9 @@ function follow(zo){
   if(!POS||!GPS.on||!FOLLOW) return;
   const z=zo!=null? zo : MAP.getZoom(), pp=MAP.project([POS.lat,POS.lon],z), o=AZ_OFF||{x:0,y:VH*0.10}, c=Math.cos(ROT*RAD), n=Math.sin(ROT*RAD);
   const mx=o.x*c-o.y*n, my=o.x*n+o.y*c;   // where the plane stands on the screen (normally a little below the middle), in the map's own frame
-  MAP.setView(MAP.unproject(L.point(pp.x-mx,pp.y-my),z),z,{animate:false});
+  QUIET=true; try{ MAP.setView(MAP.unproject(L.point(pp.x-mx,pp.y-my),z),z,{animate:false}); } finally { QUIET=false; }
+  const pa=MAP.project(MAP.getCenter(),z), dx=Math.max(-2,Math.min(2,pa.x-(pp.x-mx))), dy=Math.max(-2,Math.min(2,pa.y-(pp.y-my)));   // how far the whole-pixel map is from where we wanted it
+  RS={x:dx*c+dy*n, y:-dx*n+dy*c}; applyRot();
 }
 // no new position for a while: ask once for a fresh one (a phone that stands still sends few updates), and after 12 s call it lost
 let POLLING=false;
@@ -1766,29 +1772,25 @@ function nameLabels(){
   return V.map(a=>{ let x=a.p.x+7,y=a.p.y+3.5,an="start"; if(a.pos==="u"){ x=a.p.x; y=a.p.y-8; an="middle"; } else if(a.pos==="d"){ x=a.p.x; y=a.p.y+15; an="middle"; }
     return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" font-size="10.5" font-weight="700" font-family="IBM Plex Sans Hebrew,Heebo,sans-serif" text-anchor="'+an+'" fill="#1a1308" stroke="#fbf6e8" stroke-width="3" paint-order="stroke" opacity="'+a.op+'">'+esc(a.o.name)+'</text>'; }).join("");
 }
-// small arrows along the loaded route, in the direction of the file; spaced by screen distance so they never crowd
+// small arrows along the loaded route, in the direction of the file. They sit at fixed distances along the route (every 1, 2, 4... NM, whatever keeps them 90 to 180 px apart),
+// so when the map moves or zooms they stay on the same spot of the line; only when the spacing doubles or halves do some appear or go
 function routeArrows(){
   if(!ROUTE.layer||!ROUTE.al||!ROUTE.al.length) return "";
-  const GAP=130; let out="", n=0;
+  const ppn=Math.pow(2,MAP.getZoom())/(Math.cos(MAP.getCenter().lat*RAD)*40075016.686/(256*1852)), gap=Math.pow(2,Math.floor(Math.log2(180/ppn)));
+  let out="", n=0, it=0;
   ROUTE.al.forEach(a=>{
-    let need=GAP*0.5, p=null;
-    for(let i=0;i<a.length;i++){
-      const q=toScreen(a[i]);
-      if(p){
-        const dx=q.x-p.x, dy=q.y-p.y, s=Math.hypot(dx,dy);
-        if(s>0.5){
-          if(Math.max(p.x,q.x)>-30&&Math.min(p.x,q.x)<VW+30&&Math.max(p.y,q.y)>-30&&Math.min(p.y,q.y)<VH+30){
-            let t=need;
-            while(t<=s&&n<300){
-              const x=p.x+dx*t/s, y=p.y+dy*t/s;
-              if(x>-20&&x<VW+20&&y>-20&&y<VH+20){ out+='<g transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+') rotate('+(Math.atan2(dy,dx)/RAD).toFixed(1)+')"><path d="M8 0L-6 -6.5L-3 0L-6 6.5Z" fill="#f5c518" stroke="#0e2348" stroke-width="1.6" stroke-linejoin="round"/></g>'; n++; }
-              t+=GAP;
-            }
-          }
-          need= s>=need? need+(Math.floor((s-need)/GAP)+1)*GAP-s : need-s;
+    let d0=0;
+    for(let i=0;i<a.length-1;i++){
+      const L=distNM(a[i][0],a[i][1],a[i+1][0],a[i+1][1]); if(!(L>0)) continue;
+      const p=toScreen(a[i]), q=toScreen(a[i+1]), dx=q.x-p.x, dy=q.y-p.y;
+      if(Math.max(p.x,q.x)>-30&&Math.min(p.x,q.x)<VW+30&&Math.max(p.y,q.y)>-30&&Math.min(p.y,q.y)<VH+30){
+        const ang=(Math.atan2(dy,dx)/RAD).toFixed(1);
+        for(let k=Math.max(1,Math.ceil(d0/gap-1e-9)); k*gap<=d0+L&&it<4000&&n<300; k++, it++){
+          const u=(k*gap-d0)/L, x=p.x+dx*u, y=p.y+dy*u;
+          if(x>-20&&x<VW+20&&y>-20&&y<VH+20){ out+='<g transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+') rotate('+ang+')"><path d="M8 0L-6 -6.5L-3 0L-6 6.5Z" fill="#f5c518" stroke="#0e2348" stroke-width="1.6" stroke-linejoin="round"/></g>'; n++; }
         }
       }
-      p=q;
+      d0+=L;
     }
   });
   return out;
@@ -1982,26 +1984,36 @@ function azTarget(){
   return lim(z+Math.log2(L/len));
 }
 let AZ_BOX=null;
-setInterval(()=>{
-  const now=performance.now(), dt=Math.min(0.5,(now-AZ_T)/1000)*TS; AZ_T=now;
-  if(MAP&&AZ_ON&&!FOLLOW&&!AZ_HINT&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2){ AZ_HINT=true; toast("Auto zoom works while the map follows you. Tap Center.",4500); }   // after drawing or loading a route the map stands still, so auto zoom waits
-  if(!MAP) return;
-  const live=azLive(), def={x:0,y:VH*0.10};
-  let tgt=def;
-  let zT=null;
+/* the frame loop: about 30 times a second the plane glides on toward where it should be (predicted along its track, then eased), auto zoom eases its zoom and framing,
+   and the map follows. Nothing jumps once a second when a GPS fix arrives. */
+let ZV=null, FR_T=0, FR_ZT=0;
+function frameTick(now){
+  requestAnimationFrame(frameTick);
+  if(!MAP||document.hidden) return;
+  if(now-FR_T<30) return;
+  const dtR=Math.min(0.2,(now-FR_T)/1000); FR_T=now; const dt=dtR*TS;
+  let moved=false;
+  if(RAW&&POS&&GPS.on&&!STALE){
+    const age=Math.min(2.5,(Date.now()-RAW.t)/1000*TS)+0.3, sp=(GS!=null&&GS>=3&&TRK!=null)? GS/1.94384 : 0;
+    const tl=RAW.lat+sp*Math.cos(TRK*RAD)*age/111320, to=RAW.lon+sp*Math.sin(TRK*RAD)*age/(111320*Math.cos(RAW.lat*RAD)||1), k=1-Math.exp(-dt/0.5);
+    const dla=(tl-POS.lat)*k, dlo=(to-POS.lon)*k; if(Math.abs(dla)+Math.abs(dlo)>1e-8){ POS.lat+=dla; POS.lon+=dlo; moved=true; }
+  }
+  if(AZ_ON&&!FOLLOW&&!AZ_HINT&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2){ AZ_HINT=true; toast("Auto zoom works while the map follows you. Tap Center.",4500); }   // after drawing or loading a route the map stands still, so auto zoom waits
+  const live=azLive(), def={x:0,y:VH*0.10}; let tgt=def, zT=null;
   if(live){ const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), b=azBox(); zT=azTarget();
     const f=Math.pow(2,Math.max(-8,Math.min(8,zT-MAP.getZoom())));   // the picture is still at the old zoom: place the plane where it will stand at the new one, and never outside the free screen
     let ox=(P.x-N.x)/2*f, oy=(P.y-N.y)/2*f; const hx=b.w/2-14, hy=b.h/2-14; ox=Math.max(-hx,Math.min(hx,ox)); oy=Math.max(-hy,Math.min(hy,oy));
     tgt={x:(b.cx-VW/2)+ox, y:(b.cy-VH/2)+oy}; }   // the middle of the leg goes to the middle of the free screen
-  if(!live&&!AZ_OFF) return;
-  const cur=AZ_OFF||def, ke=1-Math.exp(-dt/1.2), nx=cur.x+(tgt.x-cur.x)*ke, ny=cur.y+(tgt.y-cur.y)*ke;
-  const moved=Math.hypot(nx-cur.x,ny-cur.y);
-  AZ_OFF=(!live&&Math.hypot(nx-def.x,ny-def.y)<0.5)? null : {x:nx,y:ny};
-  let st=0;
-  if(live){ const z=MAP.getZoom(), d=zT-z, tau=d>0? 1.6 : 3.2; st=Math.abs(d)<0.03? 0 : d*(1-Math.exp(-dt/tau)); const cap=0.43*dt; st=Math.max(-cap,Math.min(cap,st)); if(Math.abs(st)<0.003) st=0; }   // a dead zone: GPS noise must not make the zoom twitch
-  if(st===0&&moved<0.6&&AZ_OFF) return;
-  follow(MAP.getZoom()+st); draw();
-},100);
+  let offMoved=0;
+  if(live||AZ_OFF){ const cur=AZ_OFF||def, ke=1-Math.exp(-dt/1.2), nx=cur.x+(tgt.x-cur.x)*ke, ny=cur.y+(tgt.y-cur.y)*ke; offMoved=Math.hypot(nx-cur.x,ny-cur.y);
+    AZ_OFF=(!live&&Math.hypot(nx-def.x,ny-def.y)<0.5)? null : {x:nx,y:ny}; }
+  const zc=MAP.getZoom(); if(ZV===null||Math.abs(ZV-zc)>0.2) ZV=zc;   // ZV: the smooth zoom; the map takes it in small steps (a zoom change costs much more than a pan)
+  if(live){ const d=zT-ZV, tau=d>0? 1.6 : 3.2; let st=Math.abs(d)<0.02? 0 : d*(1-Math.exp(-dt/tau)); const cap=0.43*dt; ZV+=Math.max(-cap,Math.min(cap,st)); }
+  else ZV=zc;
+  const needZoom=Math.abs(ZV-zc)>=0.0015;
+  if(FOLLOW&&POS&&GPS.on&&(moved||offMoved>0.05||needZoom)){ follow(needZoom? ZV : zc); draw(); lsaInsetSync(); if(now-FR_ZT>300){ FR_ZT=now; gisPts(); snapSync(); } }
+}
+requestAnimationFrame(frameTick);
 function azOff(){ if(!AZ_ON) return; AZ_ON=false; LS.set("az","0"); ui(); }   // the pilot zooms by hand: auto zoom steps aside until the button is tapped again
 // Next waypoint: passed when the plane crosses the line that stands across the route at that point (the bisector at a turn)
 function nextAdvance(){
