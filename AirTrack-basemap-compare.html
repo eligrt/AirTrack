@@ -450,12 +450,17 @@ const M=[
  {n:"Light (CARTO)",u:"https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",z:19,a:"© OpenStreetMap contributors © CARTO",i:"Needs a free CARTO key for real use; may show a watermark. Terms exclude in-vehicle navigation displays."},
  {n:"Terrain (OpenTopoMap)",u:"https://tile.opentopomap.org/{z}/{x}/{y}.png",z:17,a:"© OpenTopoMap (CC-BY-SA), OpenStreetMap contributors",i:"Contours and shading. Volunteer-run server; terms not confirmed."},
  {n:"Terrain (Esri topo)",u:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",z:19,a:"Tiles © Esri",i:"Esri's terrain map, same Esri terms as Satellite."},
+ {n:"Esri street",u:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",z:19,a:"Tiles © Esri",i:"Esri's street map, same Esri terms as Satellite. Roads and places in Esri style."},
+ {n:"Esri dark gray",u:"https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",z:16,a:"Tiles © Esri",i:"Dark map for night flying, same Esri terms. Charts may look too bright on it."},
+ {n:"Esri NatGeo",u:"https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}",z:16,a:"Tiles © Esri, National Geographic",i:"Terrain map with a paper look, same Esri terms."},
+ {n:"Esri shaded relief",u:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}",z:13,a:"Tiles © Esri",i:"Hills only, no roads. Good for seeing terrain; stops at zoom 13 and then stretches."},
+ {n:"Sentinel-2 (EOX)",u:"https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg",z:14,a:"Sentinel-2 cloudless by EOX (contains Copernicus data)",i:"Free satellite without an Esri account, but lower detail. Non-commercial licence, as far as I know; check."},
  {n:"Blank",u:null,z:19,a:"",i:"Plain white. Always works, even offline."}
 ];
 const map=L.map("map",{zoomSnap:0.5}).setView([32.585,35.229],11);
 L.marker([32.585,35.229]).addTo(map).bindTooltip("Megiddo LLRS");
 let cur=null;const bar=document.getElementById("bar"),info=document.getElementById("info");
-function pick(i){const m=M[i];if(cur)map.removeLayer(cur);cur=m.u?L.tileLayer(m.u,{maxZoom:m.z,attribution:m.a,subdomains:"abcd"}).addTo(map):null;
+function pick(i){const m=M[i];if(cur)map.removeLayer(cur);cur=m.u?L.tileLayer(m.u,{maxZoom:19,maxNativeZoom:m.z,attribution:m.a,subdomains:"abcd"}).addTo(map):null;
  document.getElementById("map").style.background=m.u?"#ddd":"#fff";
  info.textContent=m.n+": "+m.i;[...bar.children].forEach((b,k)=>b.classList.toggle("on",k===i));}
 M.forEach((m,i)=>{const b=document.createElement("button");b.textContent=m.n;b.onclick=()=>pick(i);bar.appendChild(b);});
