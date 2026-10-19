@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.034
+  PFD - Fly page   v0.01.035
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.034"}
+    page -> shell  {pfd:"hello", version:"0.01.035"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -954,7 +954,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.034 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.035 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -969,7 +969,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.034";
+const VER="0.01.035";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1561,8 +1561,10 @@ function compassStart(){
   else go();
 }
 function compassStop(){ COMP_ON=false; HRAW=null; HDG=null; CV=null; if(COMP_T){ cancelAnimationFrame(COMP_T); COMP_T=0; } window.removeEventListener("deviceorientationabsolute",onOri,true); window.removeEventListener("deviceorientation",onOri,true); }
-async function wakeOn(){ try{ if(navigator.wakeLock&&!WL){ WL=await navigator.wakeLock.request("screen"); logAdd("Screen-on request ACCEPTED"); WL.addEventListener("release",()=>{ WL=null; logAdd("Screen-on TAKEN BACK by the phone"); }); } else if(!navigator.wakeLock){ logAdd("Screen-on request not supported by this phone"); } }catch(e){ logAdd("Screen-on request REFUSED: "+(e&&e.name||"")+" "+(e&&e.message||"")); } }
+async function wakeOn(why){ logAdd("Screen-on request ("+(why||"auto")+") | focus "+(document.hasFocus()?"yes":"no")+" | visible "+document.visibilityState+" | supported "+(navigator.wakeLock?"yes":"no")); try{ if(navigator.wakeLock&&!WL){ WL=await navigator.wakeLock.request("screen"); logAdd("Screen-on request ACCEPTED"); WL.addEventListener("release",()=>{ WL=null; logAdd("Screen-on TAKEN BACK by the phone"); }); } else if(!navigator.wakeLock){ logAdd("Screen-on request not supported by this phone"); } }catch(e){ logAdd("Screen-on request REFUSED: "+(e&&e.name||"")+" "+(e&&e.message||"")); } }
 function wakeOff(){ try{ if(WL) WL.release(); }catch(e){} WL=null;  logAdd("Screen-on switched off by the app"); }
+// the first tap asks again: some phones only accept the screen-on request right after a touch
+["touchend","pointerup","click"].forEach(n=>document.addEventListener(n,()=>{ if(GPS.on&&!WL){ wakeOn("tap"); } },true));
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="visible"){ if(GPS.on) wakeOn(); }
 });
