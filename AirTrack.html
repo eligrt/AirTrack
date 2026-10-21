@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.052
+  PFD - Fly page   v0.01.053
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.052"}
+    page -> shell  {pfd:"hello", version:"0.01.053"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.052 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.053 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.052";
+const VER="0.01.053";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1652,14 +1652,32 @@ function tdBuild(){
   const st=document.createElement("style"); st.textContent="#tdPanel{position:absolute;left:8px;right:8px;bottom:var(--sb);z-index:30;background:rgba(251,246,232,.97);border:2.5px solid #d81b60;border-radius:20px;padding:8px 10px 8px;box-shadow:0 2px 8px rgba(14,35,72,.3);font-family:var(--font-ui)} #tdPanel .tt{display:flex;justify-content:space-between;align-items:center;font:700 13px var(--font-ui);color:#1c3d6e;margin-bottom:4px} #tdPanel .tt span{font:700 10px var(--font-mono);color:#fff;background:#d81b60;border-radius:8px;padding:1px 6px} #tdPanel .r{display:flex;gap:6px;align-items:center;margin:4px 0} #tdPanel .r label{font:700 10px var(--font-mono);width:58px;flex:none;color:#5a4a3a} #tdPanel button{flex:1;font:700 14px var(--font-ui);border:1.5px solid #1c3d6e;background:#fbf6e8;color:#1c3d6e;border-radius:18px;padding:9px 2px} #tdPanel button.on{background:#1c3d6e;color:#fff} #tdPanel button.dis{opacity:.4;pointer-events:none} #tdPanel .sts{font:600 12px var(--font-ui);color:#5a4a3a;text-align:center;margin-top:3px;min-height:16px} #tdPanel.mini .x{display:none}";
   document.head.appendChild(st);
   const p=document.createElement("div"); p.id="tdPanel"; p.style.display="none";
-  p.innerHTML='<div class="tt">Test drive <span>PINK = FLOWN PATH</span></div><div class="r"><button id="tdDraw">Draw flown path</button><button id="tdPlay" class="dis">&#9654; Play</button></div><div class="r x"><label>PLAYBACK</label><button data-sp="1">x1</button><button data-sp="5">x5</button><button data-sp="20">x20</button><button data-sp="60">x60</button></div><div class="r x"><label>VEHICLE</label><button data-kt="60">60 kt</button><button data-kt="100">100 kt</button><button data-kt="120">120 kt</button></div><div class="r x"><label>GPS NOISE</label><button data-nz="0">Off</button><button data-nz="1">On</button><button id="tdExit">Exit test</button></div><div class="sts" id="tdSt"></div>';
+  p.innerHTML='<div class="tt">Test drive <span>PINK = FLOWN PATH</span></div><div class="r"><button id="tdDraw">Draw flown path</button><button id="tdPlay" class="dis">&#9654; Play</button></div><div class="r x"><label>PLAYBACK</label><button data-sp="1">x1</button><button data-sp="5">x5</button><button data-sp="20">x20</button><button data-sp="60">x60</button></div><div class="r x"><label>VEHICLE</label><button data-kt="60">60 kt</button><button data-kt="100">100 kt</button><button data-kt="120">120 kt</button></div><div class="r x"><label>GPS NOISE</label><button data-nz="0">Off</button><button data-nz="1">On</button><button id="tdExit">Exit test</button></div><div class="r x"><label>AUTO ZOOM</label><button id="tdTune">Tune settings</button></div><div id="azTune" class="x" style="display:none"></div><div class="sts" id="tdSt"></div>';
   document.body.appendChild(p);
   const $q=q=>p.querySelectorAll(q);
   $q("[data-sp]").forEach(b=>b.onclick=()=>{ TD.sp=+b.dataset.sp; tdMark(); if(TD.playing){ tdStop(false); tdGo(); } });
   $q("[data-kt]").forEach(b=>b.onclick=()=>{ TD.kt=+b.dataset.kt; tdMark(); });
   $q("[data-nz]").forEach(b=>b.onclick=()=>{ TD.nz=+b.dataset.nz; tdMark(); });
-  $("tdExit").onclick=tdExit; $("tdDraw").onclick=tdDrawToggle; $("tdPlay").onclick=()=>{ if(TD.playing) tdStop(true); else tdGo(); };
+  $("tdTune").onclick=tuneToggle; $("tdExit").onclick=tdExit; $("tdDraw").onclick=tdDrawToggle; $("tdPlay").onclick=()=>{ if(TD.playing) tdStop(true); else tdGo(); };
 }
+const AZC_ROWS=[
+ {k:"inP",name:"Zoom in when the next point is closer than",min:15,max:50,step:1,txt:v=>v+"% of the room"},
+ {k:"outP",name:"Zoom out when the next point is further than",min:60,max:100,step:1,txt:v=>v+"% of the room"},
+ {k:"glide",name:"Glide time per zoom step",min:1,max:6,step:0.5,txt:v=>v+" seconds"},
+ {k:"wide",name:"Widest scale",min:8,max:32,step:null,list:[8,16,32],txt:v=>"about "+Math.round(440/v)+" NM across"},
+ {k:"close",name:"Closest scale",min:32,max:128,step:null,list:[32,64,128],txt:v=>"about "+(Math.round(4400/v)/10)+" NM across"},
+ {k:"low",name:"Plane position",min:0,max:20,step:1,txt:v=>v===0?"middle of the free screen":v+"% lower"}];
+function tuneBuild(){
+  const d=$("azTune"); if(d.firstChild) return;
+  d.innerHTML=AZC_ROWS.map((r,i)=>'<div class="tr"><div class="tn">'+r.name+'</div><div class="tv" id="tv'+i+'"></div><input type="range" id="tg'+i+'" min="'+(r.list?0:r.min)+'" max="'+(r.list?r.list.length-1:r.max)+'" step="'+(r.list?1:r.step)+'"></div>').join("");
+  const bt=document.createElement("div"); bt.id="azBtn"; bt.className="r x"; bt.style.display="none"; bt.innerHTML='<button id="tgReset">Reset</button><button id="tgCopy">Copy settings</button>'; d.after(bt);
+  const st=document.createElement("style"); st.textContent="#azTune{max-height:30vh;overflow:auto} #azTune .tr{margin:6px 2px} #azTune .tn{font:700 12px var(--font-ui);color:#1c3d6e} #azTune .tv{font:700 12px var(--font-mono);color:#d81b60;margin:1px 0} #azTune input{width:100%}"; document.head.appendChild(st);
+  AZC_ROWS.forEach((r,i)=>{ $("tg"+i).oninput=()=>{ const x=+$("tg"+i).value; AZC[r.k]=r.list? r.list[x] : x; if(AZC.close<AZC.wide){ if(r.k==="wide") AZC.close=AZC.wide; else AZC.wide=AZC.close; } azcSave(); tuneShow(); AZ_LV=-1; AZ_TW=null; }; });
+  $("tgReset").onclick=()=>{ AZC=Object.assign({},AZC_DEF); azcSave(); tuneShow(); AZ_LV=-1; AZ_TW=null; };
+  $("tgCopy").onclick=()=>{ const t="Auto zoom settings: zoom in under "+AZC.inP+"%, zoom out over "+AZC.outP+"%, glide "+AZC.glide+" s, widest "+AZC.wide+" px/NM, closest "+AZC.close+" px/NM, plane "+AZC.low+"% lower"; try{ navigator.clipboard.writeText(t); toast("Settings copied",2500); }catch(e){ toast(t,6000); } };
+}
+function tuneShow(){ AZC_ROWS.forEach((r,i)=>{ const v=AZC[r.k]; $("tg"+i).value=r.list? r.list.indexOf(v) : v; $("tv"+i).textContent=r.txt(v); }); }
+function tuneToggle(){ tuneBuild(); const d=$("azTune"), on=d.style.display==="none"; d.style.display=on?"block":"none"; $("azBtn").style.display=on?"flex":"none"; $("tdTune").classList.toggle("on",on); $("tdTune").textContent=on?"Hide settings":"Tune settings"; if(on) tuneShow(); }
 function tdMark(){ const p=$("tdPanel"); p.querySelectorAll("[data-sp]").forEach(b=>b.classList.toggle("on",+b.dataset.sp===TD.sp)); p.querySelectorAll("[data-kt]").forEach(b=>b.classList.toggle("on",+b.dataset.kt===TD.kt)); p.querySelectorAll("[data-nz]").forEach(b=>b.classList.toggle("on",+b.dataset.nz===TD.nz)); }
 function tdSay(t){ $("tdSt").textContent=t; }
 function tdOpen(){
@@ -1982,18 +2000,21 @@ function azBox(){   // the free part of the screen: below the top pills, clear o
   return {w:x2-x1,h:y2-y1,cx:(x1+x2)/2,cy:(y1+y2)/2};
 }
 let AZ_OFF=null;   // where the plane stands on the screen while auto zoom frames the leg (null = the normal spot)
-const AZ_STEPS=[8,16,32,64];   // the only scales auto zoom uses, in pixels per nautical mile; each is twice the one before and matches one set of rings
+const AZC_DEF={inP:30,outP:85,glide:3,wide:8,close:64,low:0};   // auto zoom settings: zoom-in point %, zoom-out point %, glide seconds, widest and closest scale (pixels per NM), plane lowered %
+let AZC=(()=>{ try{ const j=JSON.parse(LS.get("azc","null")); return Object.assign({},AZC_DEF,j||{}); }catch(e){ return Object.assign({},AZC_DEF); } })();
+function azcSave(){ LS.set("azc",JSON.stringify(AZC)); }
+function azSteps(){ const a=[]; let v=AZC.wide; while(v<=AZC.close){ a.push(v); v*=2; } return a.length? a : [AZC.close]; }
 let AZ_LV=-1, AZ_TW=null;
 function azTarget(){
   const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), z=MAP.getZoom(), dx=N.x-P.x, dy=N.y-P.y, len=Math.hypot(dx,dy);
   const k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852), zf=px=>Math.log2(px*k), ppn=Math.pow(2,z)/k, lim=zt=>Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),zt));
-  const b=AZ_BOX=azBox(); if(len<1) return lim(zf(AZ_STEPS[AZ_LV<0?1:AZ_LV]));
+  const AZS=azSteps(), b=AZ_BOX=azBox(); if(len<1) return lim(zf(AZS[AZ_LV<0?Math.min(1,AZS.length-1):AZ_LV]));
   const ux=Math.abs(dx)/len, uy=Math.abs(dy)/len, t=Math.min(ux>0.001? (b.w/2)/ux : 1e9, uy>0.001? (b.h/2)/uy : 1e9), d=len/ppn;   // t: room from the plane to the edge of the free screen, d: distance to the next point
-  if(AZ_LV<0){ AZ_LV=0; while(AZ_LV<AZ_STEPS.length-1 && d*AZ_STEPS[AZ_LV+1]<=0.75*t) AZ_LV++; }
+  if(AZ_LV>=AZS.length) AZ_LV=AZS.length-1; if(AZ_LV<0){ AZ_LV=0; while(AZ_LV<AZS.length-1 && d*AZS[AZ_LV+1]<=0.75*t) AZ_LV++; }
   for(let g=0; g<6; g++){   // stay on this scale; only when the next point is too far or too near, move one step (the next point then lands near the middle of the room)
-    const px=d*AZ_STEPS[AZ_LV];
-    if(px>0.85*t && AZ_LV>0) AZ_LV--; else if(px<0.30*t && AZ_LV<AZ_STEPS.length-1) AZ_LV++; else break; }
-  return lim(zf(AZ_STEPS[AZ_LV]));
+    const px=d*AZS[AZ_LV];
+    if(px>AZC.outP/100*t && AZ_LV>0) AZ_LV--; else if(px<AZC.inP/100*t && AZ_LV<AZS.length-1) AZ_LV++; else break; }
+  return lim(zf(AZS[AZ_LV]));
 }
 let AZ_BOX=null;
 /* the frame loop: about 30 times a second the plane glides on toward where it should be (predicted along its track, then eased), auto zoom eases its zoom and framing,
@@ -2013,13 +2034,13 @@ function frameTick(now){
   if(AZ_ON&&!FOLLOW&&!AZ_HINT&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2){ AZ_HINT=true; toast("Auto zoom works while the map follows you. Tap Center.",4500); }   // after drawing or loading a route the map stands still, so auto zoom waits
   const live=azLive(), def={x:0,y:VH*0.10}; let tgt=def, zT=null;
   if(live){ const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), b=azBox(); zT=azTarget();
-    tgt={x:b.cx-VW/2, y:b.cy-VH/2}; }   // the plane stands still in the middle of the free screen, the map moves under it
+    tgt={x:b.cx-VW/2, y:b.cy-VH/2+AZC.low/100*b.h}; }   // the plane stands still in the middle of the free screen, the map moves under it
   let offMoved=0;
   if(live||AZ_OFF){ const cur=AZ_OFF||def, ke=1-Math.exp(-dt/1.2), nx=cur.x+(tgt.x-cur.x)*ke, ny=cur.y+(tgt.y-cur.y)*ke; offMoved=Math.hypot(nx-cur.x,ny-cur.y);
     AZ_OFF=(!live&&Math.hypot(nx-def.x,ny-def.y)<0.5)? null : {x:nx,y:ny}; }
   const zc=MAP.getZoom(); if(ZV===null||Math.abs(ZV-zc)>0.2) ZV=zc;   // ZV: the smooth zoom; the map takes it in small steps (a zoom change costs much more than a pan)
   if(live){   // a zoom change is one slow, soft glide: it starts gently, speeds up, and settles gently (about 3 seconds per step)
-    if(!AZ_TW||Math.abs(AZ_TW.z1-zT)>0.01){ AZ_TW={z0:ZV,z1:zT,t:0,dur:Math.max(2.5,3*Math.abs(zT-ZV))}; }
+    if(!AZ_TW||Math.abs(AZ_TW.z1-zT)>0.01){ AZ_TW={z0:ZV,z1:zT,t:0,dur:AZC.glide*Math.max(1,Math.abs(zT-ZV))}; }
     if(AZ_TW.t<AZ_TW.dur){ AZ_TW.t=Math.min(AZ_TW.dur,AZ_TW.t+dt); const x=AZ_TW.t/AZ_TW.dur, e=x*x*x*(x*(x*6-15)+10); ZV=AZ_TW.z0+(AZ_TW.z1-AZ_TW.z0)*e; }
     else ZV=AZ_TW.z1; }
   else { ZV=zc; AZ_LV=-1; AZ_TW=null; }
