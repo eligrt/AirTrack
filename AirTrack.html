@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.050
+  PFD - Fly page   v0.01.051
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.050"}
+    page -> shell  {pfd:"hello", version:"0.01.051"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.050 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.051 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.050";
+const VER="0.01.051";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1817,14 +1817,22 @@ function draw(){
       OCC.push({x1:lx-w/2-2,x2:lx+w/2+2,y1:ly-12,y2:ly+12});
       o+='<rect x="'+(lx-w/2).toFixed(1)+'" y="'+(ly-10).toFixed(1)+'" width="'+w.toFixed(1)+'" height="20" rx="10" fill="#fbf6e8" stroke="'+col+'" stroke-width="1.6"/><text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" font-size="11" font-family="JetBrains Mono,monospace" font-weight="800" text-anchor="middle" fill="'+col+'">'+txt+'</text>';
     }
-    if(minOk) [5,10,20].forEach(v=>{
-      const nm=isMin? GS*v/60 : v, r=nm*1852/mpp; if(r<28||r>Math.max(VW,VH)*1.6) return;
-      const txt=v+(isMin?" min":" NM"), w=txt.length*8.2+22, px=P.x.toFixed(1), py=P.y.toFixed(1);
-      o+='<circle cx="'+px+'" cy="'+py+'" r="'+r.toFixed(1)+'" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="6"/>';
-      o+='<circle cx="'+px+'" cy="'+py+'" r="'+r.toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-dasharray="9 6"/>';
-      OCC.push({x1:P.x-w/2-2,x2:P.x+w/2+2,y1:P.y-r-14,y2:P.y-r+14});
-      o+='<rect x="'+(P.x-w/2).toFixed(1)+'" y="'+(P.y-r-12).toFixed(1)+'" width="'+w.toFixed(1)+'" height="24" rx="12" fill="#fbf6e8" stroke="'+col+'" stroke-width="1.8"/><text x="'+px+'" y="'+(P.y-r+4.6).toFixed(1)+'" font-size="13" font-family="JetBrains Mono,monospace" font-weight="800" text-anchor="middle" fill="'+col+'">'+txt+'</text>';
-    });
+    if(minOk){
+      const u0=isMin? (1852/mpp)*GS/60 : 1852/mpp, set=(u0<=14? [5,10,20] : u0<=24? [3,5,10] : u0<=40? [2,3,5] : [1,2,3]);   // pixels per ring unit picks which three rings show
+      const nowT=Date.now(), dtR=Math.min(0.2,(nowT-RING_T)/1000); RING_T=nowT; let fading=false;
+      [1,2,3,5,10,20].forEach(v=>{
+        const tg=set.includes(v)?1:0; let op=RING_OP[v]==null? tg : RING_OP[v]; op+=(tg-op)*(1-Math.exp(-dtR/0.22)); if(Math.abs(tg-op)<0.02) op=tg; else fading=true; RING_OP[v]=op; if(op<=0.02) return;
+        const nm=isMin? GS*v/60 : v, r=nm*1852/mpp; if(r<28||r>Math.max(VW,VH)*1.6) return;
+        const txt=v+(isMin?" min":" NM"), w=txt.length*8.2+22, px=P.x.toFixed(1), py=P.y.toFixed(1);
+        o+='<g opacity="'+op.toFixed(2)+'"><circle cx="'+px+'" cy="'+py+'" r="'+r.toFixed(1)+'" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="6"/>';
+        o+='<circle cx="'+px+'" cy="'+py+'" r="'+r.toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-dasharray="9 6"/>';
+        let q=null; for(const ad of [0,28,-28,56,-56,84,-84,115,-115,150,-150,180]){ const t=ad*RAD, x=P.x+r*Math.sin(t), y=P.y-r*Math.cos(t); if(x-w/2>=40&&x+w/2<=VW-40&&y-12>=70&&y+12<=VH-60){ q={x,y}; break; } }   // the pill sits on a part of the ring that is on screen
+        if(q){ OCC.push({x1:q.x-w/2-2,x2:q.x+w/2+2,y1:q.y-14,y2:q.y+14});
+          o+='<rect x="'+(q.x-w/2).toFixed(1)+'" y="'+(q.y-12).toFixed(1)+'" width="'+w.toFixed(1)+'" height="24" rx="12" fill="#fbf6e8" stroke="'+col+'" stroke-width="1.8"/><text x="'+q.x.toFixed(1)+'" y="'+(q.y+4.6).toFixed(1)+'" font-size="13" font-family="JetBrains Mono,monospace" font-weight="800" text-anchor="middle" fill="'+col+'">'+txt+'</text>'; }
+        o+='</g>';
+      });
+      if(fading) setTimeout(drawSoon,40);
+    }
   }
   if(showPos){
     const L0=Math.max(VW,VH)*2, top=labelTop();
@@ -1974,14 +1982,18 @@ function azBox(){   // the free part of the screen: below the top pills, clear o
   return {w:x2-x1,h:y2-y1,cx:(x1+x2)/2,cy:(y1+y2)/2};
 }
 let AZ_OFF=null;   // where the plane stands on the screen while auto zoom frames the leg (null = the normal spot)
+const AZ_STEPS=[4,8,16,32,64];   // the only scales auto zoom uses, in pixels per nautical mile; each is twice the one before and matches one set of rings
+let AZ_LV=-1;
 function azTarget(){
   const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), z=MAP.getZoom(), dx=N.x-P.x, dy=N.y-P.y, len=Math.hypot(dx,dy);
-  const k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852), zf=px=>Math.log2(px*k), lim=zt=>Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),Math.max(zf(AZ_MINPX),Math.min(zf(AZ_MAXPX),zt))));
-  if(len<1) return lim(99);
-  // the plane stays in the middle of the free screen; the line to the next point reaches 70% of the way from the plane to the screen edge
-  const b=AZ_BOX=azBox(), ux=Math.abs(dx)/len, uy=Math.abs(dy)/len;
-  const L=AZ_FILL*Math.min(ux>0.001? (b.w/2)/ux : 1e9, uy>0.001? (b.h/2)/uy : 1e9);
-  return lim(z+Math.log2(L/len));
+  const k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852), zf=px=>Math.log2(px*k), ppn=Math.pow(2,z)/k, lim=zt=>Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),zt));
+  const b=AZ_BOX=azBox(); if(len<1) return lim(zf(AZ_STEPS[AZ_LV<0?2:AZ_LV]));
+  const ux=Math.abs(dx)/len, uy=Math.abs(dy)/len, t=Math.min(ux>0.001? (b.w/2)/ux : 1e9, uy>0.001? (b.h/2)/uy : 1e9), d=len/ppn;   // t: room from the plane to the edge of the free screen, d: distance to the next point
+  if(AZ_LV<0){ AZ_LV=0; while(AZ_LV<AZ_STEPS.length-1 && d*AZ_STEPS[AZ_LV+1]<=0.75*t) AZ_LV++; }
+  for(let g=0; g<6; g++){   // stay on this scale; only when the next point is too far or too near, move one step (the next point then lands near the middle of the room)
+    const px=d*AZ_STEPS[AZ_LV];
+    if(px>0.85*t && AZ_LV>0) AZ_LV--; else if(px<0.30*t && AZ_LV<AZ_STEPS.length-1) AZ_LV++; else break; }
+  return lim(zf(AZ_STEPS[AZ_LV]));
 }
 let AZ_BOX=null;
 /* the frame loop: about 30 times a second the plane glides on toward where it should be (predicted along its track, then eased), auto zoom eases its zoom and framing,
@@ -2006,8 +2018,8 @@ function frameTick(now){
   if(live||AZ_OFF){ const cur=AZ_OFF||def, ke=1-Math.exp(-dt/1.2), nx=cur.x+(tgt.x-cur.x)*ke, ny=cur.y+(tgt.y-cur.y)*ke; offMoved=Math.hypot(nx-cur.x,ny-cur.y);
     AZ_OFF=(!live&&Math.hypot(nx-def.x,ny-def.y)<0.5)? null : {x:nx,y:ny}; }
   const zc=MAP.getZoom(); if(ZV===null||Math.abs(ZV-zc)>0.2) ZV=zc;   // ZV: the smooth zoom; the map takes it in small steps (a zoom change costs much more than a pan)
-  if(live){ const d=zT-ZV, tau=d>0? 1.6 : 3.2; let st=Math.abs(d)<0.02? 0 : d*(1-Math.exp(-dt/tau)); const cap=0.43*dt; ZV+=Math.max(-cap,Math.min(cap,st)); }
-  else ZV=zc;
+  if(live){ const d=zT-ZV, tau=0.9; let st=Math.abs(d)<0.01? 0 : d*(1-Math.exp(-dt/tau)); const cap=0.5*dt; ZV+=Math.max(-cap,Math.min(cap,st)); }
+  else { ZV=zc; AZ_LV=-1; }
   const needZoom=Math.abs(ZV-zc)>=0.0015;
   if(FOLLOW&&POS&&GPS.on&&(moved||offMoved>0.05||needZoom)){ follow(needZoom? ZV : zc); draw(); lsaInsetSync(); if(now-FR_ZT>300){ FR_ZT=now; gisPts(); snapSync(); } }
 }
@@ -2260,7 +2272,7 @@ function setPill(id,o){
 }
 // both small pills always have the same width, wide enough for the longer text
 // everything on screen that a line label must never cover (buttons, pills, panels, ring names, the plane, route pins); rebuilt on every draw
-let OCC=[], NAMER=[];
+let OCC=[], NAMER=[], RING_OP={}, RING_T=Date.now();
 function uiRects(m){ const wr=wrap.getBoundingClientRect(), out=[];
   document.querySelectorAll(".grp .btn,.grp .morph,#chartCard:not(.hid),#routeCard:not(.hid),#tdPanel,.bpop.show,#toast.show").forEach(e=>{ const r=e.getBoundingClientRect(); if(r.width<2||r.height<2) return; out.push({x1:r.left-wr.left-m,x2:r.right-wr.left+m,y1:r.top-wr.top-m,y2:r.bottom-wr.top+m}); });
   return out; }
