@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.054
+  PFD - Fly page   v0.01.056
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.054"}
+    page -> shell  {pfd:"hello", version:"0.01.056"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.054 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.056 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.054";
+const VER="0.01.056";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1543,12 +1543,20 @@ function onPos(p){
   follow(); ui(); draw();
 }
 // keep the plane a little below the middle, so there is more map ahead
+/* Moving the map while the zoom changes: the way Leaflet does it for a finger pinch (the pictures are only scaled, nothing is thrown away and reloaded each step), then one proper refresh when the zoom stands still.
+   A plain "set view" with a new zoom empties every tile and loads them again, many times a second: that was the flicker. */
+let ZMV=false;
+function mapGo(center,z){
+  if(Math.abs(MAP.getZoom()-z)>1e-7){ MAP._move(center,z,{pinch:true}); ZMV=true; return; }
+  MAP.setView(center,MAP.getZoom(),{animate:false});
+  if(ZMV){ ZMV=false; MAP.fire("viewreset"); MAP.fire("moveend"); }
+}
 function follow(zo){
   if(!POS||!GPS.on||!FOLLOW) return;
   const z=zo!=null? zo : MAP.getZoom(), pp=MAP.project([POS.lat,POS.lon],z), o=AZ_OFF||{x:0,y:VH*0.10}, c=Math.cos(ROT*RAD), n=Math.sin(ROT*RAD);
   const mx=o.x*c-o.y*n, my=o.x*n+o.y*c;   // where the plane stands on the screen (normally a little below the middle), in the map's own frame
-  QUIET=true; try{ MAP.setView(MAP.unproject(L.point(pp.x-mx,pp.y-my),z),z,{animate:false}); } finally { QUIET=false; }
-  const pa=MAP.project(MAP.getCenter(),z), dx=Math.max(-2,Math.min(2,pa.x-(pp.x-mx))), dy=Math.max(-2,Math.min(2,pa.y-(pp.y-my)));   // how far the whole-pixel map is from where we wanted it
+  QUIET=true; try{ mapGo(MAP.unproject(L.point(pp.x-mx,pp.y-my),z),z); } finally { QUIET=false; }
+  const og=MAP.getPixelOrigin(), sz=MAP.getSize(), pn=L.DomUtil.getPosition(MAP.getPane("mapPane")), pa={x:og.x+sz.x/2-pn.x,y:og.y+sz.y/2-pn.y}, dx=Math.max(-2,Math.min(2,pa.x-(pp.x-mx))), dy=Math.max(-2,Math.min(2,pa.y-(pp.y-my)));   // how far the whole-pixel map is from where we wanted it
   RS={x:dx*c+dy*n, y:-dx*n+dy*c}; applyRot();
 }
 // no new position for a while: ask once for a fresh one (a phone that stands still sends few updates), and after 12 s call it lost
@@ -2048,12 +2056,13 @@ function frameTick(now){
   if(live){ const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), b=azBox(); zT=azTarget();
     const ld=azLead(b,N.x-P.x,N.y-P.y,Math.hypot(N.x-P.x,N.y-P.y)); tgt={x:b.cx-VW/2+ld.x, y:b.cy-VH/2+ld.y}; }   // the plane stands still in the middle of the free screen, the map moves under it
   let offMoved=0;
-  if(live||AZ_OFF){ const cur=AZ_OFF||def, ke=1-Math.exp(-dt/1.2), nx=cur.x+(tgt.x-cur.x)*ke, ny=cur.y+(tgt.y-cur.y)*ke; offMoved=Math.hypot(nx-cur.x,ny-cur.y);
+  if(live||AZ_OFF){ const cur=AZ_OFF||def, ke=1-Math.exp(-dtR/1.2), nx=cur.x+(tgt.x-cur.x)*ke, ny=cur.y+(tgt.y-cur.y)*ke; offMoved=Math.hypot(nx-cur.x,ny-cur.y);
     AZ_OFF=(!live&&Math.hypot(nx-def.x,ny-def.y)<0.5)? null : {x:nx,y:ny}; }
   const zc=MAP.getZoom(); if(ZV===null||Math.abs(ZV-zc)>0.2) ZV=zc;   // ZV: the smooth zoom; the map takes it in small steps (a zoom change costs much more than a pan)
   if(live){   // a zoom change is one slow, soft glide: it starts gently, speeds up, and settles gently (about 3 seconds per step)
-    if(!AZ_TW||Math.abs(AZ_TW.z1-zT)>0.01){ AZ_TW={z0:ZV,z1:zT,t:0,dur:3*Math.max(1,Math.abs(zT-ZV))}; }
-    if(AZ_TW.t<AZ_TW.dur){ AZ_TW.t=Math.min(AZ_TW.dur,AZ_TW.t+dt); const x=AZ_TW.t/AZ_TW.dur, e=x*x*x*(x*(x*6-15)+10); ZV=AZ_TW.z0+(AZ_TW.z1-AZ_TW.z0)*e; }
+    if(!AZ_TW||Math.abs(AZ_TW.z1-zT)>(AZ_TW.t<AZ_TW.dur? 0.25 : 0.04)){   // a glide in progress is never restarted by small changes; only a new row starts a new one
+       AZ_TW={z0:ZV,z1:zT,t:0,dur:3*Math.max(1,Math.abs(zT-ZV))}; }
+    if(AZ_TW.t<AZ_TW.dur){ AZ_TW.t=Math.min(AZ_TW.dur,AZ_TW.t+dtR); const x=AZ_TW.t/AZ_TW.dur, e=x*x*x*(x*(x*6-15)+10); ZV=AZ_TW.z0+(AZ_TW.z1-AZ_TW.z0)*e; }
     else ZV=AZ_TW.z1; }
   else { ZV=zc; AZ_RI=-1; AZ_FITK=-1; AZ_TW=null; }
   const needZoom=Math.abs(ZV-zc)>=0.0015;
