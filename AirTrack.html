@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.063
+  PFD - Fly page   v0.01.064
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.063"}
+    page -> shell  {pfd:"hello", version:"0.01.064"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.063 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.064 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.063";
+const VER="0.01.064";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1657,7 +1657,7 @@ setTimeout(topBarApply,300);
 /* TEST DRIVE (exploration only): you set each waypoint and draw the path you really fly; the app flies it fast, stops where a zoom would start, and learns from your corrections */
 function tdBuild(){
   if(document.getElementById("tdPanel")) return;
-  const st=document.createElement("style"); st.textContent="#tdPanel{position:absolute;left:8px;right:8px;bottom:var(--sb);z-index:30;background:rgba(251,246,232,.95);border:2.5px solid #d81b60;border-radius:20px;padding:8px 10px 8px;box-shadow:0 2px 8px rgba(14,35,72,.3);font-family:var(--font-ui)} #tdPanel .tt{display:flex;gap:6px;align-items:center;font:700 13px var(--font-ui);color:#1c3d6e;margin-bottom:4px} #tdPanel .tt b{flex:1} #tdPanel .tt button{flex:none;width:64px;padding:7px 2px;font-size:13px} #tdPanel .r{display:flex;gap:6px;align-items:center;margin:5px 0} #tdPanel .r label{font:700 10px var(--font-mono);width:50px;flex:none;color:#5a4a3a} #tdPanel button{flex:1;font:700 14px var(--font-ui);border:1.5px solid #1c3d6e;background:#fbf6e8;color:#1c3d6e;border-radius:18px;padding:10px 2px} #tdPanel button.on{background:#1c3d6e;color:#fff} #tdPanel button.dis{opacity:.4;pointer-events:none} #tdPanel .sts{font:600 12px var(--font-ui);color:#5a4a3a;text-align:center;margin-top:4px;min-height:16px} #tdQ .qt{font:800 15px var(--font-ui);color:#1c3d6e;margin:2px 0} #tdQ .qs{font:600 12px var(--font-ui);color:#5a4a3a;margin:2px 0 4px}";
+  const st=document.createElement("style"); st.textContent="#tdPanel{position:absolute;left:8px;right:8px;bottom:var(--sb);z-index:30;background:rgba(251,246,232,.95);border:2.5px solid #d81b60;border-radius:20px;padding:8px 10px 8px;box-shadow:0 2px 8px rgba(14,35,72,.3);font-family:var(--font-ui)} #tdPanel .tt{display:flex;gap:6px;align-items:center;font:700 13px var(--font-ui);color:#1c3d6e;margin-bottom:4px} #tdPanel .tt b{flex:1} #tdPanel .tt button{flex:none;width:64px;padding:7px 2px;font-size:13px} #tdPanel .r{display:flex;gap:6px;align-items:center;margin:5px 0} #tdPanel .r label{font:700 10px var(--font-mono);width:50px;flex:none;color:#5a4a3a} #tdPanel button{flex:1;font:700 14px var(--font-ui);border:1.5px solid #1c3d6e;background:#fbf6e8;color:#1c3d6e;border-radius:18px;padding:10px 2px} #tdPanel button.on{background:#1c3d6e;color:#fff} #tdPanel button.dis{opacity:.4;pointer-events:none} #tdPanel .sts{font:600 12px var(--font-ui);color:#5a4a3a;text-align:center;margin-top:4px;min-height:16px} body.tdwatch #tdPanel .tt,body.tdwatch #tdPanel .sts,body.tdwatch #tdQ .qt,body.tdwatch #tdQ .qs{display:none} body.tdwatch #tdPanel{padding:5px 8px;border-radius:18px} body.tdwatch #tdPanel .r{margin:0} body.tdwatch #tdPanel button{padding:9px 2px;font-size:13px} body.tdwatch #chartCard{bottom:calc(var(--sb) + 62px)} #tdQ .qt{font:800 15px var(--font-ui);color:#1c3d6e;margin:2px 0} #tdQ .qs{font:600 12px var(--font-ui);color:#5a4a3a;margin:2px 0 4px}";
   document.head.appendChild(st);
   const p=document.createElement("div"); p.id="tdPanel"; p.style.display="none";
   p.innerHTML='<div class="tt"><b>Test drive</b><button id="tdPlay" class="dis">&#9654; Play</button><button id="tdReset">Reset</button><button id="tdSaved">Saved</button><button id="tdExit">Exit</button></div><div id="tdQ"></div><div class="sts" id="tdSt"></div>';
@@ -1755,7 +1755,6 @@ function tdAnswer(k){
   if(k==="watch"){ tdWatch(); return; }
   if(k==="again2"){ tdWatch(); return; }
   if(k==="wback"){ tdWatchEnd(); return; }
-  if(k==="dr"){ if(DIRECT_ON&&TGT) DIRECT_ON=false; else { DIRECT_ON=true; TGT={lat:TD.wp.lat,lon:TD.wp.lon,name:"Point",snapped:false}; } ui(); draw(); tdWatchPanel(); setTimeout(tdBoxDraw,300); return; }
   if(k==="ch"){ lpSet(LPANEL==="charts"?"":"charts"); tdWatchPanel(); setTimeout(tdBoxDraw,300); return; }
   if(k==="fs"){ FULL=!FULL; ui(); tdWatchPanel(); setTimeout(tdBoxDraw,500); return; }
   if(k==="newleg"){ TD.start={lat:TD.wp.lat,lon:TD.wp.lon}; tdNewLeg(); return; }
@@ -1815,8 +1814,8 @@ function tdBoxDraw(){
   const b=azBox(); e.style.display="block"; e.style.left=b.x1+"px"; e.style.top=b.y1+"px"; e.style.width=b.w+"px"; e.style.height=b.h+"px";
 }
 function tdWatchPanel(ended){
-  const dr=DIRECT_ON&&!!TGT, ch=LPANEL==="charts", fs=FULL, t=v=>v?"on":"off";
-  tdQ('<div class="qt">'+(ended?"Playback finished":"Watching leg "+TD.legNo)+'</div><div class="qs">The dashed frame is the free area. These switches use the real controls, and they go back as they were when you leave.</div><div class="r"><button data-a="dr" class="'+(dr?"on":"")+'">Direct pill '+t(dr)+'</button><button data-a="ch" class="'+(ch?"on":"")+'">Charts '+t(ch)+'</button><button data-a="fs" class="'+(fs?"on":"")+'">Full screen '+t(fs)+'</button></div>'+(ended?'<div class="r"><button class="on" data-a="again2">Watch again</button><button data-a="wback">Back</button></div>':''));
+  document.body.classList.add("tdwatch");
+  tdQ('<div class="r"><button data-a="ch" class="'+(LPANEL==="charts"?"on":"")+'">Charts</button><button data-a="fs" class="'+(FULL?"on":"")+'">Full screen</button>'+(ended?'<button data-a="again2">Again</button>':'')+'<button data-a="wback">Done</button></div>');
   tdBoxDraw();
 }
 function tdRealSave(){ TD.saved={d:DIRECT_ON,t:TGT,l:LPANEL,f:FULL}; }
@@ -1824,7 +1823,7 @@ function tdRealRestore(){ if(!TD.saved) return; const v=TD.saved; TD.saved=null;
 function tdWatch(){
   if(!TD.watch){ TD.oldSp=TD.sp; tdRealSave(); } TD.watch=true; TD.sp=30; tdPrep(); TD.phase="ready"; tdWatchPanel(); TD.fresh=true; tdGo(); tdWatchPanel(); tdSay("Watching: no questions, nothing is learned.");
 }
-function tdWatchEnd(){ TD.watch=false; TD.sp=TD.oldSp||60; tdRealRestore(); tdBoxDraw(); tdPrep(); tdDonePanel(); }
+function tdWatchEnd(){ document.body.classList.remove("tdwatch"); TD.watch=false; TD.sp=TD.oldSp||60; tdRealRestore(); tdBoxDraw(); tdPrep(); tdDonePanel(); }
 function tdLine(){
   if(TD.layer){ MAP.removeLayer(TD.layer); TD.layer=null; }
   if(!TD.pts.length) return;
@@ -1853,7 +1852,7 @@ function tdGo(){
   },ms);
 }
 function tdStop(keepRun){ if(TD.tm){ clearInterval(TD.tm); TD.tm=null; } TD.playing=false; TS=1; if(!keepRun) return; $("tdPlay").innerHTML="&#9654; Play"; tdSay("Paused."); }
-function tdExit(){ TD.watch=false; tdRealRestore(); tdBoxDraw(); if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; tdLine(); TS=1; $("tdPanel").style.display="none"; }
+function tdExit(){ document.body.classList.remove("tdwatch"); TD.watch=false; tdRealRestore(); tdBoxDraw(); if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; tdLine(); TS=1; $("tdPanel").style.display="none"; }
 let LOG_LAST=Date.now();
 setInterval(()=>{ const n=Date.now(), gap=n-LOG_LAST; LOG_LAST=n; if(gap>20000) logAdd("GAP: app was frozen for "+Math.round(gap/1000)+" s"); },5000);
 setInterval(()=>{ logAdd("alive | "+document.visibilityState+" | screen-on "+(typeof WL!=="undefined"&&WL?"held":"not held")+""+" | GPS "+(GPS&&GPS.on?"on":"off")); },30000);
@@ -2129,8 +2128,8 @@ let AZ_ON=LS.get("az","1")==="1", AZ_T=0, AZ_HINT=false;   // AZ_HINT: the "tap 
 function azLive(){ return AZ_ON&&FOLLOW&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length; }
 function azBox(){   // the free part of the screen: below the top pills, clear of the side buttons, the bottom row and any open bottom panel
   const g=$("gTL").getBoundingClientRect(), wr=wrap.getBoundingClientRect(); let y1=Math.max(70,g.bottom-wr.top)+28, x1=56, x2=VW-56, y2=VH-72;
-  ["chartCard","routeCard"].forEach(id=>{ const e=$(id); if(e&&!e.classList.contains("hid")){ const r=e.getBoundingClientRect(); if(r.height>2) y2=Math.min(y2,r.top-wr.top-12); } });
-  if(TD.run) y2=Math.min(y2,VH-215);   // the test drive: a fixed room for its own panel
+  ["chartCard","routeCard"].forEach(id=>{ const e=$(id); if(e&&!e.classList.contains("hid")){ const r=e.getBoundingClientRect(); if(r.height>2) y2=Math.min(y2,r.top-wr.top-12+(TD.run&&TD.watch?62:0)); } });   // in the playback the chart panel sits 62 px higher to clear the strip, so that is taken back
+  if(TD.run&&!TD.watch) y2=Math.min(y2,VH-215);   // the test drive: a fixed room for its own panel
   if(y2-y1<150) y2=y1+150;
   return {w:x2-x1,h:y2-y1,cx:(x1+x2)/2,cy:(y1+y2)/2,x1,x2,y1,y2};
 }
