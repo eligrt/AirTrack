@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.064
+  PFD - Fly page   v0.01.065
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.064"}
+    page -> shell  {pfd:"hello", version:"0.01.065"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.064 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.065 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.064";
+const VER="0.01.065";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1508,7 +1508,7 @@ function fmtMin(m){ if(m==null||!isFinite(m)) return "-- min"; m=Math.round(m); 
 
 /* ───────── GPS, compass, screen on ───────── */
 const GPS={on:false,id:null};
-let TD={zf:[1,1,1,1],pos:[{k:0.5,c:0},{k:0.5,c:0},{k:0.5,c:0},{k:0.5,c:0}],res:{route:false,direct:false,charts:false},watch:false,fAdj:[null,null,null,null],hold:null,paused:false,awaitB:false,lastRow:null,log:[],pend:null,resText:"",run:false,drawing:false,playing:false,pts:[],sp:20,kt:100,nz:1,d:0,tm:null,out:0,rev:0,wasOut:false,sgn:0,z0:0,layer:null}, TS=1;   // TD: the test drive (exploration only); TS: how much faster than real time the clock runs while it plays
+let TD={F:[0.78,0.62,0.65,0.70],pos:[{k:0.5,c:0},{k:0.5,c:0},{k:0.5,c:0},{k:0.5,c:0}],res:{route:false,direct:false,charts:false},watch:false,fAdj:[null,null,null,null],hold:null,paused:false,awaitB:false,lastRow:null,log:[],pend:null,resText:"",run:false,drawing:false,playing:false,pts:[],sp:20,kt:100,nz:1,d:0,tm:null,out:0,rev:0,wasOut:false,sgn:0,z0:0,layer:null}, TS=1;   // TD: the test drive (exploration only); TS: how much faster than real time the clock runs while it plays
 let RAW=null, POS=null, GS=null, TRK=null, LASTTRK=null, HDG=null, STALE=false, WL=null, firstFix=true, FOLLOW=true;
 function gpsStart(){
   if(GPS.on) return;
@@ -1669,15 +1669,15 @@ function tdBuild(){
     tdAnswer(k); });
 }
 function tdSay(t){ $("tdSt").textContent=t; }
-function tdBase(){ TD.zf=[1,1,1,1]; TD.pos=[0,1,2,3].map(()=>({k:0.5,c:0})); TD.fAdj=[null,null,null,null]; }   // the starting settings: nothing learned yet
+function tdBase(){ TD.F=AZB.F.slice(); TD.pos=[0,1,2,3].map(()=>({k:0.5,c:0})); TD.fAdj=[null,null,null,null]; }   // the starting settings: nothing learned yet
 function tdResetAll(){ if(TD.playing) return; tdBase(); TD.log.push({reset:true,label:"the starting settings",leg:TD.legNo,tr:TD.attempt+1}); toast("Back to the starting settings",2500); tdSay("Settings are back at the start."); }
 /* saved calibrations: the last five, each with its date and time */
 const AZ_BASEF=j=>AZB.rows[j].f;
-function calList(){ try{ const a=JSON.parse(LS.get("tdcal","[]")); return Array.isArray(a)? a : []; }catch(e){ return []; } }
+function calList(){ try{ const a=JSON.parse(LS.get("tdcal2","[]")); return Array.isArray(a)? a : []; }catch(e){ return []; } }
 function calLabel(t){ const d=new Date(t), n=new Date(), hm=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"), day=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime(), dd=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
   return dd===day? "Today "+hm : dd===day-86400000? "Yesterday "+hm : d.getDate()+" "+["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]+" "+hm; }
-function calSave(){ const e={n:TD.legs.length+" legs",sid:TD.sid,t:Date.now(),zf:TD.zf.slice(),pos:TD.pos.map(o=>({k:o.k,c:o.c})),fAdj:TD.fAdj.slice()}; const a=calList().filter(x=>x.sid!==TD.sid); a.unshift(e); LS.set("tdcal",JSON.stringify(a.slice(0,5))); }
-function calApply(e,label){ TD.zf=e.zf.slice(); TD.pos=e.pos.map(o=>({k:o.k,c:o.c})); TD.fAdj=e.fAdj.slice(); TD.log.push({reset:true,label:label,leg:TD.legNo,tr:TD.attempt+1}); }
+function calSave(){ const e={n:TD.legs.length+" legs",sid:TD.sid,t:Date.now(),F:TD.F.slice(),pos:TD.pos.map(o=>({k:o.k,c:o.c})),fAdj:TD.fAdj.slice()}; const a=calList().filter(x=>x.sid!==TD.sid); a.unshift(e); LS.set("tdcal2",JSON.stringify(a.slice(0,5))); }
+function calApply(e,label){ TD.F=e.F.slice(); TD.pos=e.pos.map(o=>({k:o.k,c:o.c})); TD.fAdj=e.fAdj.slice(); TD.log.push({reset:true,label:label,leg:TD.legNo,tr:TD.attempt+1}); }
 function tdSavedOpen(){ if(TD.playing||TD.hold) return; TD.prevQ=$("tdQ").innerHTML; const a=calList();
   tdQ('<div class="qt">Saved settings</div><div class="qs">Pick the settings to continue from.</div><div class="r"><button data-a="calbase">Starting settings</button></div>'+a.map((e,i)=>'<div class="r"><button data-a="cal'+i+'">'+calLabel(e.t)+' ('+(e.n||"")+')</button></div>').join("")+(a.length? "":'<div class="qs">Nothing saved yet. A calibration is saved when you tap "I&#39;m happy, copy results".</div>')+'<div class="r"><button class="on" data-a="calback">Back</button></div>'); }
 function tdQ(html){ $("tdQ").innerHTML=html; }
@@ -1765,6 +1765,7 @@ function tdAnswer(k){
     else if(k==="ok"){
       P.dBorder=tdDNext();
       if(P.type==="zoom step"&&P.moved!==0){ const j=P.ri-1, cur=TD.fAdj[j]!=null? TD.fAdj[j] : AZ_BASEF(j); TD.fAdj[j]=Math.max(0.5,cur-0.5*P.moved/0.93); }   // halfway toward the moment you chose; only when you moved it
+      AZ_DENT=P.dBorder; AZ_DIR={x:AZ_DIR.x,y:AZ_DIR.y};
       TD.hold=null; TD.awaitB=true; tdQ('<div class="qt">Zooming...</div>'); tdSay("The zoom is changing now.");
       return;
     }
@@ -1773,12 +1774,13 @@ function tdAnswer(k){
   if(TD.hold==="B"){
     if(k!=="go") return;
     const ri=P.ri, ap=P.app, pl=toScreen([POS.lat,POS.lon]), ox=pl.x-VW/2, oy=pl.y-VH/2, uAc=tdAcrossAt(MAP.getZoom()), b=azBox();
-    TD.zf[ri]=Math.max(0.3,Math.min(3,TD.zf[ri]*Math.sqrt(ap.across/uAc)));   // halfway toward your zoom
     const Nn=toScreen([TD.wp.lat,TD.wp.lon]), gx=Nn.x-pl.x, gy=Nn.y-pl.y, G=Math.hypot(gx,gy), qx=ox-(b.cx-VW/2), qy=oy-(b.cy-VH/2), apk={k:0,c:0};
     { const aqx=ap.x-(b.cx-VW/2), aqy=ap.y-(b.cy-VH/2); if(ap.G>20){ apk.k=-(aqx*ap.ux+aqy*ap.uy)/ap.G; apk.c=(-aqx*ap.uy+aqy*ap.ux)/ap.G; } }
+    const dst=distNM(POS.lat,POS.lon,TD.wp.lat,TD.wp.lon), Fu=Math.max(0.2,Math.min(0.95,(G/(2*azEdge(AZ_DIR.x,AZ_DIR.y,b)))*(AZ_DREF/Math.max(0.2,dst)))), Fa=TD.F[ri];
+    TD.F[ri]=Fa+0.5*(Fu-Fa);   // halfway toward the fill you chose
     let ku=0.5, cu=0; if(G>20){ const ux=gx/G, uy=gy/G; ku=-(qx*ux+qy*uy)/G; cu=(-qx*uy+qy*ux)/G; }
     const po=TD.pos[ri]; po.k=Math.max(0.05,Math.min(0.95,po.k+0.5*(ku-po.k))); po.c=Math.max(-0.6,Math.min(0.6,po.c+0.5*(cu-po.c)));   // halfway toward your framing
-    TD.log.push({n:TD.log.length+1,type:P.type,leg:P.leg,row:ri,d0:P.d0,moved:P.moved,dBorder:P.dBorder,zoomPct:Math.round((ap.across/uAc-1)*100),across:uAc,appAcross:ap.across,
+    TD.log.push({n:TD.log.length+1,type:P.type,leg:P.leg,row:ri,d0:P.d0,moved:P.moved,dBorder:P.dBorder,zoomPct:Math.round((ap.across/uAc-1)*100),Fu:Fu,Fa:Fa,across:uAc,appAcross:ap.across,
       px:Math.round(qx),py:Math.round(qy),appPx:Math.round(ap.x-(b.cx-VW/2)),appPy:Math.round(ap.y-(b.cy-VH/2)),ku:ku,cu:cu,apk:apk.k,apc:apk.c});
     FOLLOW=true; AZ_OFF={x:ox,y:oy}; AZ_TW=null; ZV=null; ui();   // the flight goes on from the view you set
     TD.hold=null; TD.pend=null; tdResume(); return;
@@ -1790,13 +1792,13 @@ function tdResults(){
   out.push("Legs, true bearings:");
   TD.legs.forEach(g=>{ const nm=distNM(g.start.lat,g.start.lon,g.wp.lat,g.wp.lon), fl=[]; for(let i=1;i<g.pts.length;i++) fl.push(f(distNM(g.pts[i-1].lat,g.pts[i-1].lon,g.pts[i].lat,g.pts[i].lon))+" NM bearing "+p3(tdBrg(g.pts[i-1],g.pts[i])));
     out.push("  Leg "+g.n+": "+f(nm)+" NM, bearing "+p3(tdBrg(g.start,g.wp))+" | flown path "+g.pts.length+" points: "+fl.join(" ; ")); });
-  out.push("Starting settings: leg start 1.5 x the leg length across; 8.5 NM out 10 NM across; 4.7 NM out 6 NM across; 3 NM out 4 NM across; legs under 2 NM 3 NM across; plane framing 0.50 (the middle of plane and next point at the middle of the free area), side 0");
+  out.push("Starting settings: zoom-in distances 8.5 / 4.7 / 3 NM out; the gap between plane and next point fills 0.78, 0.62, 0.65, 0.70 of the free area along the flight direction (leg start, then each zoom-in); plane framing 0.50 (the middle of plane and next point at the middle of the free area), side 0");
   const bd=j=>TD.fAdj[j]!=null? TD.fAdj[j] : rows[j].f;
-  out.push("Settings now (after learning): leg start "+(1.5/TD.zf[0]).toFixed(2)+" x the leg length across; "+f(bd(0))+" NM out "+f(rows[1].w/TD.zf[1])+" NM across; "+f(bd(1))+" NM out "+f(rows[2].w/TD.zf[2])+" NM across; "+f(bd(2))+" NM out "+f(rows[3].w/TD.zf[3])+" NM across");
+  out.push("Settings now (after learning): zoom-in distances "+f(bd(0))+" / "+f(bd(1))+" / "+f(bd(2))+" NM out; the gap between plane and next point fills (leg start, then each zoom-in) "+TD.F.map(v=>v.toFixed(2)).join(", ")+" of the free area along the flight direction");
   out.push("Plane framing now (back: 0.50 = middle of plane and next point at the middle of the free area, higher = plane further back; side: + = to the right of the flight direction, as a fraction of the gap): "+TD.pos.map((q,i)=>["leg start","first zoom-in","second zoom-in","last zoom-in"][i]+" back "+q.k.toFixed(2)+" side "+q.c.toFixed(2)).join(" | "));
   out.push("Stops (timing: + means later, - earlier; zoom + means you went closer than the app; plane: negative sideways = left, negative down = up, measured from the middle of the free area, which leaves out the Test drive panel; learning moves halfway each time):");
   TD.log.forEach(e=>{ if(e.reset){ out.push("  --- settings set to "+(e.label||"the start")+" (leg "+e.leg+", try "+e.tr+") ---"); return; }
-    out.push("  "+e.n+". leg "+e.leg.n+" try "+e.leg.tr+" ("+f(e.leg.nm)+" NM, bearing "+p3(e.leg.brg)+"), "+e.type+", row "+(e.row+1)+", "+f(e.d0)+" NM from the next point when asked; timing "+(e.moved>=0?"+":"")+e.moved.toFixed(2)+" NM"+(e.dBorder!=null?" (starts "+f(e.dBorder)+" NM out)":"")+"; your view: "+e.across.toFixed(0)+" NM across (the app showed "+e.appAcross.toFixed(0)+", so zoom "+(e.zoomPct>=0?"+":"")+e.zoomPct+"%); plane "+e.px+" px sideways, "+e.py+" px down from the middle of the free area (the app had "+e.appPx+", "+e.appPy+"); framing back "+e.ku.toFixed(2)+" side "+e.cu.toFixed(2)+" (the app had "+e.apk.toFixed(2)+", "+e.apc.toFixed(2)+")"); });
+    out.push("  "+e.n+". leg "+e.leg.n+" try "+e.leg.tr+" ("+f(e.leg.nm)+" NM, bearing "+p3(e.leg.brg)+"), "+e.type+", row "+(e.row+1)+", "+f(e.d0)+" NM from the next point when asked; timing "+(e.moved>=0?"+":"")+e.moved.toFixed(2)+" NM"+(e.dBorder!=null?" (starts "+f(e.dBorder)+" NM out)":"")+"; your view: "+e.across.toFixed(0)+" NM across, the gap fills "+e.Fu.toFixed(2)+" of the free area (the app showed "+e.appAcross.toFixed(0)+" NM across, fill "+e.Fa.toFixed(2)+"); plane "+e.px+" px sideways, "+e.py+" px down from the middle of the free area (the app had "+e.appPx+", "+e.appPy+"); framing back "+e.ku.toFixed(2)+" side "+e.cu.toFixed(2)+" (the app had "+e.apk.toFixed(2)+", "+e.apc.toFixed(2)+")"); });
   return out.join("\n");
 }
 function tdDonePanel(){
@@ -2134,9 +2136,11 @@ function azBox(){   // the free part of the screen: below the top pills, clear o
   return {w:x2-x1,h:y2-y1,cx:(x1+x2)/2,cy:(y1+y2)/2,x1,x2,y1,y2};
 }
 let AZ_OFF=null, AZ_LEG0=99;   // where the plane stands on the screen while auto zoom frames the leg (null = the normal spot)
-const AZB_DEF={fit:1,lead:60,rows:[{f:8.5,w:16},{f:4.7,w:10},{f:3,w:6},{f:0,w:4}]};   // the zoom table: from this distance (NM) to the next point, the screen shows this many NM across; the first row can fit the whole leg; lead: how far the plane sits back from the middle (%)
+const AZB_DEF={F:[0.78,0.62,0.65,0.70],fit:1,lead:60,rows:[{f:8.5,w:16},{f:4.7,w:10},{f:3,w:6},{f:0,w:4}]};   // the zoom table: from this distance (NM) to the next point, the screen shows this many NM across; the first row can fit the whole leg; lead: how far the plane sits back from the middle (%)
 let AZB=(()=>{ const d=JSON.parse(JSON.stringify(AZB_DEF)); try{ const j=JSON.parse(LS.get("azb2","null")); if(j&&Array.isArray(j.rows)&&j.rows.length===4){ d.rows=j.rows; d.fit=j.fit?1:0; d.lead=+j.lead||0; } }catch(e){} return d; })();
 function azbSave(){ LS.set("azb2",JSON.stringify(AZB)); }
+let AZ_ERI=-9, AZ_DIR={x:0,y:-1}, AZ_DENT=1, AZ_DREF=1;
+function azEdge(sx,sy,b){ const ex=Math.abs(sx)>0.001? (b.w/2)/Math.abs(sx):1e9, ey=Math.abs(sy)>0.001? (b.h/2)/Math.abs(sy):1e9; return Math.max(40,Math.min(ex,ey)); }   // how far the free area reaches from its middle in a direction
 let AZ_RI=-1, AZ_TW=null, AZ_FIT=0, AZ_FITK=-1, AZ_DNOW=0;
 function azK(){ return (TD.run&&TD.pos)? TD.pos[Math.max(0,AZ_RI)] : {k:0.5,c:0}; }   // how the plane and the next point are framed: 0.5 = their middle sits in the middle of the free area; more = the plane further back
 function azLead(b,dx,dy,len){ const f=AZB.lead/100; return len<1? {x:0,y:0} : {x:-dx/len*f*b.w/2, y:-dy/len*f*b.h/2}; }   // the plane sits a little behind the middle, away from the next point
@@ -2148,14 +2152,14 @@ function azTarget(){
   if(AZ_FITK!==NX.i){ AZ_FITK=NX.i; AZ_FIT=d>0.05? VW/(1.5*d) : 0; AZ_LEG0=d; }   // whole leg: measured once, when the leg begins, then held
   if(len<1) return lim(zf(VW/R[1].w));
   const fe=j=>(TD.run&&TD.fAdj&&TD.fAdj[j]!=null)? TD.fAdj[j] : R[j].f;
-  if(AZ_RI<0){ AZ_RI=0; while(AZ_RI<3 && d<fe(AZ_RI)) AZ_RI++; }
+  if(AZ_RI<0){ AZ_RI=0; AZ_ERI=-9; while(AZ_RI<3 && d<fe(AZ_RI)) AZ_RI++; }
   while(AZ_RI<3 && d<fe(AZ_RI)*0.93) AZ_RI++;      // a little hysteresis so it never flips back and forth at a border
   while(AZ_RI>0 && d>=fe(AZ_RI-1)*1.07) AZ_RI--;
-  let s=VW/R[AZ_RI].w;
-  if(AZ_RI===3&&AZ_LEG0<2) s=VW/3;   // a very short leg: tighter still
-  if(AZ_RI===0 && AZB.fit && AZ_FIT>0) s=Math.min(AZ_FIT,VW/R[1].w);
+  if(AZ_ERI!==AZ_RI){ AZ_ERI=AZ_RI; AZ_DIR={x:sx,y:sy}; AZ_DENT=d; }   // when a step begins: remember the direction and how far the next point was
+  const dref=Math.max(0.2, AZ_RI===0? AZ_DENT : Math.min(fe(AZ_RI-1)*0.93,AZ_DENT)); AZ_DREF=dref;   // the distance at which this step begins
+  const Fv=((TD.run&&TD.F)? TD.F : AZB.F)[AZ_RI];
+  let s=Fv*2*azEdge(AZ_DIR.x,AZ_DIR.y,b)/dref;   // at the start of a step the gap between plane and next point fills Fv of the free area along the flight direction
   s=Math.max(s,VW/120);
-  if(TD.run&&TD.zf) s*=TD.zf[Math.max(0,AZ_RI)];   // the test drive's own corrections
   { const kk=azK().k, mk=Math.max(kk,1-kk,0.05); if(d*s*mk>0.9*edge) s=0.9*edge/(d*mk); }   // the next point (and the plane) never leave the free screen
   return lim(zf(s));
 }
