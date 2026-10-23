@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.059
+  PFD - Fly page   v0.01.060
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.059"}
+    page -> shell  {pfd:"hello", version:"0.01.060"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.059 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.060 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.059";
+const VER="0.01.060";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -2098,6 +2098,10 @@ function frameTick(now){
     const dla=(tl-POS.lat)*k, dlo=(to-POS.lon)*k; if(Math.abs(dla)+Math.abs(dlo)>1e-8){ POS.lat+=dla; POS.lon+=dlo; moved=true; }
   }
   if(AZ_ON&&!FOLLOW&&!AZ_HINT&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2){ AZ_HINT=true; toast("Auto zoom works while the map follows you. Tap Center.",4500); }   // after drawing or loading a route the map stands still, so auto zoom waits
+  if(TD.run&&TD.hold!=="B"&&!DRAW.on){ if(!FOLLOW) FOLLOW=true; if(!AZ_ON) AZ_ON=true; }   // during the test drive the map always follows, except while you set your view
+  if(TD.run&&TD.awaitB&&!TD.hold){ TD.awT=(TD.awT||0)+dtR; if(TD.awT>8){ TD.awT=0; tdStopB(); } } else TD.awT=0;   // safety: never wait more than a few seconds for the glide
+  if(TD.run&&TD.hold!=="B"&&(!FOLLOW||!AZ_ON)){ FOLLOW=true; AZ_ON=true; ui(); }   // during the test drive the map always follows, except while you set your view
+  if(TD.run&&TD.awaitB&&!TD.hold){ TD.aw=(TD.aw||0)+dtR; if(TD.aw>8){ TD.aw=0; tdStopB(); } } else TD.aw=0;   // safety: never wait more than a few seconds for the zoom
   const live=azLive(), def={x:0,y:VH*0.10}; let tgt=def, zT=null;
   if(live){ const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), b=azBox(); zT=(TD.run&&TD.hold==="A"&&ZV!=null)? (AZ_TW? AZ_TW.z1 : ZV) : azTarget();   // while the test drive waits for an answer the zoom stands still
    
