@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.057
+  PFD - Fly page   v0.01.058
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.057"}
+    page -> shell  {pfd:"hello", version:"0.01.058"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.057 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.058 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.057";
+const VER="0.01.058";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1680,8 +1680,9 @@ function tdLegInfo(){ const w=ROUTE.wp, i=Math.max(1,Math.min(NX.i,w.length-1)),
 function tdAcross(){ const k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852); return VW/(Math.pow(2,ZV!=null?ZV:MAP.getZoom())/k); }
 function tdDNext(){ const w=ROUTE.wp[Math.min(NX.i,ROUTE.wp.length-1)], q=tdAt(TD.d); return distNM(q.lat,q.lon,w.lat,w.lon); }
 function tdFix(spd){ const q=tdAt(TD.d); onPos({coords:{latitude:q.lat,longitude:q.lon,accuracy:5,altitude:300,speed:spd?TD.kt/1.94384:0,heading:q.hdg},_td:true}); }
-function tdPause(){ if(TD.tm){ clearInterval(TD.tm); TD.tm=null; } TS=1; TD.paused=true; $("tdPlay").innerHTML="&#9654; Play"; $("tdPlay").classList.add("dis"); }
-function tdResume(){ TD.paused=false; $("tdQ").style.display="none"; $("tdPlay").classList.remove("dis"); tdGo(); }
+function tdPause(){ if(TD.tm){ clearInterval(TD.tm); TD.tm=null; } TS=1; if(TD.keep) clearInterval(TD.keep); TD.keep=setInterval(()=>{ if(TD.run&&TD.paused) tdFix(0); },1000);   // while paused the plane still reports "standing still", so the app does not think the GPS is lost
+  TD.paused=true; $("tdPlay").innerHTML="&#9654; Play"; $("tdPlay").classList.add("dis"); }
+function tdResume(){ if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } TD.paused=false; $("tdQ").style.display="none"; $("tdPlay").classList.remove("dis"); tdGo(); }
 function tdQ(html){ const q=$("tdQ"); q.innerHTML=html; q.style.display="block"; $("tdDrawRow").style.display="none"; }
 const tdLegTxt=L=>"Leg "+L.n+" of "+L.of+" | "+L.nm.toFixed(1)+" NM | bearing "+p3(L.brg)+"°";
 function tdStopA(rid){
@@ -1779,7 +1780,7 @@ function tdGo(){
   },ms);
 }
 function tdStop(keepRun){ if(TD.tm){ clearInterval(TD.tm); TD.tm=null; } TD.playing=false; TS=1; if(!keepRun) return; $("tdPlay").innerHTML="&#9654; Play"; tdSay("Paused."); }
-function tdExit(){ tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; tdLine(); TS=1; $("tdPanel").style.display="none"; }
+function tdExit(){ if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; tdLine(); TS=1; $("tdPanel").style.display="none"; }
 let LOG_LAST=Date.now();
 setInterval(()=>{ const n=Date.now(), gap=n-LOG_LAST; LOG_LAST=n; if(gap>20000) logAdd("GAP: app was frozen for "+Math.round(gap/1000)+" s"); },5000);
 setInterval(()=>{ logAdd("alive | "+document.visibilityState+" | screen-on "+(typeof WL!=="undefined"&&WL?"held":"not held")+""+" | GPS "+(GPS&&GPS.on?"on":"off")); },30000);
@@ -2120,7 +2121,7 @@ function frameTick(now){
   if(FOLLOW&&POS&&GPS.on&&(moved||offMoved>0.05||needZoom)){ follow(needZoom? ZV : zc); draw(); lsaInsetSync(); if(now-FR_ZT>300){ FR_ZT=now; gisPts(); snapSync(); } }
 }
 requestAnimationFrame(frameTick);
-function azOff(){ if(!AZ_ON) return; AZ_ON=false; LS.set("az","0"); ui(); }   // the pilot zooms by hand: auto zoom steps aside until the button is tapped again
+function azOff(){ if(!AZ_ON||TD.run) return; AZ_ON=false; LS.set("az","0"); ui(); }   // the pilot zooms by hand: auto zoom steps aside until the button is tapped again
 // Next waypoint: passed when the plane crosses the line that stands across the route at that point (the bisector at a turn)
 function nextAdvance(){
   const wp=ROUTE.wp; if(!wp||wp.length<2||!POS||!GPS.on||STALE||DRAW.on) return;
