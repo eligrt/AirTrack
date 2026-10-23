@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.058
+  PFD - Fly page   v0.01.059
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.058"}
+    page -> shell  {pfd:"hello", version:"0.01.059"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.058 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.059 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.058";
+const VER="0.01.059";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1696,12 +1696,14 @@ function tdShowA(){
   tdQ('<div class="qt">'+title+'</div><div class="qs">'+tdLegTxt(P.leg)+' | '+tdDNext().toFixed(1)+' NM to the next point</div><div class="qt">Is this the right moment?</div><div class="r">'+(P.type==="zoom step"?'<button data-a="early">Earlier</button>':'')+'<button class="on" data-a="ok">Now is right</button>'+(P.type!=="start"?'<button data-a="late">Later</button>':'')+'</div><div class="qs">'+(P.moved===0?"The plane is where the zoom would start.":"Moved "+Math.abs(P.moved).toFixed(2)+" NM "+(P.moved>0?"later":"earlier")+".")+'</div>');
   tdSay("Paused: the view has not changed yet.");
 }
+function tdAcrossAt(z){ const k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852); return VW/(Math.pow(2,z)/k); }
 function tdStopB(){
-  TD.awaitB=false; TD.hold="B"; tdShowB(); tdSay("Paused: adjust the view, then Continue.");
+  TD.awaitB=false; TD.hold="B";
+  const P=toScreen([POS.lat,POS.lon]); TD.pend.app={across:tdAcrossAt(MAP.getZoom()),x:P.x-VW/2,y:P.y-VH/2};   // the view the app chose, kept for comparison
+  FOLLOW=false; ui(); tdShowB(); tdSay("Paused: the map is free. Pinch and drag it, then Continue.");
 }
 function tdShowB(){
-  const ri=TD.pend.ri, z=Math.round((TD.zf[ri]-1)*100), p=TD.pos[ri];
-  tdQ('<div class="qt">How is this view?</div><div class="qs">Screen shows about '+tdAcross().toFixed(0)+' NM across. '+(z===0&&p.x===0&&p.y===0?"No changes yet.":"Zoom "+(z>=0?"closer by ":"wider by ")+Math.abs(z)+"%; plane moved "+Math.abs(p.x)+" px "+(p.x<0?"left":"right")+", "+Math.abs(p.y)+" px "+(p.y<0?"up":"down")+".")+'</div><div class="r"><label>ZOOM</label><button data-b="wide">Wider</button><button data-b="close">Closer</button></div><div class="r"><label>PLANE</label><button data-b="l">&#9664;</button><button data-b="u">&#9650;</button><button data-b="d">&#9660;</button><button data-b="r">&#9654;</button></div><div class="r"><button class="on" data-b="go">Continue</button></div>');
+  tdQ('<div class="qt">How is this view?</div><div class="qs">Pinch and drag the map until the zoom and the plane position show the route the way you want. Then tap Continue.</div><div class="r"><button class="on" data-b="go">Continue</button></div>');
 }
 function tdAnswer(k){
   const P=TD.pend; if(!P) return;
@@ -1717,16 +1719,14 @@ function tdAnswer(k){
     tdShowA(); return;
   }
   if(TD.hold==="B"){
-    const ri=P.ri;
-    if(k==="wide") TD.zf[ri]=Math.max(0.4,TD.zf[ri]/1.15);
-    else if(k==="close") TD.zf[ri]=Math.min(2.5,TD.zf[ri]*1.15);
-    else if(k==="l") TD.pos[ri].x-=24; else if(k==="r") TD.pos[ri].x+=24; else if(k==="u") TD.pos[ri].y-=24; else if(k==="d") TD.pos[ri].y+=24;
-    else if(k==="go"){
-      const p=TD.pos[ri];
-      TD.log.push({n:TD.log.length+1,type:P.type,leg:P.leg,row:ri,d0:P.d0,moved:P.moved,dBorder:P.dBorder,zoomPct:Math.round((TD.zf[ri]-1)*100),px:p.x,py:p.y,across:tdAcross()});
-      TD.hold=null; TD.pend=null; tdResume(); return;
-    }
-    tdShowB();
+    if(k!=="go") return;
+    const ri=P.ri, ap=P.app, pl=toScreen([POS.lat,POS.lon]), ox=pl.x-VW/2, oy=pl.y-VH/2, uAc=tdAcrossAt(MAP.getZoom()), b=azBox();
+    TD.zf[ri]=Math.max(0.3,Math.min(3,TD.zf[ri]*ap.across/uAc));
+    TD.pos[ri].x=Math.round(TD.pos[ri].x+ox-ap.x); TD.pos[ri].y=Math.round(TD.pos[ri].y+oy-ap.y);
+    TD.log.push({n:TD.log.length+1,type:P.type,leg:P.leg,row:ri,d0:P.d0,moved:P.moved,dBorder:P.dBorder,zoomPct:Math.round((ap.across/uAc-1)*100),across:uAc,appAcross:ap.across,
+      px:Math.round(ox-(b.cx-VW/2)),py:Math.round(oy-(b.cy-VH/2)),appPx:Math.round(ap.x-(b.cx-VW/2)),appPy:Math.round(ap.y-(b.cy-VH/2))});
+    FOLLOW=true; AZ_OFF={x:ox,y:oy}; AZ_TW=null; ZV=null; ui();   // the flight goes on from the view you set
+    TD.hold=null; TD.pend=null; tdResume(); return;
   }
 }
 function tdResults(){
@@ -1738,8 +1738,8 @@ function tdResults(){
   out.push("Flown path, "+TD.pts.length+" points: "+TD.pts.map(q=>q.lat.toFixed(4)+","+q.lon.toFixed(4)).join(" ; "));
   if(TD.pts.length>1){ const l=[]; for(let i=1;i<TD.pts.length;i++) l.push(distNM(TD.pts[i-1].lat,TD.pts[i-1].lon,TD.pts[i].lat,TD.pts[i].lon).toFixed(1)+" NM bearing "+p3(tdBrg(TD.pts[i-1],TD.pts[i]))); out.push("Flown legs: "+l.join(" ; ")); }
   out.push("Table used: "+rows.map((r,i)=>(i===0?r.f+"+ NM: whole leg":i===3?"under "+rows[2].f+" NM: "+r.w+" NM across":r.f+" NM: "+r.w+" NM across")).join(" | ")+" | plane back "+AZB.lead+"%");
-  out.push("Stops (timing: + means later, - earlier; zoom + means closer):");
-  TD.log.forEach(e=>out.push("  "+e.n+". "+e.type+", row "+(e.row+1)+", leg "+e.leg.n+" ("+e.leg.nm.toFixed(1)+" NM, bearing "+p3(e.leg.brg)+"), "+e.d0.toFixed(1)+" NM from the next point when asked; timing "+(e.moved>=0?"+":"")+e.moved.toFixed(2)+" NM"+(e.dBorder!=null?" (starts "+e.dBorder.toFixed(1)+" NM out)":"")+"; zoom "+(e.zoomPct>=0?"+":"")+e.zoomPct+"%; plane x "+e.px+" y "+e.py+" px; screen showed "+e.across.toFixed(0)+" NM across"));
+  out.push("Stops (timing: + means later, - earlier; zoom + means you went closer than the app; plane: negative sideways = left, negative down = up):");
+  TD.log.forEach(e=>out.push("  "+e.n+". "+e.type+", row "+(e.row+1)+", leg "+e.leg.n+" ("+e.leg.nm.toFixed(1)+" NM, bearing "+p3(e.leg.brg)+"), "+e.d0.toFixed(1)+" NM from the next point when asked; timing "+(e.moved>=0?"+":"")+e.moved.toFixed(2)+" NM"+(e.dBorder!=null?" (starts "+e.dBorder.toFixed(1)+" NM out)":"")+"; your view: "+e.across.toFixed(0)+" NM across (the app showed "+e.appAcross.toFixed(0)+", so zoom "+(e.zoomPct>=0?"+":"")+e.zoomPct+"%); plane "+e.px+" px sideways, "+e.py+" px down from the middle of the free area (the app had "+e.appPx+", "+e.appPy+")"));
   return out.join("\n");
 }
 function tdFinish(){
@@ -2116,6 +2116,7 @@ function frameTick(now){
     else ZV=AZ_TW.z1;
     if(TD.run&&TD.awaitB&&!TD.hold&&AZ_TW.t>=AZ_TW.dur) tdStopB();   // the glide is over: ask how the view looks
   }
+  else if(TD.run&&TD.hold==="B"){ ZV=zc; }   // the map is free while you set your view
   else { ZV=zc; AZ_RI=-1; AZ_FITK=-1; AZ_TW=null; }
   const needZoom=Math.abs(ZV-zc)>=0.0015;
   if(FOLLOW&&POS&&GPS.on&&(moved||offMoved>0.05||needZoom)){ follow(needZoom? ZV : zc); draw(); lsaInsetSync(); if(now-FR_ZT>300){ FR_ZT=now; gisPts(); snapSync(); } }
