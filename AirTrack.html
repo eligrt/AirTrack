@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.061
+  PFD - Fly page   v0.01.062
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.061"}
+    page -> shell  {pfd:"hello", version:"0.01.062"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.061 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.062 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.061";
+const VER="0.01.062";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1508,7 +1508,7 @@ function fmtMin(m){ if(m==null||!isFinite(m)) return "-- min"; m=Math.round(m); 
 
 /* ───────── GPS, compass, screen on ───────── */
 const GPS={on:false,id:null};
-let TD={zf:[1,1,1,1],pos:[{a:0,c:0},{a:0,c:0},{a:0,c:0},{a:0,c:0}],fAdj:[null,null,null,null],hold:null,paused:false,awaitB:false,lastRow:null,log:[],pend:null,resText:"",run:false,drawing:false,playing:false,pts:[],sp:20,kt:100,nz:1,d:0,tm:null,out:0,rev:0,wasOut:false,sgn:0,z0:0,layer:null}, TS=1;   // TD: the test drive (exploration only); TS: how much faster than real time the clock runs while it plays
+let TD={zf:[1,1,1,1],pos:[{k:0.5,c:0},{k:0.5,c:0},{k:0.5,c:0},{k:0.5,c:0}],res:{route:false,direct:false,charts:false},watch:false,fAdj:[null,null,null,null],hold:null,paused:false,awaitB:false,lastRow:null,log:[],pend:null,resText:"",run:false,drawing:false,playing:false,pts:[],sp:20,kt:100,nz:1,d:0,tm:null,out:0,rev:0,wasOut:false,sgn:0,z0:0,layer:null}, TS=1;   // TD: the test drive (exploration only); TS: how much faster than real time the clock runs while it plays
 let RAW=null, POS=null, GS=null, TRK=null, LASTTRK=null, HDG=null, STALE=false, WL=null, firstFix=true, FOLLOW=true;
 function gpsStart(){
   if(GPS.on) return;
@@ -1657,27 +1657,36 @@ setTimeout(topBarApply,300);
 /* TEST DRIVE (exploration only): you set each waypoint and draw the path you really fly; the app flies it fast, stops where a zoom would start, and learns from your corrections */
 function tdBuild(){
   if(document.getElementById("tdPanel")) return;
-  const st=document.createElement("style"); st.textContent="#tdPanel{position:absolute;left:8px;right:8px;bottom:var(--sb);z-index:30;background:rgba(251,246,232,.95);border:2.5px solid #d81b60;border-radius:20px;padding:8px 10px 8px;box-shadow:0 2px 8px rgba(14,35,72,.3);font-family:var(--font-ui)} #tdPanel .tt{display:flex;gap:6px;align-items:center;font:700 13px var(--font-ui);color:#1c3d6e;margin-bottom:4px} #tdPanel .tt b{flex:1} #tdPanel .tt button{flex:none;width:76px;padding:7px 2px;font-size:13px} #tdPanel .r{display:flex;gap:6px;align-items:center;margin:5px 0} #tdPanel .r label{font:700 10px var(--font-mono);width:50px;flex:none;color:#5a4a3a} #tdPanel button{flex:1;font:700 14px var(--font-ui);border:1.5px solid #1c3d6e;background:#fbf6e8;color:#1c3d6e;border-radius:18px;padding:10px 2px} #tdPanel button.on{background:#1c3d6e;color:#fff} #tdPanel button.dis{opacity:.4;pointer-events:none} #tdPanel .sts{font:600 12px var(--font-ui);color:#5a4a3a;text-align:center;margin-top:4px;min-height:16px} #tdQ .qt{font:800 15px var(--font-ui);color:#1c3d6e;margin:2px 0} #tdQ .qs{font:600 12px var(--font-ui);color:#5a4a3a;margin:2px 0 4px}";
+  const st=document.createElement("style"); st.textContent="#tdPanel{position:absolute;left:8px;right:8px;bottom:var(--sb);z-index:30;background:rgba(251,246,232,.95);border:2.5px solid #d81b60;border-radius:20px;padding:8px 10px 8px;box-shadow:0 2px 8px rgba(14,35,72,.3);font-family:var(--font-ui)} #tdPanel .tt{display:flex;gap:6px;align-items:center;font:700 13px var(--font-ui);color:#1c3d6e;margin-bottom:4px} #tdPanel .tt b{flex:1} #tdPanel .tt button{flex:none;width:64px;padding:7px 2px;font-size:13px} #tdPanel .r{display:flex;gap:6px;align-items:center;margin:5px 0} #tdPanel .r label{font:700 10px var(--font-mono);width:50px;flex:none;color:#5a4a3a} #tdPanel button{flex:1;font:700 14px var(--font-ui);border:1.5px solid #1c3d6e;background:#fbf6e8;color:#1c3d6e;border-radius:18px;padding:10px 2px} #tdPanel button.on{background:#1c3d6e;color:#fff} #tdPanel button.dis{opacity:.4;pointer-events:none} #tdPanel .sts{font:600 12px var(--font-ui);color:#5a4a3a;text-align:center;margin-top:4px;min-height:16px} #tdQ .qt{font:800 15px var(--font-ui);color:#1c3d6e;margin:2px 0} #tdQ .qs{font:600 12px var(--font-ui);color:#5a4a3a;margin:2px 0 4px}";
   document.head.appendChild(st);
   const p=document.createElement("div"); p.id="tdPanel"; p.style.display="none";
-  p.innerHTML='<div class="tt"><b>Test drive</b><button id="tdPlay" class="dis">&#9654; Play</button><button id="tdReset">Reset</button><button id="tdExit">Exit</button></div><div id="tdQ"></div><div class="sts" id="tdSt"></div>';
+  p.innerHTML='<div class="tt"><b>Test drive</b><button id="tdPlay" class="dis">&#9654; Play</button><button id="tdReset">Reset</button><button id="tdSaved">Saved</button><button id="tdExit">Exit</button></div><div id="tdQ"></div><div class="sts" id="tdSt"></div>';
   document.body.appendChild(p);
-  $("tdExit").onclick=tdExit; $("tdReset").onclick=tdResetAll;
+  $("tdExit").onclick=tdExit; $("tdReset").onclick=tdResetAll; $("tdSaved").onclick=tdSavedOpen;
   $("tdPlay").onclick=()=>{ if(TD.playing&&!TD.paused) tdStop(true); else if(TD.paused&&TD.hold==null&&!TD.awaitB) tdResume(); else if(!TD.playing&&(TD.phase==="ready"||TD.phase==="fly")) tdGo(); };
   $("tdQ").addEventListener("click",e=>{ const t=e.target.closest("button"); if(!t) return; const k=t.dataset.a||t.dataset.b;
-    if(k==="copy"){ TD.resText=tdResults(); try{ navigator.clipboard.writeText(TD.resText); toast("Results copied",2500); }catch(er){ toast("Open the log and use Copy log",5000); } return; }
+    if(k==="copy"){ TD.resText=tdResults(); calSave(); try{ navigator.clipboard.writeText(TD.resText); toast("Results copied and settings saved",3000); }catch(er){ toast("Open the log and use Copy log",5000); } return; }
     tdAnswer(k); });
 }
 function tdSay(t){ $("tdSt").textContent=t; }
-function tdBase(){ TD.zf=[1,1,1,1]; TD.pos=[0,1,2,3].map(()=>({a:0,c:0})); TD.fAdj=[null,null,null,null]; }   // the starting settings: nothing learned yet
-function tdResetAll(){ tdBase(); TD.log.push({reset:true,leg:TD.legNo,tr:TD.attempt+1}); toast("Back to the starting settings",2500); tdSay("Settings are back at the start."); }
+function tdBase(){ TD.zf=[1,1,1,1]; TD.pos=[0,1,2,3].map(()=>({k:0.5,c:0})); TD.fAdj=[null,null,null,null]; }   // the starting settings: nothing learned yet
+function tdResetAll(){ if(TD.playing) return; tdBase(); TD.log.push({reset:true,label:"the starting settings",leg:TD.legNo,tr:TD.attempt+1}); toast("Back to the starting settings",2500); tdSay("Settings are back at the start."); }
+/* saved calibrations: the last five, each with its date and time */
+const AZ_BASEF=j=>AZB.rows[j].f;
+function calList(){ try{ const a=JSON.parse(LS.get("tdcal","[]")); return Array.isArray(a)? a : []; }catch(e){ return []; } }
+function calLabel(t){ const d=new Date(t), n=new Date(), hm=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"), day=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime(), dd=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
+  return dd===day? "Today "+hm : dd===day-86400000? "Yesterday "+hm : d.getDate()+" "+["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]+" "+hm; }
+function calSave(){ const e={n:TD.legs.length+" legs",sid:TD.sid,t:Date.now(),zf:TD.zf.slice(),pos:TD.pos.map(o=>({k:o.k,c:o.c})),fAdj:TD.fAdj.slice()}; const a=calList().filter(x=>x.sid!==TD.sid); a.unshift(e); LS.set("tdcal",JSON.stringify(a.slice(0,5))); }
+function calApply(e,label){ TD.zf=e.zf.slice(); TD.pos=e.pos.map(o=>({k:o.k,c:o.c})); TD.fAdj=e.fAdj.slice(); TD.log.push({reset:true,label:label,leg:TD.legNo,tr:TD.attempt+1}); }
+function tdSavedOpen(){ if(TD.playing||TD.hold) return; TD.prevQ=$("tdQ").innerHTML; const a=calList();
+  tdQ('<div class="qt">Saved settings</div><div class="qs">Pick the settings to continue from.</div><div class="r"><button data-a="calbase">Starting settings</button></div>'+a.map((e,i)=>'<div class="r"><button data-a="cal'+i+'">'+calLabel(e.t)+' ('+(e.n||"")+')</button></div>').join("")+(a.length? "":'<div class="qs">Nothing saved yet. A calibration is saved when you tap "I&#39;m happy, copy results".</div>')+'<div class="r"><button class="on" data-a="calback">Back</button></div>'); }
 function tdQ(html){ $("tdQ").innerHTML=html; }
 function tdStill(){ if(TD.here) onPos({coords:{latitude:TD.here.lat,longitude:TD.here.lon,accuracy:5,altitude:300,speed:0,heading:TD.here.hdg||0},_td:true}); }
 function tdPlaceStart(){ TD.here={lat:TD.start.lat,lon:TD.start.lon,hdg:TD.hdg||0}; tdStill(); if(POS&&RAW){ POS.lat=RAW.lat; POS.lon=RAW.lon; } }
 function tdOpen(){
   tdBuild(); const c=MAP.getCenter();
   TD.start=POS? {lat:POS.lat,lon:POS.lon} : {lat:c.lat,lon:c.lng};
-  tdBase(); TD.log=[]; TD.legs=[]; TD.legNo=0; TD.sp=60; TD.kt=100; TD.nz=0; TD.run=true; GPS.on=true; AZ_ON=true;
+  tdBase(); TD.log=[]; TD.legs=[]; TD.legNo=0; TD.sid=Date.now(); TD.res={route:false,direct:false,charts:false}; TD.watch=false; { const a=calList(); if(a.length) calApply(a[0],"your last saved calibration ("+calLabel(a[0].t)+")"); } TD.sp=60; TD.kt=100; TD.nz=0; TD.run=true; GPS.on=true; AZ_ON=true;
   if(TD.keep) clearInterval(TD.keep); TD.keep=setInterval(()=>{ if(TD.run&&!TD.tm) tdStill(); },1000);   // the plane keeps reporting "standing still", so the app never thinks the GPS is lost
   $("tdPanel").style.display="block"; tdNewLeg();
 }
@@ -1727,7 +1736,7 @@ function tdShowA(){
 function tdStopB(){
   TD.awaitB=false; TD.hold="B";
   const P=toScreen([POS.lat,POS.lon]), N=toScreen([TD.wp.lat,TD.wp.lon]), ln=Math.hypot(N.x-P.x,N.y-P.y);
-  TD.pend.app={across:tdAcrossAt(MAP.getZoom()),x:P.x-VW/2,y:P.y-VH/2,ux:ln>1?(N.x-P.x)/ln:0,uy:ln>1?(N.y-P.y)/ln:-1};   // the view the app chose, kept for comparison
+  TD.pend.app={across:tdAcrossAt(MAP.getZoom()),x:P.x-VW/2,y:P.y-VH/2,ux:ln>1?(N.x-P.x)/ln:0,uy:ln>1?(N.y-P.y)/ln:-1,G:ln};   // the view the app chose, kept for comparison
   FOLLOW=false; ui(); tdShowB(); tdSay("Paused: the map is free. Pinch and drag it, then Continue.");
 }
 function tdShowB(){
@@ -1740,6 +1749,13 @@ function tdAnswer(k){
   if(k==="drawdone"){ TD.drawing=false; const l=TD.pts[TD.pts.length-1]; if(TD.pts.length<2||distNM(l.lat,l.lon,TD.wp.lat,TD.wp.lon)>0.2) TD.pts.push({lat:TD.wp.lat,lon:TD.wp.lon});
     TD.legs.push({n:TD.legNo,start:TD.start,wp:TD.wp,pts:TD.pts.slice()}); tdPrep(); return; }
   if(k==="again"){ TD.attempt++; tdPrep(); return; }
+  if(k==="calback"){ if(TD.prevQ!=null) $("tdQ").innerHTML=TD.prevQ; return; }
+  if(k==="calbase"){ tdResetAll(); if(TD.prevQ!=null) $("tdQ").innerHTML=TD.prevQ; return; }
+  if(/^cal\d$/.test(k)){ const e=calList()[+k.slice(3)]; if(e){ calApply(e,"saved calibration "+calLabel(e.t)); toast("Loaded: "+calLabel(e.t),2500); } if(TD.prevQ!=null) $("tdQ").innerHTML=TD.prevQ; return; }
+  if(k==="watch"){ tdWatch(); return; }
+  if(k==="again2"){ tdWatch(); return; }
+  if(k==="wback"){ tdWatchEnd(); return; }
+  if(k==="rt"||k==="dr"||k==="ch"){ const n=k==="rt"?"route":k==="dr"?"direct":"charts"; TD.res[n]=!TD.res[n]; tdWatchPanel(); tdBoxDraw(); return; }
   if(k==="newleg"){ TD.start={lat:TD.wp.lat,lon:TD.wp.lon}; tdNewLeg(); return; }
   const P=TD.pend; if(!P) return;
   if(TD.hold==="A"){
@@ -1747,7 +1763,7 @@ function tdAnswer(k){
     else if(k==="late"){ if(TD.d+TD_STEP<=tdLen()-0.3&&(P.type!=="zoom step"||tdDNext()-TD_STEP>0.2)){ TD.d+=TD_STEP; P.moved+=TD_STEP; tdFix(0); } }
     else if(k==="ok"){
       P.dBorder=tdDNext();
-      if(P.type==="zoom step"){ const j=P.ri-1, cur=TD.fAdj[j]!=null? TD.fAdj[j] : AZB.rows[j].f; TD.fAdj[j]=cur+0.5*(P.dBorder/0.93+0.001-cur); }   // halfway toward the moment you chose
+      if(P.type==="zoom step"&&P.moved!==0){ const j=P.ri-1, cur=TD.fAdj[j]!=null? TD.fAdj[j] : AZ_BASEF(j); TD.fAdj[j]=Math.max(0.5,cur-0.5*P.moved/0.93); }   // halfway toward the moment you chose; only when you moved it
       TD.hold=null; TD.awaitB=true; tdQ('<div class="qt">Zooming...</div>'); tdSay("The zoom is changing now.");
       return;
     }
@@ -1757,10 +1773,12 @@ function tdAnswer(k){
     if(k!=="go") return;
     const ri=P.ri, ap=P.app, pl=toScreen([POS.lat,POS.lon]), ox=pl.x-VW/2, oy=pl.y-VH/2, uAc=tdAcrossAt(MAP.getZoom()), b=azBox();
     TD.zf[ri]=Math.max(0.3,Math.min(3,TD.zf[ri]*Math.sqrt(ap.across/uAc)));   // halfway toward your zoom
-    const dx=ox-ap.x, dy=oy-ap.y, back=-(dx*ap.ux+dy*ap.uy), side=-dx*ap.uy+dy*ap.ux;   // your plane move, split into "further back" and "sideways" relative to the leg direction
-    TD.pos[ri].a=Math.round(TD.pos[ri].a+0.5*back); TD.pos[ri].c=Math.round(TD.pos[ri].c+0.5*side);
+    const Nn=toScreen([TD.wp.lat,TD.wp.lon]), gx=Nn.x-pl.x, gy=Nn.y-pl.y, G=Math.hypot(gx,gy), qx=ox-(b.cx-VW/2), qy=oy-(b.cy-VH/2), apk={k:0,c:0};
+    { const aqx=ap.x-(b.cx-VW/2), aqy=ap.y-(b.cy-VH/2); if(ap.G>20){ apk.k=-(aqx*ap.ux+aqy*ap.uy)/ap.G; apk.c=(-aqx*ap.uy+aqy*ap.ux)/ap.G; } }
+    let ku=0.5, cu=0; if(G>20){ const ux=gx/G, uy=gy/G; ku=-(qx*ux+qy*uy)/G; cu=(-qx*uy+qy*ux)/G; }
+    const po=TD.pos[ri]; po.k=Math.max(0.05,Math.min(0.95,po.k+0.5*(ku-po.k))); po.c=Math.max(-0.6,Math.min(0.6,po.c+0.5*(cu-po.c)));   // halfway toward your framing
     TD.log.push({n:TD.log.length+1,type:P.type,leg:P.leg,row:ri,d0:P.d0,moved:P.moved,dBorder:P.dBorder,zoomPct:Math.round((ap.across/uAc-1)*100),across:uAc,appAcross:ap.across,
-      px:Math.round(ox-(b.cx-VW/2)),py:Math.round(oy-(b.cy-VH/2)),appPx:Math.round(ap.x-(b.cx-VW/2)),appPy:Math.round(ap.y-(b.cy-VH/2))});
+      px:Math.round(qx),py:Math.round(qy),appPx:Math.round(ap.x-(b.cx-VW/2)),appPy:Math.round(ap.y-(b.cy-VH/2)),ku:ku,cu:cu,apk:apk.k,apc:apk.c});
     FOLLOW=true; AZ_OFF={x:ox,y:oy}; AZ_TW=null; ZV=null; ui();   // the flight goes on from the view you set
     TD.hold=null; TD.pend=null; tdResume(); return;
   }
@@ -1771,20 +1789,38 @@ function tdResults(){
   out.push("Legs, true bearings:");
   TD.legs.forEach(g=>{ const nm=distNM(g.start.lat,g.start.lon,g.wp.lat,g.wp.lon), fl=[]; for(let i=1;i<g.pts.length;i++) fl.push(f(distNM(g.pts[i-1].lat,g.pts[i-1].lon,g.pts[i].lat,g.pts[i].lon))+" NM bearing "+p3(tdBrg(g.pts[i-1],g.pts[i])));
     out.push("  Leg "+g.n+": "+f(nm)+" NM, bearing "+p3(tdBrg(g.start,g.wp))+" | flown path "+g.pts.length+" points: "+fl.join(" ; ")); });
-  out.push("Starting settings: leg start 1.5 x the leg length across; 8.5 NM out 10 NM across; 4.7 NM out 6 NM across; 3 NM out 4 NM across; legs under 2 NM 3 NM across; plane back 60%");
+  out.push("Starting settings: leg start 1.5 x the leg length across; 8.5 NM out 10 NM across; 4.7 NM out 6 NM across; 3 NM out 4 NM across; legs under 2 NM 3 NM across; plane framing 0.50 (the middle of plane and next point at the middle of the free area), side 0");
   const bd=j=>TD.fAdj[j]!=null? TD.fAdj[j] : rows[j].f;
   out.push("Settings now (after learning): leg start "+(1.5/TD.zf[0]).toFixed(2)+" x the leg length across; "+f(bd(0))+" NM out "+f(rows[1].w/TD.zf[1])+" NM across; "+f(bd(1))+" NM out "+f(rows[2].w/TD.zf[2])+" NM across; "+f(bd(2))+" NM out "+f(rows[3].w/TD.zf[3])+" NM across");
-  out.push("Plane, extra px on top of the 60% back (back = further behind the middle, side = to the right of the flight direction): "+TD.pos.map((q,i)=>["leg start","first zoom-in","second zoom-in","last zoom-in"][i]+" back "+q.a+" side "+q.c).join(" | "));
-  out.push("Stops (timing: + means later, - earlier; zoom + means you went closer than the app; plane: negative sideways = left, negative down = up; learning moves halfway each time):");
-  TD.log.forEach(e=>{ if(e.reset){ out.push("  --- settings reset to the start (leg "+e.leg+", try "+e.tr+") ---"); return; }
-    out.push("  "+e.n+". leg "+e.leg.n+" try "+e.leg.tr+" ("+f(e.leg.nm)+" NM, bearing "+p3(e.leg.brg)+"), "+e.type+", row "+(e.row+1)+", "+f(e.d0)+" NM from the next point when asked; timing "+(e.moved>=0?"+":"")+e.moved.toFixed(2)+" NM"+(e.dBorder!=null?" (starts "+f(e.dBorder)+" NM out)":"")+"; your view: "+e.across.toFixed(0)+" NM across (the app showed "+e.appAcross.toFixed(0)+", so zoom "+(e.zoomPct>=0?"+":"")+e.zoomPct+"%); plane "+e.px+" px sideways, "+e.py+" px down from the middle of the free area (the app had "+e.appPx+", "+e.appPy+")"); });
+  out.push("Plane framing now (back: 0.50 = middle of plane and next point at the middle of the free area, higher = plane further back; side: + = to the right of the flight direction, as a fraction of the gap): "+TD.pos.map((q,i)=>["leg start","first zoom-in","second zoom-in","last zoom-in"][i]+" back "+q.k.toFixed(2)+" side "+q.c.toFixed(2)).join(" | "));
+  out.push("Stops (timing: + means later, - earlier; zoom + means you went closer than the app; plane: negative sideways = left, negative down = up, measured from the middle of the free area, which leaves out the Test drive panel; learning moves halfway each time):");
+  TD.log.forEach(e=>{ if(e.reset){ out.push("  --- settings set to "+(e.label||"the start")+" (leg "+e.leg+", try "+e.tr+") ---"); return; }
+    out.push("  "+e.n+". leg "+e.leg.n+" try "+e.leg.tr+" ("+f(e.leg.nm)+" NM, bearing "+p3(e.leg.brg)+"), "+e.type+", row "+(e.row+1)+", "+f(e.d0)+" NM from the next point when asked; timing "+(e.moved>=0?"+":"")+e.moved.toFixed(2)+" NM"+(e.dBorder!=null?" (starts "+f(e.dBorder)+" NM out)":"")+"; your view: "+e.across.toFixed(0)+" NM across (the app showed "+e.appAcross.toFixed(0)+", so zoom "+(e.zoomPct>=0?"+":"")+e.zoomPct+"%); plane "+e.px+" px sideways, "+e.py+" px down from the middle of the free area (the app had "+e.appPx+", "+e.appPy+"); framing back "+e.ku.toFixed(2)+" side "+e.cu.toFixed(2)+" (the app had "+e.apk.toFixed(2)+", "+e.apc.toFixed(2)+")"); });
   return out.join("\n");
 }
-function tdFinish(){
-  TD.resText=tdResults(); logAdd("Test drive: leg "+TD.legNo+" try "+(TD.attempt+1)+" done");
-  tdQ('<div class="qt">Leg '+TD.legNo+', try '+(TD.attempt+1)+' done</div><div class="qs">'+TD.log.filter(e=>!e.reset).length+' stops recorded so far. Fly it again with the updated settings, or draw a new leg from here.</div><div class="r"><button class="on" data-a="again">Fly this leg again</button><button data-a="newleg">New leg</button></div><div class="r"><button data-a="copy">I&#39;m happy, copy results</button></div>');
+function tdDonePanel(){
+  tdQ('<div class="qt">Leg '+TD.legNo+', try '+(TD.attempt+1)+' done</div><div class="qs">'+TD.log.filter(e=>!e.reset).length+' stops recorded so far. Fly it again, draw a new leg from here, or watch how it looks with what it learned.</div><div class="r"><button class="on" data-a="again">Fly this leg again</button><button data-a="newleg">New leg</button></div><div class="r"><button data-a="watch">Watch what I calibrated</button></div><div class="r"><button data-a="copy">I&#39;m happy, copy results</button></div>');
   tdSay("Leg finished.");
 }
+function tdFinish(){
+  if(TD.watch){ tdWatchPanel(true); return; }
+  TD.resText=tdResults(); logAdd("Test drive: leg "+TD.legNo+" try "+(TD.attempt+1)+" done"); tdDonePanel();
+}
+/* watch what you calibrated: the same leg again, no questions, with switches that take screen room like the real pills */
+function tdBoxDraw(){
+  let e=$("tdBoxV"); if(!TD.watch){ if(e) e.style.display="none"; return; }
+  if(!e){ e=document.createElement("div"); e.id="tdBoxV"; e.style.cssText="position:absolute;z-index:6;border:2px dashed rgba(216,27,96,.7);border-radius:10px;pointer-events:none"; wrap.appendChild(e); }
+  const b=azBox(); e.style.display="block"; e.style.left=b.x1+"px"; e.style.top=b.y1+"px"; e.style.width=b.w+"px"; e.style.height=b.h+"px";
+}
+function tdWatchPanel(ended){
+  const t=n=>TD.res[n]?"on":"off";
+  tdQ('<div class="qt">'+(ended?"Playback finished":"Watching leg "+TD.legNo)+'</div><div class="qs">The dashed frame is the free area. Switch the pills on or off to see how the view adapts.</div><div class="r"><button data-a="rt" class="'+(TD.res.route?"on":"")+'">Route pill '+t("route")+'</button><button data-a="dr" class="'+(TD.res.direct?"on":"")+'">Direct pill '+t("direct")+'</button><button data-a="ch" class="'+(TD.res.charts?"on":"")+'">Charts '+t("charts")+'</button></div>'+(ended?'<div class="r"><button class="on" data-a="again2">Watch again</button><button data-a="wback">Back</button></div>':''));
+  tdBoxDraw();
+}
+function tdWatch(){
+  TD.oldSp=TD.watch? TD.oldSp : TD.sp; TD.watch=true; TD.sp=30; tdPrep(); TD.phase="ready"; tdWatchPanel(); TD.fresh=true; tdGo(); tdWatchPanel(); tdSay("Watching: no questions, nothing is learned.");
+}
+function tdWatchEnd(){ TD.watch=false; TD.sp=TD.oldSp||60; TD.res={route:false,direct:false,charts:false}; tdBoxDraw(); tdPrep(); tdDonePanel(); }
 function tdLine(){
   if(TD.layer){ MAP.removeLayer(TD.layer); TD.layer=null; }
   if(!TD.pts.length) return;
@@ -1801,7 +1837,7 @@ function tdGo(){
   if(TD.pts.length<2) return;
   TD.run=true; TD.phase="fly"; TD.free=false; TD.playing=true; TD.paused=false; TS=TD.sp; AZ_ON=true; LS.set("az","1"); FOLLOW=true; GPS.on=true;
   if(TD.fresh){ TD.fresh=false; TD.out=0; TD.rev=0; TD.wasOut=false; TD.sgn=0; TD.z0=MAP.getZoom(); NX={i:1,pc:0,lastT:0}; TD.hold=null; TD.awaitB=false; TD.lastRow=null; TD.pend=null; AZ_RI=-1; AZ_FITK=-1; AZ_TW=null; }
-  $("tdPlay").innerHTML="&#10074;&#10074; Pause"; $("tdPlay").classList.remove("dis"); $("tdQ").innerHTML="";
+  $("tdPlay").innerHTML="&#10074;&#10074; Pause"; $("tdPlay").classList.remove("dis"); if(!TD.watch) $("tdQ").innerHTML="";
   const ms=Math.max(20,1000/TD.sp), tot=tdLen();
   if(TD.tm) clearInterval(TD.tm);
   TD.tm=setInterval(()=>{
@@ -1813,7 +1849,7 @@ function tdGo(){
   },ms);
 }
 function tdStop(keepRun){ if(TD.tm){ clearInterval(TD.tm); TD.tm=null; } TD.playing=false; TS=1; if(!keepRun) return; $("tdPlay").innerHTML="&#9654; Play"; tdSay("Paused."); }
-function tdExit(){ if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; tdLine(); TS=1; $("tdPanel").style.display="none"; }
+function tdExit(){ TD.watch=false; tdBoxDraw(); if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; tdLine(); TS=1; $("tdPanel").style.display="none"; }
 let LOG_LAST=Date.now();
 setInterval(()=>{ const n=Date.now(), gap=n-LOG_LAST; LOG_LAST=n; if(gap>20000) logAdd("GAP: app was frozen for "+Math.round(gap/1000)+" s"); },5000);
 setInterval(()=>{ logAdd("alive | "+document.visibilityState+" | screen-on "+(typeof WL!=="undefined"&&WL?"held":"not held")+""+" | GPS "+(GPS&&GPS.on?"on":"off")); },30000);
@@ -2087,22 +2123,25 @@ function drawDone(){
 const AZ_FILL=0.70, AZ_MINPX=5, AZ_MAXPX=300;   // the plane-to-next-point line fills 70% of the free screen diagonal; limits in pixels per nautical mile
 let AZ_ON=LS.get("az","1")==="1", AZ_T=0, AZ_HINT=false;   // AZ_HINT: the "tap Center" tip was already shown for this route
 function azLive(){ return AZ_ON&&FOLLOW&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length; }
-function azBox(){   // the free part of the screen: below the top pills, clear of the side buttons and the bottom row
-  const g=$("gTL").getBoundingClientRect(), wr=wrap.getBoundingClientRect(), y1=Math.max(70,g.bottom-wr.top)+28, x1=56, x2=VW-56, y2=VH-72;
-  return {w:x2-x1,h:y2-y1,cx:(x1+x2)/2,cy:(y1+y2)/2};
+function azBox(){   // the free part of the screen: below the top pills, clear of the side buttons, the bottom row and any open bottom panel
+  const g=$("gTL").getBoundingClientRect(), wr=wrap.getBoundingClientRect(); let y1=Math.max(70,g.bottom-wr.top)+28, x1=56, x2=VW-56, y2=VH-72;
+  ["chartCard","routeCard"].forEach(id=>{ const e=$(id); if(e&&!e.classList.contains("hid")){ const r=e.getBoundingClientRect(); if(r.height>2) y2=Math.min(y2,r.top-wr.top-12); } });
+  if(TD.run){ y2=Math.min(y2,VH-215); y1+=(TD.res.route?58:0)+(TD.res.direct?58:0); if(TD.res.charts) y2-=110; }   // the test drive: a fixed room for its own panel, and pretend pills for the playback
+  if(y2-y1<150) y2=y1+150;
+  return {w:x2-x1,h:y2-y1,cx:(x1+x2)/2,cy:(y1+y2)/2,x1,x2,y1,y2};
 }
 let AZ_OFF=null, AZ_LEG0=99;   // where the plane stands on the screen while auto zoom frames the leg (null = the normal spot)
 const AZB_DEF={fit:1,lead:60,rows:[{f:8.5,w:16},{f:4.7,w:10},{f:3,w:6},{f:0,w:4}]};   // the zoom table: from this distance (NM) to the next point, the screen shows this many NM across; the first row can fit the whole leg; lead: how far the plane sits back from the middle (%)
 let AZB=(()=>{ const d=JSON.parse(JSON.stringify(AZB_DEF)); try{ const j=JSON.parse(LS.get("azb2","null")); if(j&&Array.isArray(j.rows)&&j.rows.length===4){ d.rows=j.rows; d.fit=j.fit?1:0; d.lead=+j.lead||0; } }catch(e){} return d; })();
 function azbSave(){ LS.set("azb2",JSON.stringify(AZB)); }
 let AZ_RI=-1, AZ_TW=null, AZ_FIT=0, AZ_FITK=-1, AZ_DNOW=0;
+function azK(){ return (TD.run&&TD.pos)? TD.pos[Math.max(0,AZ_RI)] : {k:0.5,c:0}; }   // how the plane and the next point are framed: 0.5 = their middle sits in the middle of the free area; more = the plane further back
 function azLead(b,dx,dy,len){ const f=AZB.lead/100; return len<1? {x:0,y:0} : {x:-dx/len*f*b.w/2, y:-dy/len*f*b.h/2}; }   // the plane sits a little behind the middle, away from the next point
 function azTarget(){
   const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), z=MAP.getZoom(), dx=N.x-P.x, dy=N.y-P.y, len=Math.hypot(dx,dy);
   const k=Math.cos(POS.lat*RAD)*40075016.686/(256*1852), zf=px=>Math.log2(px*k), ppn=Math.pow(2,z)/k, lim=zt=>Math.max(MAP.getMinZoom(),Math.min(MAP.getMaxZoom(),zt));
   const b=AZ_BOX=azBox(), R=AZB.rows, d=len/ppn; AZ_DNOW=d;
-  const ld=azLead(b,dx,dy,len), px0=b.cx+ld.x, py0=b.cy+ld.y, sx=len>1? dx/len:0, sy=len>1? dy/len:-1;   // where the plane stands, and how much room there is ahead of it
-  const tx=sx>0.001? (b.cx+b.w/2-px0)/sx : sx<-0.001? (b.cx-b.w/2-px0)/sx : 1e9, ty=sy>0.001? (b.cy+b.h/2-py0)/sy : sy<-0.001? (b.cy-b.h/2-py0)/sy : 1e9, tr=Math.max(40,Math.min(tx,ty));
+  const sx=len>1? dx/len:0, sy=len>1? dy/len:-1, ex=sx? (b.w/2)/Math.abs(sx):1e9, ey=sy? (b.h/2)/Math.abs(sy):1e9, edge=Math.max(40,Math.min(ex,ey));   // sx, sy: the direction to the next point; edge: how far the free area reaches from its middle in that direction
   if(AZ_FITK!==NX.i){ AZ_FITK=NX.i; AZ_FIT=d>0.05? VW/(1.5*d) : 0; AZ_LEG0=d; }   // whole leg: measured once, when the leg begins, then held
   if(len<1) return lim(zf(VW/R[1].w));
   const fe=j=>(TD.run&&TD.fAdj&&TD.fAdj[j]!=null)? TD.fAdj[j] : R[j].f;
@@ -2114,7 +2153,7 @@ function azTarget(){
   if(AZ_RI===0 && AZB.fit && AZ_FIT>0) s=Math.min(AZ_FIT,VW/R[1].w);
   s=Math.max(s,VW/120);
   if(TD.run&&TD.zf) s*=TD.zf[Math.max(0,AZ_RI)];   // the test drive's own corrections
-  if(d*s>0.9*tr) s=0.9*tr/d;   // the next point is never allowed to leave the free screen
+  { const kk=azK().k, mk=Math.max(kk,1-kk,0.05); if(d*s*mk>0.9*edge) s=0.9*edge/(d*mk); }   // the next point (and the plane) never leave the free screen
   return lim(zf(s));
 }
 let AZ_BOX=null;
@@ -2140,7 +2179,10 @@ function frameTick(now){
   const live=azLive(), def={x:0,y:VH*0.10}; let tgt=def, zT=null;
   if(live){ const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), b=azBox(); zT=(TD.run&&TD.hold==="A"&&ZV!=null)? (AZ_TW? AZ_TW.z1 : ZV) : azTarget();   // while the test drive waits for an answer the zoom stands still
    
-    const ld=azLead(b,N.x-P.x,N.y-P.y,Math.hypot(N.x-P.x,N.y-P.y)); tgt={x:b.cx-VW/2+ld.x, y:b.cy-VH/2+ld.y}; if(TD.run&&TD.pos){ const q=TD.pos[Math.max(0,AZ_RI)], ddx=N.x-P.x, ddy=N.y-P.y, ln=Math.hypot(ddx,ddy); if(ln>1){ const ux=ddx/ln, uy=ddy/ln; tgt.x+=q.a*(-ux)+q.c*(-uy); tgt.y+=q.a*(-uy)+q.c*ux; } } }   // the plane stands still in the middle of the free screen, the map moves under it
+    { const gx=N.x-P.x, gy=N.y-P.y, G=Math.hypot(gx,gy), q=azK(), hw=b.w/2-16, hh=b.h/2-16;
+      if(G>1){ const ux=gx/G, uy=gy/G; tgt={x:b.cx-VW/2-q.k*G*ux-q.c*G*uy, y:b.cy-VH/2-q.k*G*uy+q.c*G*ux}; } else tgt={x:b.cx-VW/2,y:b.cy-VH/2};
+      tgt.x=Math.max(b.cx-VW/2-hw,Math.min(b.cx-VW/2+hw,tgt.x)); tgt.y=Math.max(b.cy-VH/2-hh,Math.min(b.cy-VH/2+hh,tgt.y)); }   // the plane and the next point are framed around their middle, and the plane glides to the centre as the gap closes
+  }
   let offMoved=0;
   if(live||AZ_OFF){ const cur=AZ_OFF||def, ke=1-Math.exp(-dtR/(TD.run&&TD.hold?0.25:1.2)), nx=cur.x+(tgt.x-cur.x)*ke, ny=cur.y+(tgt.y-cur.y)*ke; offMoved=Math.hypot(nx-cur.x,ny-cur.y);
     AZ_OFF=(!live&&Math.hypot(nx-def.x,ny-def.y)<0.5)? null : {x:nx,y:ny}; }
@@ -2148,7 +2190,7 @@ function frameTick(now){
   if(live){   // a zoom change is one slow, soft glide: it starts gently, speeds up, and settles gently (about 3 seconds per step)
     if(!AZ_TW||Math.abs(AZ_TW.z1-zT)>(AZ_TW.t<AZ_TW.dur? 0.25 : 0.04)){   // a glide in progress is never restarted by small changes; only a new row starts a new one
        const rid=NX.i*10+AZ_RI;
-       if(TD.run&&TD.playing&&!TD.paused&&!TD.hold&&TD.lastRow!==rid){ tdStopA(rid); }   // the test drive: stop here and ask before the zoom starts
+       if(TD.run&&TD.playing&&!TD.watch&&!TD.paused&&!TD.hold&&TD.lastRow!==rid){ tdStopA(rid); }   // the test drive: stop here and ask before the zoom starts
        else{ TD.lastRow=rid; AZ_TW={z0:ZV,z1:zT,t:0,dur:(TD.run&&TD.hold==="B")? 0.6 : 3*Math.max(1,Math.abs(zT-ZV))}; } }
     if(!AZ_TW) AZ_TW={z0:ZV,z1:ZV,t:1,dur:1};
     if(AZ_TW.t<AZ_TW.dur){ AZ_TW.t=Math.min(AZ_TW.dur,AZ_TW.t+dtR); const x=AZ_TW.t/AZ_TW.dur, e=x*x*x*(x*(x*6-15)+10); ZV=AZ_TW.z0+(AZ_TW.z1-AZ_TW.z0)*e; }
