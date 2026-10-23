@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.066
+  PFD - Fly page   v0.01.067
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.066"}
+    page -> shell  {pfd:"hello", version:"0.01.067"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.066 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.067 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.066";
+const VER="0.01.067";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1686,12 +1686,12 @@ function tdPlaceStart(){ TD.here={lat:TD.start.lat,lon:TD.start.lon,hdg:TD.hdg||
 function tdOpen(){
   tdBuild(); const c=MAP.getCenter();
   TD.start=POS? {lat:POS.lat,lon:POS.lon} : {lat:c.lat,lon:c.lng};
-  tdBase(); TD.log=[]; TD.legs=[]; TD.legNo=0; TD.sid=Date.now(); TD.res={route:false,direct:false,charts:false}; TD.watch=false; { const a=calList(); if(a.length) calApply(a[0],"your last saved calibration ("+calLabel(a[0].t)+")"); } TD.sp=60; TD.kt=100; TD.nz=0; TD.run=true; GPS.on=true; AZ_ON=true;
+  tdBase(); TD.ov=null; TD.log=[]; TD.legs=[]; TD.legNo=0; TD.sid=Date.now(); TD.res={route:false,direct:false,charts:false}; TD.watch=false; { const a=calList(); if(a.length) calApply(a[0],"your last saved calibration ("+calLabel(a[0].t)+")"); } TD.sp=60; TD.kt=100; TD.nz=0; TD.run=true; GPS.on=true; AZ_ON=true;
   if(TD.keep) clearInterval(TD.keep); TD.keep=setInterval(()=>{ if(TD.run&&!TD.tm) tdStill(); if(TD.watch) tdBoxDraw(); },1000);   // the plane keeps reporting "standing still", so the app never thinks the GPS is lost
   $("tdPanel").style.display="block"; tdNewLeg();
 }
 function tdNewLeg(){
-  TD.legNo++; TD.attempt=0; TD.wp=null; TD.pts=[]; TD.d=0; TD.drawing=false; TD.playing=false; TD.paused=false; TD.hold=null; TD.awaitB=false; TD.pend=null; TD.lastRow=null; TD.phase="wp"; TD.free=true;
+  TD.legNo++; TD.attempt=0; TD.ov={F:[null,null,null,null],pos:[null,null,null,null],fAdj:[null,null,null,null]}; TD.wp=null; TD.pts=[]; TD.d=0; TD.drawing=false; TD.playing=false; TD.paused=false; TD.hold=null; TD.awaitB=false; TD.pend=null; TD.lastRow=null; TD.phase="wp"; TD.free=true;
   tdStop(false); routeClear(); tdLine(); tdPlaceStart(); AZ_RI=-1; AZ_FITK=-1; AZ_TW=null; AZ_OFF=null; FOLLOW=false;
   if(!MAP.getBounds().pad(-0.15).contains([TD.start.lat,TD.start.lon])) MAP.setView([TD.start.lat,TD.start.lon],MAP.getZoom(),{animate:false});
   ui(); draw(); $("tdPlay").classList.add("dis"); $("tdPlay").innerHTML="&#9654; Play";
@@ -1764,7 +1764,9 @@ function tdAnswer(k){
     else if(k==="late"){ if(TD.d+TD_STEP<=tdLen()-0.3&&(P.type!=="zoom step"||tdDNext()-TD_STEP>0.2)){ TD.d+=TD_STEP; P.moved+=TD_STEP; tdFix(0); } }
     else if(k==="ok"){
       P.dBorder=tdDNext();
-      if(P.type==="zoom step"&&P.moved!==0){ const j=P.ri-1, cur=TD.fAdj[j]!=null? TD.fAdj[j] : AZ_BASEF(j); TD.fAdj[j]=Math.max(0.5,cur-0.5*P.moved/0.93); }   // halfway toward the moment you chose; only when you moved it
+      if(P.type==="zoom step"){ const j=P.ri-1, fOld=TD.fAdj[j]!=null? TD.fAdj[j] : AZ_BASEF(j);   // the next legs learn halfway; the replay of this leg uses your full correction
+        if(P.moved!==0) TD.fAdj[j]=Math.max(0.5,fOld-0.5*P.moved/0.93);
+        if(TD.ov) TD.ov.fAdj[j]=Math.max(0.5,fOld-P.moved/0.93); }
       AZ_DENT=P.dBorder; AZ_DIR={x:AZ_DIR.x,y:AZ_DIR.y};
       TD.hold=null; TD.awaitB=true; tdQ('<div class="qt">Zooming...</div>'); tdSay("The zoom is changing now.");
       return;
@@ -1776,10 +1778,12 @@ function tdAnswer(k){
     const ri=P.ri, ap=P.app, pl=toScreen([POS.lat,POS.lon]), ox=pl.x-VW/2, oy=pl.y-VH/2, uAc=tdAcrossAt(MAP.getZoom()), b=azBox();
     const Nn=toScreen([TD.wp.lat,TD.wp.lon]), gx=Nn.x-pl.x, gy=Nn.y-pl.y, G=Math.hypot(gx,gy), qx=ox-(b.cx-VW/2), qy=oy-(b.cy-VH/2), apk={k:0,c:0};
     { const aqx=ap.x-(b.cx-VW/2), aqy=ap.y-(b.cy-VH/2); if(ap.G>20){ apk.k=-(aqx*ap.ux+aqy*ap.uy)/ap.G; apk.c=(-aqx*ap.uy+aqy*ap.ux)/ap.G; } }
-    const dst=distNM(POS.lat,POS.lon,TD.wp.lat,TD.wp.lon), Fu=Math.max(0.2,Math.min(0.95,(G/(2*azEdge(AZ_DIR.x,AZ_DIR.y,b)))*(AZ_DREF/Math.max(0.2,dst)))), Fa=TD.F[ri];
+    const dst=distNM(POS.lat,POS.lon,TD.wp.lat,TD.wp.lon), Fu=Math.max(0.2,Math.min(0.95,(G/(2*azEdge(AZ_DIR.x,AZ_DIR.y,b)))*(((P.type==="zoom step"&&P.dBorder)? P.dBorder : AZ_DREF)/Math.max(0.2,dst)))), Fa=TD.F[ri];
     TD.F[ri]=Fa+0.5*(Fu-Fa);   // halfway toward the fill you chose
+    if(TD.ov) TD.ov.F[ri]=Fu;
     let ku=0.5, cu=0; if(G>20){ const ux=gx/G, uy=gy/G; ku=-(qx*ux+qy*uy)/G; cu=(-qx*uy+qy*ux)/G; }
     const po=TD.pos[ri]; po.k=Math.max(0.05,Math.min(0.95,po.k+0.5*(ku-po.k))); po.c=Math.max(-0.6,Math.min(0.6,po.c+0.5*(cu-po.c)));   // halfway toward your framing
+    if(TD.ov) TD.ov.pos[ri]={k:Math.max(0.05,Math.min(0.95,ku)),c:Math.max(-0.6,Math.min(0.6,cu))};   // your full framing, for the replay
     TD.log.push({n:TD.log.length+1,type:P.type,leg:P.leg,row:ri,d0:P.d0,moved:P.moved,dBorder:P.dBorder,zoomPct:Math.round((ap.across/uAc-1)*100),Fu:Fu,Fa:Fa,across:uAc,appAcross:ap.across,
       px:Math.round(qx),py:Math.round(qy),appPx:Math.round(ap.x-(b.cx-VW/2)),appPy:Math.round(ap.y-(b.cy-VH/2)),ku:ku,cu:cu,apk:apk.k,apc:apk.c});
     FOLLOW=true; AZ_OFF={x:ox,y:oy}; AZ_TW=null; ZV=null; ui();   // the flight goes on from the view you set
@@ -2143,7 +2147,10 @@ function azbSave(){ LS.set("azb2",JSON.stringify(AZB)); }
 let AZ_ERI=-9, AZ_DIR={x:0,y:-1}, AZ_DENT=1, AZ_DREF=1;
 function azEdge(sx,sy,b){ const ex=Math.abs(sx)>0.001? (b.w/2)/Math.abs(sx):1e9, ey=Math.abs(sy)>0.001? (b.h/2)/Math.abs(sy):1e9; return Math.max(40,Math.min(ex,ey)); }   // how far the free area reaches from its middle in a direction
 let AZ_RI=-1, AZ_TW=null, AZ_FIT=0, AZ_FITK=-1, AZ_DNOW=0;
-function azK(){ return (TD.run&&TD.pos)? TD.pos[Math.max(0,AZ_RI)] : {k:0.5,c:0}; }   // how the plane and the next point are framed: 0.5 = their middle sits in the middle of the free area; more = the plane further back
+function tdFv(i){ return (TD.watch&&TD.ov&&TD.ov.F[i]!=null)? TD.ov.F[i] : TD.F[i]; }   // the replay shows exactly your corrections of this leg; everything else uses what was learned
+function tdPosV(i){ return (TD.watch&&TD.ov&&TD.ov.pos[i])? TD.ov.pos[i] : TD.pos[i]; }
+function tdFaV(j){ return (TD.watch&&TD.ov&&TD.ov.fAdj[j]!=null)? TD.ov.fAdj[j] : TD.fAdj[j]; }
+function azK(){ return (TD.run&&TD.pos)? tdPosV(Math.max(0,AZ_RI)) : {k:0.5,c:0}; }   // how the plane and the next point are framed: 0.5 = their middle sits in the middle of the free area; more = the plane further back
 function azLead(b,dx,dy,len){ const f=AZB.lead/100; return len<1? {x:0,y:0} : {x:-dx/len*f*b.w/2, y:-dy/len*f*b.h/2}; }   // the plane sits a little behind the middle, away from the next point
 function azTarget(){
   const w=ROUTE.wp[NX.i], P=toScreen([POS.lat,POS.lon]), N=toScreen([w.lat,w.lon]), z=MAP.getZoom(), dx=N.x-P.x, dy=N.y-P.y, len=Math.hypot(dx,dy);
@@ -2152,16 +2159,16 @@ function azTarget(){
   const sx=len>1? dx/len:0, sy=len>1? dy/len:-1, ex=sx? (b.w/2)/Math.abs(sx):1e9, ey=sy? (b.h/2)/Math.abs(sy):1e9, edge=Math.max(40,Math.min(ex,ey));   // sx, sy: the direction to the next point; edge: how far the free area reaches from its middle in that direction
   if(AZ_FITK!==NX.i){ AZ_FITK=NX.i; AZ_FIT=d>0.05? VW/(1.5*d) : 0; AZ_LEG0=d; }   // whole leg: measured once, when the leg begins, then held
   if(len<1) return lim(zf(VW/R[1].w));
-  const fe=j=>(TD.run&&TD.fAdj&&TD.fAdj[j]!=null)? TD.fAdj[j] : R[j].f;
+  const fe=j=>(TD.run&&TD.fAdj&&tdFaV(j)!=null)? tdFaV(j) : R[j].f;
   if(AZ_RI<0){ AZ_RI=0; AZ_ERI=-9; while(AZ_RI<3 && d<fe(AZ_RI)) AZ_RI++; }
   while(AZ_RI<3 && d<fe(AZ_RI)*0.93) AZ_RI++;      // a little hysteresis so it never flips back and forth at a border
   while(AZ_RI>0 && d>=fe(AZ_RI-1)*1.07) AZ_RI--;
   if(AZ_ERI!==AZ_RI){ AZ_ERI=AZ_RI; AZ_DIR={x:sx,y:sy}; AZ_DENT=d; }   // when a step begins: remember the direction and how far the next point was
   const dref=Math.max(0.2, AZ_RI===0? AZ_DENT : Math.min(fe(AZ_RI-1)*0.93,AZ_DENT)); AZ_DREF=dref;   // the distance at which this step begins
-  const Fv=((TD.run&&TD.F)? TD.F : AZB.F)[AZ_RI];
+  const Fv=(TD.run&&TD.F)? tdFv(AZ_RI) : AZB.F[AZ_RI];
   let s=Fv*2*azEdge(AZ_DIR.x,AZ_DIR.y,b)/dref;   // at the start of a step the gap between plane and next point fills Fv of the free area along the flight direction
   s=Math.max(s,VW/120);
-  { const kk=azK().k, mk=Math.max(kk,1-kk,0.05); if(d*s*mk>0.9*edge) s=0.9*edge/(d*mk); }   // the next point (and the plane) never leave the free screen
+  { const kk=azK().k, mk=Math.max(kk,1-kk,0.05); if(d*s*mk>0.96*edge) s=0.96*edge/(d*mk); }   // the next point (and the plane) never leave the free screen
   return lim(zf(s));
 }
 let AZ_BOX=null;
