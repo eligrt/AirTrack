@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.062
+  PFD - Fly page   v0.01.063
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.062"}
+    page -> shell  {pfd:"hello", version:"0.01.063"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.062 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.063 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.062";
+const VER="0.01.063";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1687,7 +1687,7 @@ function tdOpen(){
   tdBuild(); const c=MAP.getCenter();
   TD.start=POS? {lat:POS.lat,lon:POS.lon} : {lat:c.lat,lon:c.lng};
   tdBase(); TD.log=[]; TD.legs=[]; TD.legNo=0; TD.sid=Date.now(); TD.res={route:false,direct:false,charts:false}; TD.watch=false; { const a=calList(); if(a.length) calApply(a[0],"your last saved calibration ("+calLabel(a[0].t)+")"); } TD.sp=60; TD.kt=100; TD.nz=0; TD.run=true; GPS.on=true; AZ_ON=true;
-  if(TD.keep) clearInterval(TD.keep); TD.keep=setInterval(()=>{ if(TD.run&&!TD.tm) tdStill(); },1000);   // the plane keeps reporting "standing still", so the app never thinks the GPS is lost
+  if(TD.keep) clearInterval(TD.keep); TD.keep=setInterval(()=>{ if(TD.run&&!TD.tm) tdStill(); if(TD.watch) tdBoxDraw(); },1000);   // the plane keeps reporting "standing still", so the app never thinks the GPS is lost
   $("tdPanel").style.display="block"; tdNewLeg();
 }
 function tdNewLeg(){
@@ -1755,7 +1755,9 @@ function tdAnswer(k){
   if(k==="watch"){ tdWatch(); return; }
   if(k==="again2"){ tdWatch(); return; }
   if(k==="wback"){ tdWatchEnd(); return; }
-  if(k==="rt"||k==="dr"||k==="ch"){ const n=k==="rt"?"route":k==="dr"?"direct":"charts"; TD.res[n]=!TD.res[n]; tdWatchPanel(); tdBoxDraw(); return; }
+  if(k==="dr"){ if(DIRECT_ON&&TGT) DIRECT_ON=false; else { DIRECT_ON=true; TGT={lat:TD.wp.lat,lon:TD.wp.lon,name:"Point",snapped:false}; } ui(); draw(); tdWatchPanel(); setTimeout(tdBoxDraw,300); return; }
+  if(k==="ch"){ lpSet(LPANEL==="charts"?"":"charts"); tdWatchPanel(); setTimeout(tdBoxDraw,300); return; }
+  if(k==="fs"){ FULL=!FULL; ui(); tdWatchPanel(); setTimeout(tdBoxDraw,500); return; }
   if(k==="newleg"){ TD.start={lat:TD.wp.lat,lon:TD.wp.lon}; tdNewLeg(); return; }
   const P=TD.pend; if(!P) return;
   if(TD.hold==="A"){
@@ -1813,14 +1815,16 @@ function tdBoxDraw(){
   const b=azBox(); e.style.display="block"; e.style.left=b.x1+"px"; e.style.top=b.y1+"px"; e.style.width=b.w+"px"; e.style.height=b.h+"px";
 }
 function tdWatchPanel(ended){
-  const t=n=>TD.res[n]?"on":"off";
-  tdQ('<div class="qt">'+(ended?"Playback finished":"Watching leg "+TD.legNo)+'</div><div class="qs">The dashed frame is the free area. Switch the pills on or off to see how the view adapts.</div><div class="r"><button data-a="rt" class="'+(TD.res.route?"on":"")+'">Route pill '+t("route")+'</button><button data-a="dr" class="'+(TD.res.direct?"on":"")+'">Direct pill '+t("direct")+'</button><button data-a="ch" class="'+(TD.res.charts?"on":"")+'">Charts '+t("charts")+'</button></div>'+(ended?'<div class="r"><button class="on" data-a="again2">Watch again</button><button data-a="wback">Back</button></div>':''));
+  const dr=DIRECT_ON&&!!TGT, ch=LPANEL==="charts", fs=FULL, t=v=>v?"on":"off";
+  tdQ('<div class="qt">'+(ended?"Playback finished":"Watching leg "+TD.legNo)+'</div><div class="qs">The dashed frame is the free area. These switches use the real controls, and they go back as they were when you leave.</div><div class="r"><button data-a="dr" class="'+(dr?"on":"")+'">Direct pill '+t(dr)+'</button><button data-a="ch" class="'+(ch?"on":"")+'">Charts '+t(ch)+'</button><button data-a="fs" class="'+(fs?"on":"")+'">Full screen '+t(fs)+'</button></div>'+(ended?'<div class="r"><button class="on" data-a="again2">Watch again</button><button data-a="wback">Back</button></div>':''));
   tdBoxDraw();
 }
+function tdRealSave(){ TD.saved={d:DIRECT_ON,t:TGT,l:LPANEL,f:FULL}; }
+function tdRealRestore(){ if(!TD.saved) return; const v=TD.saved; TD.saved=null; DIRECT_ON=v.d; TGT=v.t; lpSet(v.l); FULL=v.f; ui(); draw(); setTimeout(tdBoxDraw,300); }
 function tdWatch(){
-  TD.oldSp=TD.watch? TD.oldSp : TD.sp; TD.watch=true; TD.sp=30; tdPrep(); TD.phase="ready"; tdWatchPanel(); TD.fresh=true; tdGo(); tdWatchPanel(); tdSay("Watching: no questions, nothing is learned.");
+  if(!TD.watch){ TD.oldSp=TD.sp; tdRealSave(); } TD.watch=true; TD.sp=30; tdPrep(); TD.phase="ready"; tdWatchPanel(); TD.fresh=true; tdGo(); tdWatchPanel(); tdSay("Watching: no questions, nothing is learned.");
 }
-function tdWatchEnd(){ TD.watch=false; TD.sp=TD.oldSp||60; TD.res={route:false,direct:false,charts:false}; tdBoxDraw(); tdPrep(); tdDonePanel(); }
+function tdWatchEnd(){ TD.watch=false; TD.sp=TD.oldSp||60; tdRealRestore(); tdBoxDraw(); tdPrep(); tdDonePanel(); }
 function tdLine(){
   if(TD.layer){ MAP.removeLayer(TD.layer); TD.layer=null; }
   if(!TD.pts.length) return;
@@ -1849,7 +1853,7 @@ function tdGo(){
   },ms);
 }
 function tdStop(keepRun){ if(TD.tm){ clearInterval(TD.tm); TD.tm=null; } TD.playing=false; TS=1; if(!keepRun) return; $("tdPlay").innerHTML="&#9654; Play"; tdSay("Paused."); }
-function tdExit(){ TD.watch=false; tdBoxDraw(); if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; tdLine(); TS=1; $("tdPanel").style.display="none"; }
+function tdExit(){ TD.watch=false; tdRealRestore(); tdBoxDraw(); if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; tdLine(); TS=1; $("tdPanel").style.display="none"; }
 let LOG_LAST=Date.now();
 setInterval(()=>{ const n=Date.now(), gap=n-LOG_LAST; LOG_LAST=n; if(gap>20000) logAdd("GAP: app was frozen for "+Math.round(gap/1000)+" s"); },5000);
 setInterval(()=>{ logAdd("alive | "+document.visibilityState+" | screen-on "+(typeof WL!=="undefined"&&WL?"held":"not held")+""+" | GPS "+(GPS&&GPS.on?"on":"off")); },30000);
@@ -2126,7 +2130,7 @@ function azLive(){ return AZ_ON&&FOLLOW&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp
 function azBox(){   // the free part of the screen: below the top pills, clear of the side buttons, the bottom row and any open bottom panel
   const g=$("gTL").getBoundingClientRect(), wr=wrap.getBoundingClientRect(); let y1=Math.max(70,g.bottom-wr.top)+28, x1=56, x2=VW-56, y2=VH-72;
   ["chartCard","routeCard"].forEach(id=>{ const e=$(id); if(e&&!e.classList.contains("hid")){ const r=e.getBoundingClientRect(); if(r.height>2) y2=Math.min(y2,r.top-wr.top-12); } });
-  if(TD.run){ y2=Math.min(y2,VH-215); y1+=(TD.res.route?58:0)+(TD.res.direct?58:0); if(TD.res.charts) y2-=110; }   // the test drive: a fixed room for its own panel, and pretend pills for the playback
+  if(TD.run) y2=Math.min(y2,VH-215);   // the test drive: a fixed room for its own panel
   if(y2-y1<150) y2=y1+150;
   return {w:x2-x1,h:y2-y1,cx:(x1+x2)/2,cy:(y1+y2)/2,x1,x2,y1,y2};
 }
