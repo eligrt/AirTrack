@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.078
+  PFD - Fly page   v0.01.079
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.078"}
+    page -> shell  {pfd:"hello", version:"0.01.079"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -992,7 +992,7 @@ html.full,html.full body{background:#e6e0cf}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.078 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.079 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -1007,7 +1007,7 @@ html.full,html.full body{background:#e6e0cf}
 </script>
 <script>
 "use strict";
-const VER="0.01.078";
+const VER="0.01.079";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -2539,7 +2539,7 @@ function labelFind(cx,cy,ang,d0,dMin,dMax,txt,tag){
     return d; }
   return null; }
 const TP={m:null,ms:null,rid:-1,pend:false,d:null,v:0,t:0,op:1,fade:null,up:0}; let WPZ=null;   // WPZ: the screen zone of the next waypoint (marker and NEXT tag)
-/* the TRACK pill sits on the track line next to the next waypoint: beyond it ("A") when there is room, otherwise just before it ("B"). The side is chosen only when a zoom step has settled (start of a leg and the three zoom-ins), so it does not flicker; in between it simply follows the waypoint smoothly. If the side must change it fades out and in, so it never slides over the waypoint. */
+/* the TRACK pill sits on the track line next to the next waypoint: beyond it ("A") when there is room, otherwise just before it ("B"). The side is chosen only when a zoom step has settled (start of a leg and the three zoom-ins), so it does not flicker; in between it simply follows the waypoint smoothly. If the side must change it slides to the other side along the line (it may pass over the waypoint for a moment); there is no fading. */
 function trackPillSvg(P,a,ed,wl){
   const nowT=performance.now(), dt=Math.min(0.2,Math.max(0.001,(nowT-TP.t)/1000)); TP.t=nowT;
   const dMax=ed-wl-10, dMin=34, box=d=>labelBoxAt(P.x,P.y,a,d,"TRACK","TRUE");
@@ -2562,16 +2562,13 @@ function trackPillSvg(P,a,ed,wl){
     TP.m=want; if(TP.ms==null) TP.ms=want;
   }
   const tgtFor=m=>clampD(m==="A"? (dA!=null? dA : (dB!=null? dB : dMax)) : (dB!=null? dB : (dA!=null? dA : dMin)));
-  if(TP.ms!==TP.m&&!TP.fade){ const t2=tgtFor(TP.m); let cross=false; if(WPZ&&TP.d!=null) for(let q=Math.min(TP.d,t2);q<=Math.max(TP.d,t2)&&!cross;q+=6) cross=hit(box(q),WPZ);
-    if(cross||TP.d==null) TP.fade="out"; else TP.ms=TP.m; }   // sliding to the other side is fine unless it would pass over the waypoint; then it fades
-  if(TP.fade==="out"){ TP.op=Math.max(0,TP.op-dt/0.15); if(TP.op<=0){ TP.ms=TP.m; TP.fade="in"; TP.d=null; } }
-  else if(TP.fade==="in"){ TP.op=Math.min(1,TP.op+dt/0.2); if(TP.op>=1){ TP.op=1; TP.fade=null; } }
+  TP.ms=TP.m;   // no fading: the pill is always visible and only slides, even over the waypoint for a moment
   const tg=tgtFor(TP.ms), diff=tg-(TP.d==null? tg : TP.d);
   if(TP.d==null||Math.abs(diff)<=12){ TP.d=tg; TP.v=0; }   // a small change: follow at once
-  else { const tv=Math.max(-240,Math.min(240,diff/0.35)); TP.v+=(tv-TP.v)*(1-Math.exp(-dt/0.12)); TP.d+=TP.v*dt; }   // a bigger change: a gentle glide, never faster than 240 px per second
-  if(TP.fade||Math.abs(tg-TP.d)>1) setTimeout(drawSoon,30);
+  else { const tv=Math.max(-260,Math.min(260,diff/0.35)); TP.v+=(tv-TP.v)*(1-Math.exp(-dt/0.12)); TP.d+=TP.v*dt; }   // a bigger change: a gentle slide along the line, never faster than 260 px per second
+  if(Math.abs(tg-TP.d)>1) setTimeout(drawSoon,30);
   OCC.push(box(TP.d));
-  return '<g opacity="'+TP.op.toFixed(2)+'">'+lineLabel(P.x,P.y,a,TP.d,"TRACK","#1a1308","TRUE")+'</g>';
+  return lineLabel(P.x,P.y,a,TP.d,"TRACK","#1a1308","TRUE");
 }
 function placeLabel(cx,cy,ang,d0,dMin,dMax,txt,col,tag){
   const a=ang*RAD, w=Math.round(txt.length*7.1+(tag?tag.length*4.6+4:0)+20); let r=ang-90; r=((r+180)%360+360)%360-180; if(r>90) r-=180; if(r<-90) r+=180;
