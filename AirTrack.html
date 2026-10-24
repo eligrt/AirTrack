@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.070
+  PFD - Fly page   v0.01.071
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.070"}
+    page -> shell  {pfd:"hello", version:"0.01.071"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.070 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.071 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.070";
+const VER="0.01.071";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -2010,13 +2010,14 @@ function draw(){
       if(fading) setTimeout(drawSoon,40);
     }
   }
+  let pillTop="";
   if(showPos){
-    const L0=Math.max(VW,VH)*2, top=labelTop();
+    const L0=Math.max(VW,VH)*2, top=labelTop();   // the COMPASS and TRACK pills are collected in pillTop and drawn last, solid, on top of every line
     // COMPASS: device direction (black with a white edge)
     if(HDG!=null){ const a=norm360(HDG-ROT), e=rayEnd(P.x,P.y,a,L0);
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#fff" stroke-width="7" stroke-opacity=".9" stroke-linecap="round"/>';
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#111111" stroke-width="3.2" stroke-dasharray="8 6" stroke-linecap="round"/>';
-      { const ed=edgeD(P.x,P.y,a,top), wl=Math.round(("COMPASS 000\u00b0").length*7.1+3*4.6+4+20)/2; o+=placeLabel(P.x,P.y,a,ed-wl-10,34,ed-wl-10,"COMPASS "+p3(HDG)+"\u00b0","#111111","MAG"); } }
+      { const ed=edgeD(P.x,P.y,a,top), wl=Math.round(("COMPASS 000\u00b0").length*7.1+3*4.6+4+20)/2; pillTop+=placeLabel(P.x,P.y,a,ed-wl-10,34,ed-wl-10,"COMPASS "+p3(HDG)+"\u00b0","#111111","MAG"); } }
     // TRACK: direction of travel (only while moving)
     if(TRK!=null&&!STALE){ const a=norm360(TRK-ROT), e=rayEnd(P.x,P.y,a,L0);
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#1a1308" stroke-width="2.4" stroke-dasharray="2 7" stroke-linecap="round"/>';
@@ -2024,7 +2025,7 @@ function draw(){
         if(!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length){ const N0=toScreen([ROUTE.wp[NX.i].lat,ROUTE.wp[NX.i].lon]), vx=N0.x-P.x, vy=N0.y-P.y, rx=Math.sin(a*RAD), ry=-Math.cos(a*RAD), al=vx*rx+vy*ry, pe=Math.abs(vx*ry-vy*rx); if(al>0&&pe<40) dmin=Math.max(dmin,al+wl+16); }   // flying at the next point: the pill never sits on the line between the plane and that point, it goes beyond the point
         let t=placeLabel(P.x,P.y,a,ed-wl-10,dmin,ed-wl-10,"TRACK","#1a1308","TRUE");
         if(!t) t=lineLabel(P.x,P.y,a,Math.max(34,ed-wl-10),"TRACK","#1a1308","TRUE");   // no free spot beyond the point: it still sits on the line, out at the screen edge (never beside the line)
-        o+=t; } }
+        pillTop+=t; } }
   }
   if(showPos&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length){
     const w=ROUTE.wp[NX.i], N=toScreen([w.lat,w.lon]);
@@ -2057,7 +2058,7 @@ function draw(){
     const pa=norm360((TRK!=null?TRK:(COMP_ON&&HDG!=null?HDG:(LASTTRK!=null?LASTTRK:(HDG!=null?HDG:0))))-ROT);
     o+='<g transform="translate('+P.x.toFixed(1)+' '+P.y.toFixed(1)+') rotate('+pa.toFixed(1)+') scale(2)" opacity="'+(STALE?.45:1)+'"><circle r="14" fill="'+halo+'" opacity="'+haloOp+'"/><path d="M0 -10 L7 8 L0 4 L-7 8Z" fill="#1c3d6e" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></g>';
   }
-  ov.innerHTML=o;
+  o+=pillTop; ov.innerHTML=o;
 }
 
 /* ───────── route from a GPX file, with the corridor around it ───────── */
