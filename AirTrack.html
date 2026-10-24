@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.071
+  PFD - Fly page   v0.01.072
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.071"}
+    page -> shell  {pfd:"hello", version:"0.01.072"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.071 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.072 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.071";
+const VER="0.01.072";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1832,13 +1832,25 @@ function tdWatch(){
 }
 function tdWatchEnd(){ document.body.classList.remove("tdwatch"); TD.watch=false; TD.sp=TD.oldSp||60; tdRealRestore(); tdBoxDraw(); if(TD.demo){ tdDemoEnd(); return; } tdPrep(); tdDonePanel(); }
 /* DEMO: a built-in route of several legs in different directions and lengths, flown with the simple rule; nothing is learned and nothing saved */
+/* the Demo flight is not a perfect line: every leg wanders a little to the right or left, some corners are cut (the plane turns to the next point before reaching this one), others are flown straight over; the same every run */
+const DEMO_OFF=[0.5,-0.6,0.8,-0.4,0.6,-0.7,0.5,-0.3], DEMO_CUT=[0,1,0,1,0,1,0,0];   // sideways wander per leg (NM, + = right); DEMO_CUT[k]=1: the corner at waypoint k+1 is cut
+function demoFlown(w){
+  const out=[{lat:w[0].lat,lon:w[0].lon}], nm=(a,b,br,al,of)=>{ const r=br*RAD, e=Math.sin(r)*al+Math.cos(r)*of, n=Math.cos(r)*al-Math.sin(r)*of; return {lat:a.lat+n/60, lon:a.lon+e/(60*Math.cos(a.lat*RAD))}; };
+  for(let i=0;i<DEMO.legs.length;i++){
+    const L=DEMO.legs[i][0], br=DEMO.legs[i][1], o=DEMO_OFF[i]||0, a=w[i], cutIn=i>0&&DEMO_CUT[i-1], cutOut=DEMO_CUT[i]&&i<DEMO.legs.length-1;
+    if(cutIn) out.push(nm(a,0,br,3.0,o*0.5));
+    [[0.2,0.7],[0.45,1],[0.7,0.6],[0.9,0.2]].forEach(([f,k])=>{ const al=L*f; if(cutIn&&al<4.5) return; if(cutOut&&al>L-3.2) return; out.push(nm(a,0,br,al,o*k)); });
+    if(cutOut) out.push(nm(a,0,br,L-1.8,0)); else out.push({lat:w[i+1].lat,lon:w[i+1].lon});
+  }
+  return out;
+}
 function tdDemo(){
   if(TD.playing||TD.hold||TD.watch||TD.demo) return;
   if(!(TD.phase==="wp"||TD.phase==="ready"||TD.phase==="done")){ toast("Finish or change this leg first, then tap Demo",3500); return; }
   TD.snap={start:TD.start,wp:TD.wp,pts:TD.pts.slice(),phase:TD.phase,legNo:TD.legNo,attempt:TD.attempt,hdg:TD.hdg,ov:TD.ov};
   let c={lat:TD.start.lat,lon:TD.start.lon}; const pts=[{lat:c.lat,lon:c.lon,name:"Start"}];
   DEMO.legs.forEach(([nm,br],i)=>{ const a=br*RAD; c={lat:c.lat+nm*Math.cos(a)/60, lon:c.lon+nm*Math.sin(a)/(60*Math.cos(c.lat*RAD))}; pts.push({lat:c.lat,lon:c.lon,name:"Demo "+(i+1)}); });
-  TD.demo=true; TD.pts=pts.map(p=>({lat:p.lat,lon:p.lon})); TD.wp=TD.pts[TD.pts.length-1]; TD.hdg=DEMO.legs[0][1];
+  TD.demo=true; TD.pts=demoFlown(pts); TD.wp={lat:pts[pts.length-1].lat,lon:pts[pts.length-1].lon}; TD.hdg=DEMO.legs[0][1];
   routeBuild(pts); draw(); tdWatch();
 }
 function tdDemoEnd(){
@@ -2012,6 +2024,7 @@ function draw(){
   }
   let pillTop="";
   if(showPos){
+    if(!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length){ const Nz=toScreen([ROUTE.wp[NX.i].lat,ROUTE.wp[NX.i].lon]); OCC.push({x1:Nz.x-46,x2:Nz.x+46,y1:Nz.y-64,y2:Nz.y+34}); }   // the next waypoint (marker and NEXT tag) always stays visible: no pill may cover it
     const L0=Math.max(VW,VH)*2, top=labelTop();   // the COMPASS and TRACK pills are collected in pillTop and drawn last, solid, on top of every line
     // COMPASS: device direction (black with a white edge)
     if(HDG!=null){ const a=norm360(HDG-ROT), e=rayEnd(P.x,P.y,a,L0);
@@ -2021,10 +2034,8 @@ function draw(){
     // TRACK: direction of travel (only while moving)
     if(TRK!=null&&!STALE){ const a=norm360(TRK-ROT), e=rayEnd(P.x,P.y,a,L0);
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#1a1308" stroke-width="2.4" stroke-dasharray="2 7" stroke-linecap="round"/>';
-      { const ed=edgeD(P.x,P.y,a,top), wl=Math.round(5*7.1+4*4.6+4+20)/2; let dmin=34;
-        if(!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length){ const N0=toScreen([ROUTE.wp[NX.i].lat,ROUTE.wp[NX.i].lon]), vx=N0.x-P.x, vy=N0.y-P.y, rx=Math.sin(a*RAD), ry=-Math.cos(a*RAD), al=vx*rx+vy*ry, pe=Math.abs(vx*ry-vy*rx); if(al>0&&pe<40) dmin=Math.max(dmin,al+wl+16); }   // flying at the next point: the pill never sits on the line between the plane and that point, it goes beyond the point
-        let t=placeLabel(P.x,P.y,a,ed-wl-10,dmin,ed-wl-10,"TRACK","#1a1308","TRUE");
-        if(!t) t=lineLabel(P.x,P.y,a,Math.max(34,ed-wl-10),"TRACK","#1a1308","TRUE");   // no free spot beyond the point: it still sits on the line, out at the screen edge (never beside the line)
+      { const ed=edgeD(P.x,P.y,a,top), wl=Math.round(5*7.1+4*4.6+4+20)/2;
+        const t=placeLabel(P.x,P.y,a,ed-wl-10,34,ed-wl-10,"TRACK","#1a1308","TRUE");   // as far out on the line as it fits; the next waypoint's zone is already taken, so the pill goes beyond it, or just before it when there is no room beyond
         pillTop+=t; } }
   }
   if(showPos&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length){
