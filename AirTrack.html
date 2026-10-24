@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.080
+  PFD - Fly page   v0.01.082
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.080"}
+    page -> shell  {pfd:"hello", version:"0.01.082"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -992,7 +992,7 @@ html.full,html.full body{background:#e6e0cf}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.080 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.082 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -1007,7 +1007,7 @@ html.full,html.full body{background:#e6e0cf}
 </script>
 <script>
 "use strict";
-const VER="0.01.080";
+const VER="0.01.082";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1673,7 +1673,7 @@ setTimeout(topBarApply,300);
 /* TEST DRIVE (exploration only): you set each waypoint and draw the path you really fly; the app flies it fast, stops where a zoom would start, and learns from your corrections */
 function tdBuild(){
   if(document.getElementById("tdPanel")) return;
-  const st=document.createElement("style"); st.textContent="#tdPanel{position:absolute;left:8px;right:8px;bottom:var(--sb);z-index:30;background:rgba(251,246,232,.95);border:2.5px solid #d81b60;border-radius:20px;padding:8px 10px 8px;box-shadow:0 2px 8px rgba(14,35,72,.3);font-family:var(--font-ui)} #tdPanel .tt{display:flex;gap:6px;align-items:center;font:700 13px var(--font-ui);color:#1c3d6e;margin-bottom:4px} #tdPanel .tt b{flex:1} #tdPanel .tt button{flex:none;width:54px;padding:7px 1px;font-size:12px} #tdPanel .r{display:flex;gap:6px;align-items:center;margin:5px 0} #tdPanel .r label{font:700 10px var(--font-mono);width:50px;flex:none;color:#5a4a3a} #tdPanel button{flex:1;font:700 14px var(--font-ui);border:1.5px solid #1c3d6e;background:#fbf6e8;color:#1c3d6e;border-radius:18px;padding:10px 2px} #tdPanel button.on{background:#1c3d6e;color:#fff} #tdPanel button.dis{opacity:.4;pointer-events:none} #tdPanel .sts{font:600 12px var(--font-ui);color:#5a4a3a;text-align:center;margin-top:4px;min-height:16px} body.tdwatch #tdPanel .tt,body.tdwatch #tdPanel .sts,body.tdwatch #tdQ .qt,body.tdwatch #tdQ .qs{display:none} body.tdwatch #tdPanel{padding:5px 8px;border-radius:18px} body.tdwatch #tdPanel .r{margin:0} body.tdwatch #tdPanel button{padding:9px 2px;font-size:13px} body.tdwatch #chartCard{bottom:calc(var(--sb) + 62px)} #tdQ .qt{font:800 15px var(--font-ui);color:#1c3d6e;margin:2px 0} #tdQ .qs{font:600 12px var(--font-ui);color:#5a4a3a;margin:2px 0 4px}";
+  const st=document.createElement("style"); st.textContent="#tdPanel{position:absolute;left:8px;right:8px;bottom:var(--sb);z-index:30;background:rgba(251,246,232,.95);border:2.5px solid #d81b60;border-radius:20px;padding:8px 10px 8px;box-shadow:0 2px 8px rgba(14,35,72,.3);font-family:var(--font-ui)} #tdPanel .tt{display:flex;gap:6px;align-items:center;font:700 13px var(--font-ui);color:#1c3d6e;margin-bottom:4px} #tdPanel .tt b{flex:1} #tdPanel .tt button{flex:none;width:54px;padding:7px 1px;font-size:12px} #tdPanel .r{display:flex;gap:6px;align-items:center;margin:5px 0} #tdPanel .r label{font:700 10px var(--font-mono);width:50px;flex:none;color:#5a4a3a} #tdPanel button{flex:1;font:700 14px var(--font-ui);border:1.5px solid #1c3d6e;background:#fbf6e8;color:#1c3d6e;border-radius:18px;padding:10px 2px} #tdPanel button.on{background:#1c3d6e;color:#fff} #tdPanel button.dis{opacity:.4;pointer-events:none} #tdPanel .sts{font:600 12px var(--font-ui);color:#5a4a3a;text-align:center;margin-top:4px;min-height:16px} body.tdwatch #tdPanel .tt,body.tdwatch #tdPanel .sts,body.tdwatch #tdQ .qt,body.tdwatch #tdQ .qs{display:none} body.tdwatch #tdPanel{padding:5px 8px;border-radius:18px} body.tdwatch #tdPanel .r{margin:0} body.tdwatch #tdPanel button{padding:9px 2px;font-size:13px} body.tdwatch #chartCard{bottom:calc(var(--sb) + 62px)} body.tdwatch.tddemo #chartCard{bottom:calc(var(--sb) + 62px + var(--pr,57px))} #tdPanel .pr{display:flex;gap:4px;align-items:center;margin:0 0 5px} #tdPanel .pr span{font:700 11px var(--font-ui);color:#5a4a3a;flex:none} #tdPanel .pr b{font:800 14px var(--font-mono);color:#1c3d6e;min-width:30px;text-align:center;flex:none} #tdPanel .pr button{flex:none;width:34px;padding:6px 0;font-size:16px} #tdPanel .pr button.cp{flex:1;width:auto;font-size:13px;margin-left:4px} #tdPanel .pn{font:600 11px var(--font-ui);color:#5a4a3a;text-align:center;margin:-2px 0 4px;min-height:14px} #tdQ .qt{font:800 15px var(--font-ui);color:#1c3d6e;margin:2px 0} #tdQ .qs{font:600 12px var(--font-ui);color:#5a4a3a;margin:2px 0 4px}";
   document.head.appendChild(st);
   const p=document.createElement("div"); p.id="tdPanel"; p.style.display="none";
   p.innerHTML='<div class="tt"><b>Test drive</b><button id="tdPlay" class="dis">&#9654; Play</button><button id="tdReset">Reset</button><button id="tdSaved">Saved</button><button id="tdDemo">Demo</button><button id="tdExit">Exit</button></div><div id="tdQ"></div><div class="sts" id="tdSt"></div>';
@@ -1768,6 +1768,8 @@ function tdAnswer(k){
   if(k==="calback"){ if(TD.prevQ!=null) $("tdQ").innerHTML=TD.prevQ; return; }
   if(k==="calbase"){ tdResetAll(); if(TD.prevQ!=null) $("tdQ").innerHTML=TD.prevQ; return; }
   if(/^cal\d$/.test(k)){ const e=calList()[+k.slice(3)]; if(e){ calApply(e,"saved calibration "+calLabel(e.t)); toast("Loaded: "+calLabel(e.t),2500); } if(TD.prevQ!=null) $("tdQ").innerHTML=TD.prevQ; return; }
+  if(/^p(min|far)[+-]$/.test(k)){ const f=k.slice(1,4), up=k.slice(-1)==="+"; PCFG[f]=Math.max(f==="min"?20:40,Math.min(f==="min"?160:320,PCFG[f]+(up?10:-10))); pillSave(); const e=$(f==="min"?"pmV":"pfV"); if(e) e.textContent=PCFG[f]; draw(); return; }
+  if(k==="pcopy"){ const t="TRACK pill: min "+PCFG.min+", far "+PCFG.far+" (AirTrack v"+VER+")"; try{ navigator.clipboard.writeText(t); toast("Copied: "+t,3500); }catch(er){ toast(t,6000); } return; }
   if(k==="watch"){ tdWatch(); return; }
   if(k==="again2"){ tdWatch(); return; }
   if(k==="wback"){ tdWatchEnd(); return; }
@@ -1837,16 +1839,17 @@ function tdBoxDraw(){
   let t=$("tdDemoTag"); if(TD.demo){ if(!t){ t=document.createElement("div"); t.id="tdDemoTag"; t.style.cssText="position:absolute;left:6px;bottom:4px;font:700 11px var(--font-ui);color:#d81b60;background:rgba(251,246,232,.85);border-radius:8px;padding:1px 6px"; e.appendChild(t); } const n=ROUTE.wp? ROUTE.wp.length-1 : 0; t.textContent="Demo | leg "+Math.min(NX.i,n)+" of "+n+" | step "+(Math.max(0,AZ_RI)+1)+" of 4"; t.style.display="block"; } else if(t) t.style.display="none";
 }
 function tdWatchPanel(ended){
-  document.body.classList.add("tdwatch");
-  tdQ('<div class="r"><button data-a="ch" class="'+(LPANEL==="charts"?"on":"")+'">Charts</button><button data-a="fs" class="'+(FULL?"on":"")+'">Full screen</button>'+(ended?'<button data-a="again2">Again</button>':'')+'<button data-a="wback">Done</button></div>');
+  document.body.classList.add("tdwatch"); document.body.classList.toggle("tddemo",!!TD.demo);
+  tdQ((TD.demo? pillRow() : '')+'<div class="r"><button data-a="ch" class="'+(LPANEL==="charts"?"on":"")+'">Charts</button><button data-a="fs" class="'+(FULL?"on":"")+'">Full screen</button>'+(ended?'<button data-a="again2">Again</button>':'')+'<button data-a="wback">Done</button></div>');
   tdBoxDraw();
 }
+function pillRow(){ return '<div class="pr"><span>Min</span><button data-a="pmin-">-</button><b id="pmV">'+PCFG.min+'</b><button data-a="pmin+">+</button><span>Far</span><button data-a="pfar-">-</button><b id="pfV">'+PCFG.far+'</b><button data-a="pfar+">+</button><button data-a="pcopy" class="cp">Copy</button></div><div class="pn" id="pnow"></div>'; }
 function tdRealSave(){ TD.saved={d:DIRECT_ON,t:TGT,l:LPANEL,f:FULL}; }
 function tdRealRestore(){ if(!TD.saved) return; const v=TD.saved; TD.saved=null; DIRECT_ON=v.d; TGT=v.t; lpSet(v.l); FULL=v.f; ui(); draw(); setTimeout(tdBoxDraw,300); }
 function tdWatch(){
   if(!TD.watch){ TD.oldSp=TD.sp; tdRealSave(); } TD.watch=true; TD.sp=30; tdPrep(); TD.phase="ready"; tdWatchPanel(); TD.fresh=true; tdGo(); tdWatchPanel(); tdSay("Watching: no questions, nothing is learned.");
 }
-function tdWatchEnd(){ document.body.classList.remove("tdwatch"); TD.watch=false; TD.sp=TD.oldSp||60; tdRealRestore(); tdBoxDraw(); if(TD.demo){ tdDemoEnd(); return; } tdPrep(); tdDonePanel(); }
+function tdWatchEnd(){ document.body.classList.remove("tdwatch","tddemo"); TD.watch=false; TD.sp=TD.oldSp||60; tdRealRestore(); tdBoxDraw(); if(TD.demo){ tdDemoEnd(); return; } tdPrep(); tdDonePanel(); }
 /* DEMO: a built-in route of several legs in different directions and lengths, flown with the simple rule; nothing is learned and nothing saved */
 /* the Demo flight is not a perfect line: every leg wanders a little to the right or left, some corners are cut (the plane turns to the next point before reaching this one), others are flown straight over; the same every run */
 const DEMO_OFF=[0.5,-0.6,0.8,-0.4,0.6,-0.7,0.5,-0.3], DEMO_CUT=[0,1,0,1,0,1,0,0];   // sideways wander per leg (NM, + = right); DEMO_CUT[k]=1: the corner at waypoint k+1 is cut
@@ -1907,7 +1910,7 @@ function tdGo(){
   },ms);
 }
 function tdStop(keepRun){ if(TD.tm){ clearInterval(TD.tm); TD.tm=null; } TD.playing=false; TS=1; if(!keepRun) return; $("tdPlay").innerHTML="&#9654; Play"; tdSay("Paused."); }
-function tdExit(){ if(TD.demo){ TD.demo=false; TD.snap=null; routeClear(); } document.body.classList.remove("tdwatch"); TD.watch=false; tdRealRestore(); tdBoxDraw(); if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; tdLine(); TS=1; $("tdPanel").style.display="none"; }
+function tdExit(){ if(TD.demo){ TD.demo=false; TD.snap=null; routeClear(); } document.body.classList.remove("tdwatch","tddemo"); TD.watch=false; tdRealRestore(); tdBoxDraw(); if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; tdLine(); TS=1; $("tdPanel").style.display="none"; }
 let LOG_LAST=Date.now();
 setInterval(()=>{ const n=Date.now(), gap=n-LOG_LAST; LOG_LAST=n; if(gap>20000) logAdd("GAP: app was frozen for "+Math.round(gap/1000)+" s"); },5000);
 setInterval(()=>{ logAdd("alive | "+document.visibilityState+" | screen-on "+(typeof WL!=="undefined"&&WL?"held":"not held")+""+" | GPS "+(GPS&&GPS.on?"on":"off")); },30000);
@@ -2010,7 +2013,7 @@ function draw(){
   OCC=uiRects(5);
   if(showPos){ OCC.push({x1:P.x-32,x2:P.x+32,y1:P.y-32,y2:P.y+32});
     if(TGT&&DIRECT_ON&&!DRAW.on){ const Tq=toScreen([TGT.lat,TGT.lon]); OCC.push({x1:Tq.x-15,x2:Tq.x+15,y1:Tq.y-38,y2:Tq.y+6}); }
-    if(ROUTE.wp&&ROUTE.wp.length&&!DRAW.on) ROUTE.wp.forEach(w=>{ const q=toScreen([w.lat,w.lon]); OCC.push({x1:q.x-15,x2:q.x+15,y1:q.y-15,y2:q.y+15}); }); }
+    if(ROUTE.wp&&ROUTE.wp.length&&!DRAW.on) ROUTE.wp.forEach(w=>{ const q=toScreen([w.lat,w.lon]); OCC.push({x1:q.x-15,x2:q.x+15,y1:q.y-45,y2:q.y+8}); }); }
   if(showPos&&RINGS!=="off"){
     const mpp=40075016.686*Math.cos(POS.lat*RAD)/(256*Math.pow(2,MAP.getZoom())), isMin=RINGS==="min", col=isMin?"#a3207a":"#d9622b";
     const minOk=!isMin||(GS!=null&&GS>=5&&!STALE);
@@ -2085,13 +2088,14 @@ function draw(){
   }
   o+=pillTop;
   if(showPos&&!DRAW.on&&ROUTE.pins&&ROUTE.wp&&NX.i<ROUTE.wp.length){   // the next waypoint: rings, pin with its number, NEXT tag - above everything else
-    const w=ROUTE.wp[NX.i], q=toScreen([w.lat,w.lon]), n=ROUTE.wp.length, x=q.x.toFixed(1), y=q.y.toFixed(1);
-    if(q.x>-60&&q.x<VW+60&&q.y>-80&&q.y<VH+60){
-      o+='<circle cx="'+x+'" cy="'+y+'" r="19" fill="none" stroke="#f5c518" stroke-width="2.5"/><circle cx="'+x+'" cy="'+y+'" r="23.5" fill="none" stroke="#f5c518" stroke-width="2.5"/>';
-      o+='<circle cx="'+x+'" cy="'+y+'" r="11" fill="#0e2348" stroke="#fff" stroke-width="2"/>';
-      if(NX.i===n-1) o+='<rect x="'+(q.x-4.5).toFixed(1)+'" y="'+(q.y-4.5).toFixed(1)+'" width="9" height="9" rx="1.5" fill="#fff"/>';
-      else o+='<text x="'+x+'" y="'+(q.y+4.2).toFixed(1)+'" text-anchor="middle" font-size="12" font-weight="800" font-family="JetBrains Mono,monospace" fill="#f5c518">'+(NX.i+1)+'</text>';
-      o+='<rect x="'+(q.x-23).toFixed(1)+'" y="'+(q.y-47).toFixed(1)+'" width="46" height="18" rx="9" fill="#f5c518" stroke="#0e2348" stroke-width="1.5"/><text x="'+x+'" y="'+(q.y-34).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="800" font-family="IBM Plex Sans Hebrew,system-ui,sans-serif" fill="#0e2348">NEXT</text>';
+    const w=ROUTE.wp[NX.i], q=toScreen([w.lat,w.lon]), n=ROUTE.wp.length, kind=wpKind(NX.i,n);
+    if(q.x>-80&&q.x<VW+80&&q.y>-110&&q.y<VH+60){
+      const mid=kind==="mid", cx=q.x+(mid?0:10), cy=q.y-(mid?23.6:16), r1=mid?20:22, r2=r1+4.5;
+      o+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+r1+'" fill="none" stroke="#f5c518" stroke-width="2.5"/><circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+r2+'" fill="none" stroke="#f5c518" stroke-width="2.5"/>';
+      o+=wpMarkSvg(q.x,q.y,kind,NX.i+1,false);
+      const nmT=wpLabelTxt(w); if(nmT) o+=wpLabelSvg(nmT,cx,cy-r2-4,false);
+      const tx=(cx+r2+8+46<VW-4)? cx+r2+8 : cx-r2-8-46;   // the NEXT tag sits beside the rings (other side near the screen edge)
+      o+='<rect x="'+tx.toFixed(1)+'" y="'+(cy-9).toFixed(1)+'" width="46" height="18" rx="9" fill="#f5c518" stroke="#0e2348" stroke-width="1.5"/><text x="'+(tx+23).toFixed(1)+'" y="'+(cy+4).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="800" font-family="IBM Plex Sans Hebrew,system-ui,sans-serif" fill="#0e2348">NEXT</text>';
     }
   }
   ov.innerHTML=o;
@@ -2196,7 +2200,7 @@ let AZ_ON=LS.get("az","1")==="1", AZ_T=0, AZ_HINT=false;   // AZ_HINT: the "tap 
 function azLive(){ return AZ_ON&&FOLLOW&&GPS.on&&POS&&!STALE&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length; }
 function azBox(){   // the free part of the screen: below the top pills, clear of the side buttons, the bottom row and any open bottom panel
   const g=$("gTL").getBoundingClientRect(), wr=wrap.getBoundingClientRect(); let y1=Math.max(70,g.bottom-wr.top)+28, x1=56, x2=VW-56, y2=VH-72;
-  ["chartCard","routeCard"].forEach(id=>{ const e=$(id); if(e&&!e.classList.contains("hid")){ const r=e.getBoundingClientRect(); if(r.height>2) y2=Math.min(y2,r.top-wr.top-12+(TD.run&&TD.watch?62:0)); } });   // in the playback the chart panel sits 62 px higher to clear the strip, so that is taken back
+  ["chartCard","routeCard"].forEach(id=>{ const e=$(id); if(e&&!e.classList.contains("hid")){ const r=e.getBoundingClientRect(); if(r.height>2) y2=Math.min(y2,r.top-wr.top-12+(TD.run&&TD.watch?62+(TD.demo?57:0):0)); } });   // in the playback the chart panel sits 62 px higher to clear the strip, so that is taken back
   if(TD.run&&!TD.watch) y2=Math.min(y2,VH-215);   // the test drive: a fixed room for its own panel
   if(y2-y1<150) y2=y1+150;
   return {w:x2-x1,h:y2-y1,cx:(x1+x2)/2,cy:(y1+y2)/2,x1,x2,y1,y2};
@@ -2379,6 +2383,48 @@ function corrLabel(txt,x,y){
   cctx.lineWidth=4; cctx.strokeStyle="rgba(251,246,232,.92)"; cctx.lineJoin="round"; cctx.strokeText(txt,x,y);
   cctx.fillStyle="#0e2348"; cctx.fillText(txt,x,y);
 }
+/* waypoint markers (same look as AirNotam): teardrop pin with its number, gold start flag, checkered finish flag, and the name in a small cream label above */
+const WP_S=1.15, WP_PIN_D="M13 33C13 33 2 20 2 12.5A11 11 0 0 1 24 12.5C24 20 13 33 13 33Z", WP_LBL_FONT="700 11.5px 'IBM Plex Sans Hebrew','Heebo',system-ui,sans-serif";
+const wpKind=(i,n)=> i===0? "start" : (i===n-1? "end" : "mid");
+const wpHigh=kind=> (kind==="mid"?38:32);   // how far the marker reaches above the waypoint (px)
+const wpLabelTxt=p=>{ const t=(p&&p.name)||""; if(!t||/^Point \d+$/.test(t)) return ""; return t.length>18? t.slice(0,17)+"…" : t; };
+function wpLabelBox(txt,cx,bottom){ cctx.font=WP_LBL_FONT; const w=Math.ceil(cctx.measureText(txt).width)+12, h=17, x0=Math.max(4,Math.min(VW-4-w,cx-w/2)); return {x:x0,y:bottom-h,w:w,h:h}; }
+function wpLabelCanvas(txt,cx,bottom,grey){
+  const b=wpLabelBox(txt,cx,bottom); cctx.beginPath(); if(cctx.roundRect) cctx.roundRect(b.x,b.y,b.w,b.h,5); else cctx.rect(b.x,b.y,b.w,b.h);
+  cctx.fillStyle=grey?"#ece6d6":"#fbf6e8"; cctx.fill(); cctx.lineWidth=1.5; cctx.strokeStyle=grey?"#b7ad94":"#c8a04a"; cctx.stroke();
+  cctx.font=WP_LBL_FONT; cctx.textAlign="center"; cctx.textBaseline="middle"; cctx.fillStyle=grey?"#8f8671":"#0e2348"; cctx.fillText(txt,b.x+b.w/2,b.y+b.h/2+0.5); cctx.textAlign="start"; cctx.textBaseline="alphabetic";
+}
+function wpLabelSvg(txt,cx,bottom,grey){
+  const b=wpLabelBox(txt,cx,bottom);
+  return '<rect x="'+b.x.toFixed(1)+'" y="'+b.y.toFixed(1)+'" width="'+b.w+'" height="'+b.h+'" rx="5" fill="'+(grey?"#ece6d6":"#fbf6e8")+'" stroke="'+(grey?"#b7ad94":"#c8a04a")+'" stroke-width="1.5"/>'
+   +'<text x="'+(b.x+b.w/2).toFixed(1)+'" y="'+(b.y+b.h/2+4).toFixed(1)+'" text-anchor="middle" font-size="11.5" font-weight="700" font-family="IBM Plex Sans Hebrew,Heebo,system-ui,sans-serif" fill="'+(grey?"#8f8671":"#0e2348")+'">'+txt.replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</text>';
+}
+function wpMarkCanvas(x,y,kind,num,grey){
+  cctx.save(); cctx.translate(x,y); cctx.scale(WP_S,WP_S); cctx.lineJoin="round"; cctx.lineCap="round";
+  if(kind==="mid"){
+    cctx.translate(-13,-33); const pp=new Path2D(WP_PIN_D);
+    cctx.fillStyle=grey?"#8f8671":"#0e2348"; cctx.fill(pp); cctx.lineWidth=2; cctx.strokeStyle="#fff"; cctx.stroke(pp);
+    cctx.font="800 11px 'JetBrains Mono',monospace"; cctx.textAlign="center"; cctx.textBaseline="alphabetic"; cctx.fillStyle=grey?"#ece6d6":"#f5c518"; cctx.fillText(String(num),13,16.5); cctx.textAlign="start";
+  } else {
+    cctx.translate(-5,-29);
+    cctx.beginPath(); cctx.moveTo(5,29); cctx.lineTo(5,3); cctx.lineWidth=5.4; cctx.strokeStyle="#fff"; cctx.stroke();
+    cctx.lineWidth=2.6; cctx.strokeStyle=grey?"#8f8671":"#0e2348"; cctx.stroke();
+    if(kind==="start"){ const fp=new Path2D("M6 3h15l-4 5 4 5H6z"); cctx.fillStyle=grey?"#b7ad94":"#c8a04a"; cctx.fill(fp); cctx.lineWidth=1.6; cctx.strokeStyle=grey?"#8f8671":"#0e2348"; cctx.stroke(fp); }
+    else { cctx.fillStyle="#fff"; cctx.fillRect(6,3,18,12); cctx.fillStyle=grey?"#8f8671":"#1a1308"; for(let r=0;r<4;r++) for(let c=0;c<6;c++) if((r+c)%2===0) cctx.fillRect(6+c*3,3+r*3,3,3);
+      cctx.lineWidth=1.6; cctx.strokeStyle=grey?"#8f8671":"#0e2348"; cctx.strokeRect(6,3,18,12); }
+  }
+  cctx.restore();
+}
+function wpMarkSvg(x,y,kind,num,grey){
+  const g='<g transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+') scale('+WP_S+') translate('+(kind==="mid"?"-13 -33":"-5 -29")+')" stroke-linejoin="round" stroke-linecap="round">';
+  if(kind==="mid") return g+'<path d="'+WP_PIN_D+'" fill="'+(grey?"#8f8671":"#0e2348")+'" stroke="#fff" stroke-width="2"/><text x="13" y="16.5" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="800" font-size="11" fill="'+(grey?"#ece6d6":"#f5c518")+'">'+num+'</text></g>';
+  const nv=grey?"#8f8671":"#0e2348";
+  let o=g+'<path d="M5 29V3" stroke="#fff" stroke-width="5.4" fill="none"/><path d="M5 29V3" stroke="'+nv+'" stroke-width="2.6" fill="none"/>';
+  if(kind==="start") return o+'<path d="M6 3h15l-4 5 4 5H6z" fill="'+(grey?"#b7ad94":"#c8a04a")+'" stroke="'+nv+'" stroke-width="1.6"/></g>';
+  o+='<rect x="6" y="3" width="18" height="12" fill="#fff"/>';
+  for(let r=0;r<4;r++) for(let c=0;c<6;c++) if((r+c)%2===0) o+='<rect x="'+(6+c*3)+'" y="'+(3+r*3)+'" width="3" height="3" fill="'+(grey?"#8f8671":"#1a1308")+'"/>';
+  return o+'<rect x="6" y="3" width="18" height="12" fill="none" stroke="'+nv+'" stroke-width="1.6"/></g>';
+}
 function corrDraw(){
   const dpr=Math.min(window.devicePixelRatio||1,3), cw=Math.round(VW*dpr), ch=Math.round(VH*dpr);
   if(corr.width!==cw||corr.height!==ch){ corr.width=cw; corr.height=ch; }
@@ -2447,36 +2493,13 @@ function corrDraw(){
     }
     const nx=(live&&NX.i<n)? NX.i : -1;
     W.forEach((p,i)=>{
-      const q=S[i]; if(q.x<-30||q.x>VW+30||q.y<-60||q.y>VH+30) return;
+      const q=S[i]; if(q.x<-60||q.x>VW+60||q.y<-90||q.y>VH+30) return;
       const passed=live&&i<NX.i;
-      if(i===nx) return;   // the NEXT marker is drawn on the overlay, above the TRACK pill
-      if(i===nx){
-        cctx.lineWidth=2.5; cctx.strokeStyle="#f5c518";
-        cctx.beginPath(); cctx.arc(q.x,q.y,19,0,7); cctx.stroke();
-        cctx.beginPath(); cctx.arc(q.x,q.y,23.5,0,7); cctx.stroke();
-      }
-      if(n>1&&i===n-1){   // the last point: a navy circle with a white stop square
-        cctx.beginPath(); cctx.arc(q.x,q.y,11,0,7); cctx.fillStyle="#0e2348"; cctx.fill(); cctx.lineWidth=2; cctx.strokeStyle="#fff"; cctx.stroke();
-        cctx.fillStyle="#fff"; cctx.beginPath(); if(cctx.roundRect) cctx.roundRect(q.x-4.5,q.y-4.5,9,9,1.5); else cctx.rect(q.x-4.5,q.y-4.5,9,9); cctx.fill();
-      } else {
-        cctx.beginPath(); cctx.arc(q.x,q.y,11,0,7); cctx.fillStyle=i===0?"#2faf5f":(passed?"#8f8671":"#0e2348"); cctx.fill();
-        cctx.lineWidth=2; cctx.strokeStyle="#fff"; cctx.stroke();
-        if(i===0){   // the first point: a small flag
-          cctx.strokeStyle="#fff"; cctx.lineWidth=2; cctx.lineCap="round"; cctx.beginPath(); cctx.moveTo(q.x-3,q.y+6); cctx.lineTo(q.x-3,q.y-7); cctx.stroke();
-          cctx.fillStyle="#fff"; cctx.beginPath(); cctx.moveTo(q.x-3,q.y-7); cctx.lineTo(q.x+7,q.y-3.5); cctx.lineTo(q.x-3,q.y); cctx.closePath(); cctx.fill();
-        } else {
-          cctx.font="800 12px 'JetBrains Mono',monospace"; cctx.textAlign="center"; cctx.textBaseline="middle";
-          cctx.fillStyle=passed?"#ece6d6":"#f5c518"; cctx.fillText(String(i+1),q.x,q.y+0.5);
-          cctx.textAlign="start"; cctx.textBaseline="alphabetic";
-        }
-      }
-      if(i===nx) corrTag("NEXT",q.x,q.y-38,"800 11px 'IBM Plex Sans Hebrew',system-ui,sans-serif","#f5c518","#0e2348","#0e2348");
+      if(i===nx) return;   // the NEXT marker (with its name) is drawn on the overlay, above the TRACK pill
+      const kind=wpKind(i,n);
+      wpMarkCanvas(q.x,q.y,kind,i+1,passed);
+      const nmT=wpLabelTxt(p); if(nmT) wpLabelCanvas(nmT,q.x+(kind==="mid"?0:8),q.y-wpHigh(kind)-3,passed);
     });
-    if(ROUTE.pins&&!ROUTE.drawn&&!DRAW.on){
-      const nm=(p,i)=>p.name&&!/^Point \d+$/.test(p.name);
-      if(nm(W[0],0)) corrLabel(W[0].name,S[0].x+16,S[0].y+22);
-      if(n>1&&nm(W[n-1],n-1)) corrLabel(W[n-1].name,S[n-1].x+16,S[n-1].y-14);
-    }
   }
 }
 function corrTag(txt,x,y,font,fill,stroke,color){   // a small rounded tag centred on x,y
@@ -2549,9 +2572,12 @@ function labelFind(cx,cy,ang,d0,dMin,dMax,txt,tag){
     return d; }
   return null; }
 const TP={t:0}; let WPZ=null;
+const PCFG=(()=>{ const d={far:130,min:60}; try{ const j=JSON.parse(LS.get("pillcfg","null")); if(j&&isFinite(j.far)&&isFinite(j.min)){ d.far=+j.far; d.min=+j.min; } }catch(e){} return d; })();   // the Demo settings: how far ahead of the plane the TRACK pill sits (far) and the closest it may come (min), in screen px
+function pillSave(){ LS.set("pillcfg",JSON.stringify(PCFG)); }
 /* the TRACK pill: it stays at a fixed distance ahead of the plane on the track line (about 130 px, never closer than 34 px, never off the screen), so it never moves around; the next waypoint marker is drawn above it, the route line and arrows below it */
 function trackPillSvg(P,a,ed,wl){
-  const d=Math.max(34,Math.min(130,ed-wl-10)); OCC.push(labelBoxAt(P.x,P.y,a,d,"TRACK","TRUE"));
+  const d=Math.max(PCFG.min,Math.min(PCFG.far,ed-wl-10)); if(TD.demo&&TD.watch){ const e=document.getElementById("pnow"); if(e){ const t="in use now: "+Math.round(d)+" px"; if(e.textContent!==t) e.textContent=t; } }   // in use now: the distance really used on this leg (it is smaller when the room is short)
+  OCC.push(labelBoxAt(P.x,P.y,a,d,"TRACK","TRUE"));
   const L=lineLabel(P.x,P.y,a,d,"TRACK","#1a1308","TRUE"), m=/<rect ([^>]*)\/>/.exec(L);
   return m? L.replace("<rect ","<rect "+m[1].replace(/fill="[^"]*"/,'fill="#fff"').replace(/stroke="[^"]*"/,'stroke="#fff"').replace(/stroke-width="[^"]*"/,'stroke-width="5"')+"/><rect ") : L;   // a thin white edge, so the label clearly sits on top of the lines
 }
