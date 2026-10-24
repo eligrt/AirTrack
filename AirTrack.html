@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.072
+  PFD - Fly page   v0.01.074
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.072"}
+    page -> shell  {pfd:"hello", version:"0.01.074"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -976,7 +976,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.072 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.074 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -991,7 +991,7 @@ html.full #lsaHdr,html.full .lsa-foot{display:none}
 </script>
 <script>
 "use strict";
-const VER="0.01.072";
+const VER="0.01.074";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -2024,7 +2024,7 @@ function draw(){
   }
   let pillTop="";
   if(showPos){
-    if(!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length){ const Nz=toScreen([ROUTE.wp[NX.i].lat,ROUTE.wp[NX.i].lon]); OCC.push({x1:Nz.x-46,x2:Nz.x+46,y1:Nz.y-64,y2:Nz.y+34}); }   // the next waypoint (marker and NEXT tag) always stays visible: no pill may cover it
+    if(!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length){ const Nz=toScreen([ROUTE.wp[NX.i].lat,ROUTE.wp[NX.i].lon]); WPZ={x1:Nz.x-46,x2:Nz.x+46,y1:Nz.y-64,y2:Nz.y+34}; OCC.push(WPZ); } else WPZ=null;   // the next waypoint (marker and NEXT tag) always stays visible: no pill may cover it
     const L0=Math.max(VW,VH)*2, top=labelTop();   // the COMPASS and TRACK pills are collected in pillTop and drawn last, solid, on top of every line
     // COMPASS: device direction (black with a white edge)
     if(HDG!=null){ const a=norm360(HDG-ROT), e=rayEnd(P.x,P.y,a,L0);
@@ -2032,11 +2032,23 @@ function draw(){
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#111111" stroke-width="3.2" stroke-dasharray="8 6" stroke-linecap="round"/>';
       { const ed=edgeD(P.x,P.y,a,top), wl=Math.round(("COMPASS 000\u00b0").length*7.1+3*4.6+4+20)/2; pillTop+=placeLabel(P.x,P.y,a,ed-wl-10,34,ed-wl-10,"COMPASS "+p3(HDG)+"\u00b0","#111111","MAG"); } }
     // TRACK: direction of travel (only while moving)
+    if(TRK==null||STALE) TP.d=null;
     if(TRK!=null&&!STALE){ const a=norm360(TRK-ROT), e=rayEnd(P.x,P.y,a,L0);
       o+='<line x1="'+P.x.toFixed(1)+'" y1="'+P.y.toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#1a1308" stroke-width="2.4" stroke-dasharray="2 7" stroke-linecap="round"/>';
       { const ed=edgeD(P.x,P.y,a,top), wl=Math.round(5*7.1+4*4.6+4+20)/2;
-        const t=placeLabel(P.x,P.y,a,ed-wl-10,34,ed-wl-10,"TRACK","#1a1308","TRUE");   // as far out on the line as it fits; the next waypoint's zone is already taken, so the pill goes beyond it, or just before it when there is no room beyond
-        pillTop+=t; } }
+        const dT=labelFind(P.x,P.y,a,ed-wl-10,34,ed-wl-10,"TRACK","TRUE"), nowT=performance.now(), dtT=Math.min(0.2,Math.max(0.001,(nowT-TP.t)/1000)); TP.t=nowT;
+        if(dT==null){ TP.d=null; TP.op=1; TP.fade=null; }
+        else if(TP.d==null){ TP.d=dT; TP.cand=null; }
+        else { const diff=dT-TP.d, held=labelBoxAt(P.x,P.y,a,TP.d,"TRACK","TRUE"), blocked=OCC.some(c=>hit(held,c));
+          if(Math.abs(diff)<=10){ TP.d=dT; TP.cand=null; TP.v=0; if(TP.fade==="out") TP.fade="in"; }   // a small change: follow at once
+          else { if(TP.cand==null||Math.abs(TP.cand-dT)>10){ TP.cand=dT; TP.since=nowT-(blocked?1000:0); }
+            if(nowT-TP.since>350){
+              if(!TP.fade&&WPZ){ let cross=false; for(let q=Math.min(TP.d,dT);q<=Math.max(TP.d,dT)&&!cross;q+=8) cross=hit(labelBoxAt(P.x,P.y,a,q,"TRACK","TRUE"),WPZ); if(cross){ TP.fade="out"; TP.v=0; } }
+              if(TP.fade==="out"){ TP.op=Math.max(0,TP.op-dtT/0.15); if(TP.op<=0){ TP.d=dT; TP.cand=null; TP.fade="in"; } }   // the jump would pass over the waypoint: the pill fades out here and fades in at the new spot
+              else if(!TP.fade){ const tv=Math.max(-240,Math.min(240,diff/0.35)); TP.v+=(tv-TP.v)*(1-Math.exp(-dtT/0.12)); TP.d+=TP.v*dtT; if(Math.abs(dT-TP.d)<=12){ TP.d=dT; TP.cand=null; TP.v=0; } } } else TP.v=0; }   // otherwise it glides: gently, never faster than 240 px per second
+          if(TP.cand!=null||TP.fade) setTimeout(drawSoon,30); }
+        if(TP.fade==='in'){ TP.op=Math.min(1,TP.op+dtT/0.2); if(TP.op>=1){ TP.op=1; TP.fade=null; } setTimeout(drawSoon,30); }
+        if(TP.d!=null){ OCC.push(labelBoxAt(P.x,P.y,a,TP.d,"TRACK","TRUE")); pillTop+='<g opacity="'+TP.op.toFixed(2)+'">'+lineLabel(P.x,P.y,a,TP.d,"TRACK","#1a1308","TRUE")+'</g>'; } } }   // the next waypoint's zone is already taken, so the pill goes beyond the point when there is room, or just before it
   }
   if(showPos&&!DRAW.on&&ROUTE.wp&&ROUTE.wp.length>=2&&NX.i<ROUTE.wp.length){
     const w=ROUTE.wp[NX.i], N=toScreen([w.lat,w.lon]);
@@ -2510,6 +2522,19 @@ function uiRects(m){ const wr=wrap.getBoundingClientRect(), out=[];
   return out; }
 const hit=(A,B)=>A.x1<B.x2&&B.x1<A.x2&&A.y1<B.y2&&B.y1<A.y2;
 // puts a line's name pill at the preferred spot, or the nearest spot along the line that is free; hides it when the line has no free room
+/* the TRACK pill: it searches for its best spot like the other pills, but what is shown moves smoothly: small changes are followed at once, a jump to another spot waits a moment (no flicker) and then glides there */
+function labelBoxAt(cx,cy,ang,d,txt,tag){
+  const a=ang*RAD, w=Math.round(txt.length*7.1+(tag?tag.length*4.6+4:0)+20); let r=ang-90; r=((r+180)%360+360)%360-180; if(r>90) r-=180; if(r<-90) r+=180;
+  const cr=Math.abs(Math.cos(r*RAD)), sr=Math.abs(Math.sin(r*RAD)), ex=cr*w/2+sr*9+2, ey=sr*w/2+cr*9+2, x=cx+d*Math.sin(a), y=cy-d*Math.cos(a);
+  return {x1:x-ex,x2:x+ex,y1:y-ey,y2:y+ey}; }
+function labelFind(cx,cy,ang,d0,dMin,dMax,txt,tag){
+  if(dMax<dMin) return null;
+  for(const useNames of [true,false]) for(let k=0;k<=60;k++) for(const sg of (k?[1,-1]:[1])){
+    const d=Math.min(dMax,Math.max(dMin,d0))+sg*k*6; if(d<dMin||d>dMax) continue; const b=labelBoxAt(cx,cy,ang,d,txt,tag);
+    if(OCC.some(c=>hit(b,c))||(useNames&&NAMER.some(c=>hit(b,c)))) continue;
+    return d; }
+  return null; }
+const TP={d:null,cand:null,since:0,t:0,v:0,op:1,fade:null}; let WPZ=null;   // WPZ: the screen zone of the next waypoint (marker and NEXT tag)
 function placeLabel(cx,cy,ang,d0,dMin,dMax,txt,col,tag){
   const a=ang*RAD, w=Math.round(txt.length*7.1+(tag?tag.length*4.6+4:0)+20); let r=ang-90; r=((r+180)%360+360)%360-180; if(r>90) r-=180; if(r<-90) r+=180;
   const cr=Math.abs(Math.cos(r*RAD)), sr=Math.abs(Math.sin(r*RAD)), ex=cr*w/2+sr*9+2, ey=sr*w/2+cr*9+2;
