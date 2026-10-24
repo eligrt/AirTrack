@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<!-- StatusBarLab v1.00.001 - test page for the iPhone status bar fade -->
+<!-- StatusBarLab v1.00.002 - test page for the iPhone status bar fade -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -40,9 +40,8 @@ html.docscroll .lsa-foot{position:fixed;left:0;right:0;bottom:0}
 #cap{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:var(--ink);z-index:9999;pointer-events:none}
 html.cap #cap{display:block}
 /* experiment: backgrounds */
-html.bg-navy,html.bg-navy body{background:#1c3d6e}
-html.bg-cream,html.bg-cream body{background:#f5efe0}
-html.bg-black,html.bg-black body{background:#000}
+html.hb-navy{background:#1c3d6e}html.hb-cream{background:#f5efe0}html.hb-black{background:#000}
+html.bb-navy body{background:#1c3d6e}html.bb-cream body{background:#f5efe0}html.bb-black body{background:#000}
 /* LSA-ALIGN v1 START - shared chassis: scroll, header inset, footer. Do not edit per app; update the machine instead. */
 :root{
   --lsa-hdr-min:58px;                                   /* navy header content height */
@@ -107,8 +106,11 @@ button.lsa-foot-slot{cursor:pointer;padding:8px 0;}
   <div class="grp"><h3>2 - COLOR-SCHEME</h3><small>Tells iOS the page is light or dark (may flip clock colour and fade).</small>
     <div class="seg" data-k="cs"><button data-v="light">light</button><button data-v="dark">dark</button><button data-v="both">light dark</button></div></div>
 
-  <div class="grp"><h3>3 - PAGE BACKGROUND (html + body)</h3><small>What sits behind the header at the very top.</small>
-    <div class="seg" data-k="bg"><button data-v="navy">navy</button><button data-v="cream">cream</button><button data-v="black">black</button></div></div>
+  <div class="grp"><h3>3a - HTML BACKGROUND</h3><small>The outermost page colour (behind everything).</small>
+    <div class="seg" data-k="hb"><button data-v="navy">navy</button><button data-v="cream">cream</button><button data-v="black">black</button></div></div>
+
+  <div class="grp"><h3>3b - BODY BACKGROUND</h3><small>The body colour (our apps use cream/paper here).</small>
+    <div class="seg" data-k="bb"><button data-v="navy">navy</button><button data-v="cream">cream</button><button data-v="black">black</button></div></div>
 
   <div class="grp"><h3>4 - HEADER MODE</h3><small>flow = like our apps. fixed = header pinned over the scroller.</small>
     <div class="seg" data-k="hm"><button data-v="flow">flow</button><button data-v="fixed">fixed</button></div></div>
@@ -126,7 +128,7 @@ button.lsa-foot-slot{cursor:pointer;padding:8px 0;}
   <div class="tall">scroll me - watch the top edge</div>
   <div class="tall">more content</div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">StatusBarLab &middot; v1.00.001 &middot; built by <a href="https://eligrt.github.io">eligrt</a></span><button type="button" class="lsa-foot-reload" onclick="event.stopPropagation();lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver">StatusBarLab &middot; v1.00.002 &middot; built by <a href="https://eligrt.github.io">eligrt</a></span><button type="button" class="lsa-foot-reload" onclick="event.stopPropagation();lsaReload()">טען מחדש</button></div>
 <script>
 /* LSA-ALIGN v1 JS START */
 async function lsaReload(){
@@ -141,7 +143,7 @@ async function lsaReload(){
 function setAppHeight(){var ios=window.navigator.standalone===true;var h=ios?Math.max(window.innerHeight,screen.height):window.innerHeight;document.documentElement.style.setProperty('--app-h',h+'px');}
 setAppHeight();window.addEventListener('resize',setAppHeight);window.addEventListener('orientationchange',function(){setTimeout(setAppHeight,300)});
 (function(){var t=function(){var d=new Date(),v=('0'+d.getUTCHours()).slice(-2)+':'+('0'+d.getUTCMinutes()).slice(-2);document.querySelectorAll('.hdr-utc').forEach(function(e){e.textContent=v})};t();setInterval(t,1000)})();
-var DEF={tc:'navy',cs:'light',bg:'navy',hm:'flow',cap:'off',sc:'inner',hp:'safe'};
+var DEF={tc:'navy',cs:'light',hb:'navy',bb:'navy',hm:'flow',cap:'off',sc:'inner',hp:'safe'};
 var S=Object.assign({},DEF);
 try{var q=JSON.parse(localStorage.getItem('sbl')||'null');if(q)S=Object.assign(S,q)}catch(e){}
 var TC={navy:'#1c3d6e',cream:'#f5efe0',black:'#000000'};
@@ -151,14 +153,14 @@ function apply(){
   var tm=document.querySelector('meta[name="theme-color"]');
   if(S.tc==='none'){if(tm)tm.remove()}else{meta('theme-color').content=TC[S.tc]}
   var cs=S.cs==='both'?'light dark':S.cs;meta('color-scheme').content=cs;h.style.colorScheme=cs;
-  ['bg-navy','bg-cream','bg-black'].forEach(function(c){h.classList.remove(c)});h.classList.add('bg-'+S.bg);
+  ['navy','cream','black'].forEach(function(c){h.classList.remove('hb-'+c);h.classList.remove('bb-'+c)});h.classList.add('hb-'+S.hb);h.classList.add('bb-'+S.bb);
   h.classList.toggle('hfix',S.hm==='fixed');
   h.classList.toggle('cap',S.cap==='on');
   h.classList.toggle('docscroll',S.sc==='document');
   document.getElementById('hdr').style.paddingTop=S.hp==='none'?'10px':'';
   document.getElementById('hdr').style.minHeight=S.hp==='none'?'58px':'';
   document.querySelectorAll('.seg').forEach(function(g){g.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.v===S[g.dataset.k])})});
-  document.getElementById('sum').textContent='tc='+S.tc+' cs='+S.cs+' bg='+S.bg+' hdr='+S.hm+' cap='+S.cap+' scroll='+S.sc+' pad='+S.hp;
+  document.getElementById('sum').textContent='tc='+S.tc+' cs='+S.cs+' hbg='+S.hb+' bbg='+S.bb+' hdr='+S.hm+' cap='+S.cap+' scroll='+S.sc+' pad='+S.hp;
   try{localStorage.setItem('sbl',JSON.stringify(S))}catch(e){}
   diag();
 }
