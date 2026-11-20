@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.085
+  PFD - Fly page   v0.01.086
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.085"}
+    page -> shell  {pfd:"hello", version:"0.01.086"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -992,7 +992,7 @@ html.full,html.full body{background:#e6e0cf}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.085 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.086 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -1007,7 +1007,7 @@ html.full,html.full body{background:#e6e0cf}
 </script>
 <script>
 "use strict";
-const VER="0.01.085";
+const VER="0.01.086";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1675,7 +1675,7 @@ setTimeout(topBarApply,300);
 /* TEST DRIVE (exploration only): you set each waypoint and draw the path you really fly; the app flies it fast, stops where a zoom would start, and learns from your corrections */
 function tdBuild(){
   if(document.getElementById("tdPanel")) return;
-  const st=document.createElement("style"); st.textContent="#tdPanel{position:absolute;left:8px;right:8px;bottom:var(--sb);z-index:30;background:rgba(251,246,232,.95);border:2.5px solid #d81b60;border-radius:20px;padding:8px 10px 8px;box-shadow:0 2px 8px rgba(14,35,72,.3);font-family:var(--font-ui)} #tdPanel .tt{display:flex;gap:6px;align-items:center;font:700 13px var(--font-ui);color:#1c3d6e;margin-bottom:4px} #tdPanel .tt b{flex:1} #tdPanel .tt button{flex:none;width:54px;padding:7px 1px;font-size:12px} #tdPanel .r{display:flex;gap:6px;align-items:center;margin:5px 0} #tdPanel .r label{font:700 10px var(--font-mono);width:50px;flex:none;color:#5a4a3a} #tdPanel button{flex:1;font:700 14px var(--font-ui);border:1.5px solid #1c3d6e;background:#fbf6e8;color:#1c3d6e;border-radius:18px;padding:10px 2px} #tdPanel button.on{background:#1c3d6e;color:#fff} #tdPanel button.dis{opacity:.4;pointer-events:none} #tdPanel .sts{font:600 12px var(--font-ui);color:#5a4a3a;text-align:center;margin-top:4px;min-height:16px} body.tdwatch #tdPanel .tt,body.tdwatch #tdPanel .sts,body.tdwatch #tdQ .qt,body.tdwatch #tdQ .qs{display:none} body.tdwatch #tdPanel{padding:5px 8px;border-radius:18px} body.tdwatch #tdPanel .r{margin:0} body.tdwatch #tdPanel button{padding:9px 2px;font-size:13px} body.tdwatch #chartCard{bottom:calc(var(--sb) + 62px)} body.tdwatch.tddemo #chartCard{bottom:calc(var(--sb) + 62px + var(--pr,57px))} #tdPanel .pr{display:flex;gap:4px;align-items:center;margin:0 0 5px} #tdPanel .pr span{font:700 11px var(--font-ui);color:#5a4a3a;flex:none} #tdPanel .pr b{font:800 14px var(--font-mono);color:#1c3d6e;min-width:30px;text-align:center;flex:none} #tdPanel .pr button{flex:none;width:34px;padding:6px 0;font-size:16px} #tdPanel .pr button.cp{flex:1;width:auto;font-size:13px;margin-left:4px} #tdPanel .pn{font:600 11px var(--font-ui);color:#5a4a3a;text-align:center;margin:-2px 0 4px;min-height:14px} #tdQ .qt{font:800 15px var(--font-ui);color:#1c3d6e;margin:2px 0} #tdQ .qs{font:600 12px var(--font-ui);color:#5a4a3a;margin:2px 0 4px}";
+  const st=document.createElement("style"); st.textContent="#tdPanel{position:absolute;left:8px;right:8px;bottom:var(--sb);z-index:30;background:rgba(251,246,232,.95);border:2.5px solid #d81b60;border-radius:20px;padding:8px 10px 8px;box-shadow:0 2px 8px rgba(14,35,72,.3);font-family:var(--font-ui)} #tdPanel .tt{display:flex;gap:6px;align-items:center;font:700 13px var(--font-ui);color:#1c3d6e;margin-bottom:4px} #tdPanel .tt b{flex:1} #tdPanel .tt button{flex:none;width:54px;padding:7px 1px;font-size:12px} #tdPanel .r{display:flex;gap:6px;align-items:center;margin:5px 0} #tdPanel .r label{font:700 10px var(--font-mono);width:50px;flex:none;color:#5a4a3a} #tdPanel button{flex:1;font:700 14px var(--font-ui);border:1.5px solid #1c3d6e;background:#fbf6e8;color:#1c3d6e;border-radius:18px;padding:10px 2px} #tdPanel button.on{background:#1c3d6e;color:#fff} #tdPanel button.dis{opacity:.4;pointer-events:none} #tdPanel .sts{font:600 12px var(--font-ui);color:#5a4a3a;text-align:center;margin-top:4px;min-height:16px} body.tdwatch #tdPanel .tt,body.tdwatch #tdPanel .sts,body.tdwatch #tdQ .qt,body.tdwatch #tdQ .qs{display:none} body.tdwatch #tdPanel{padding:5px 8px;border-radius:18px} body.tdwatch #tdPanel .r{margin:0} body.tdwatch #tdPanel button{padding:9px 2px;font-size:13px} body.tdfly #tdPanel{left:50%;right:auto;transform:translateX(-50%);width:min(340px,calc(100vw - var(--sl) - var(--sr) - 132px));box-sizing:border-box} body.tdfly #tdPanel button{font-size:12px} body.tdfly #tdPanel .pr span{font-size:10px} body.tdwatch #chartCard{bottom:calc(var(--sb) + 62px)} body.tdwatch.tddemo #chartCard{bottom:calc(var(--sb) + 62px + var(--pr,57px))} #tdPanel .pr{display:flex;gap:4px;align-items:center;margin:0 0 5px} #tdPanel .pr span{font:700 11px var(--font-ui);color:#5a4a3a;flex:none} #tdPanel .pr b{font:800 14px var(--font-mono);color:#1c3d6e;min-width:30px;text-align:center;flex:none} #tdPanel .pr button{flex:none;width:34px;padding:6px 0;font-size:16px} #tdPanel .pr button.cp{flex:1;width:auto;font-size:13px;margin-left:4px} #tdPanel .pn{font:600 11px var(--font-ui);color:#5a4a3a;text-align:center;margin:-2px 0 4px;min-height:14px} #tdQ .qt{font:800 15px var(--font-ui);color:#1c3d6e;margin:2px 0} #tdQ .qs{font:600 12px var(--font-ui);color:#5a4a3a;margin:2px 0 4px}";
   document.head.appendChild(st);
   const p=document.createElement("div"); p.id="tdPanel"; p.style.display="none";
   p.innerHTML='<div class="tt"><b>Test drive</b><button id="tdPlay" class="dis">&#9654; Play</button><button id="tdReset">Reset</button><button id="tdSaved">Saved</button><button id="tdDemo">Demo</button><button id="tdExit">Exit</button></div><div id="tdQ"></div><div class="sts" id="tdSt"></div>';
@@ -1844,7 +1844,7 @@ function tdBoxDraw(){
 }
 function tdWatchPanel(ended){
   document.body.classList.add("tdwatch"); document.body.classList.toggle("tddemo",!!TD.demo);
-  if(TD.fly){ tdQ('<div class="pr"><span>Speed</span>'+[1,5,30].map(v=>'<button data-a="sp'+v+'" class="cp'+(TD.sp===v?" on":"")+'">x'+v+'</button>').join("")+'</div><div class="pn">Simulated flight. Your real GPS is paused.</div><div class="r"><button data-a="ch" class="'+(LPANEL==="charts"?"on":"")+'">Charts</button><button data-a="fs" class="'+(FULL?"on":"")+'">Full screen</button>'+(ended?'<button data-a="again2">Again</button>':'')+'<button data-a="wback">'+(ended?"Done":"Stop")+'</button></div>'); tdBoxDraw(); return; }
+  if(TD.fly){ tdQ('<div class="pr"><span>Speed</span>'+[1,5,30].map(v=>'<button data-a="sp'+v+'" class="cp'+(TD.sp===v?" on":"")+'">x'+v+'</button>').join("")+'</div><div class="pn">Simulated flight - real GPS paused</div><div class="r"><button data-a="ch" class="'+(LPANEL==="charts"?"on":"")+'">Charts</button><button data-a="fs" class="'+(FULL?"on":"")+'">Full screen</button>'+(ended?'<button data-a="again2">Again</button>':'')+'<button data-a="wback">'+(ended?"Done":"Stop")+'</button></div>'); tdBoxDraw(); return; }
   tdQ((TD.demo? pillRow() : '')+'<div class="r"><button data-a="ch" class="'+(LPANEL==="charts"?"on":"")+'">Charts</button><button data-a="fs" class="'+(FULL?"on":"")+'">Full screen</button>'+(ended?'<button data-a="again2">Again</button>':'')+'<button data-a="wback">Done</button></div>');
   tdBoxDraw();
 }
@@ -1928,13 +1928,13 @@ function flyIt(){
   TD.hdg=tdBrg(pts[0],pts[1]); TD.legNo=1; TD.attempt=0; TD.legs=[]; TD.log=[]; TD.ov=null; TD.res={route:false,direct:false,charts:false};
   GPS.on=true; firstFix=false; AZ_OFF=null;
   if(TD.keep) clearInterval(TD.keep); TD.keep=setInterval(()=>{ if(TD.run&&!TD.tm) tdStill(); },1000);
-  $("tdPanel").style.display="block";
+  $("tdPanel").style.display="block"; document.body.classList.add("tdfly");
   tdWatch(); DIRECT_ON=false; ui(); draw();
 }
 function flyEnd(){
   const v=TD.fly; if(!v) return;
   tdStop(false); if(TD.keep){ clearInterval(TD.keep); TD.keep=null; }
-  document.body.classList.remove("tdwatch","tddemo");
+  document.body.classList.remove("tdwatch","tddemo","tdfly");
   TD.fly=false; TD.demo=false; TD.watch=false; TD.run=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; TS=1; TD.sp=TD.oldSp||60;
   $("tdPanel").style.display="none"; tdBoxDraw();
   AZ_RI=-1; AZ_FITK=-1; AZ_TW=null; AZ_OFF=null;
