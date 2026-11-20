@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  PFD - Fly page   v0.01.083
+  PFD - Fly page   v0.01.084
   Loaded by pfd.html (the shell) inside an iframe, and kept alive while the pilot switches tabs.
   Messages with the shell (same origin):
-    page -> shell  {pfd:"hello", version:"0.01.083"}
+    page -> shell  {pfd:"hello", version:"0.01.084"}
     page -> shell  {pfd:"fullscreen", on:true|false}
     shell -> page  {pfd:"bars", hidden:true|false}
   Leaflet 1.9.4 is included below (BSD-2), so the page needs no CDN.
@@ -992,7 +992,7 @@ html.full,html.full body{background:#e6e0cf}
   <div class="dg" style="left:var(--sl);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dClear" type="button" aria-label="Clear"></button><div class="cap2">Clear</div></div><div class="dgi"><button class="btn big" id="dCancel" type="button" aria-label="Cancel"></button><div class="cap2">Cancel</div></div></div>
   <div class="dg" style="right:var(--sr);bottom:var(--sb)"><div class="dgi"><button class="btn dis" id="dUndo" type="button" aria-label="Undo"></button><div class="cap2">Undo</div></div><div class="dgi"><button class="btn big done dis" id="dDone" type="button" aria-label="Done"></button><div class="cap2">Done</div></div></div>
 </div>
-<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.083 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
+<div class="lsa-foot" dir="ltr"><span class="lsa-foot-slot"></span><span class="lsa-foot-ver" onclick="logOpen()">AirTrack · v0.01.084 · built by eligrt</span><button type="button" class="lsa-foot-reload" onclick="lsaReload()">טען מחדש</button></div>
 <div id="toast"></div>
 <div id="scrim"><div id="dlg"><div id="dlgT"></div><div id="dlgX"></div><div id="dlgB"></div></div></div>
 <svg width="0" height="0" style="position:absolute"><defs><pattern id="lsaGrid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#b00020" stroke-opacity=".45" stroke-width="1"/></pattern></defs></svg>
@@ -1007,7 +1007,7 @@ html.full,html.full body{background:#e6e0cf}
 </script>
 <script>
 "use strict";
-const VER="0.01.083";
+const VER="0.01.084";
 const $=id=>document.getElementById(id);
 // Full-height fix (same as the other apps): on an iPhone Home Screen app the page height comes out shorter than the screen
 function setAppHeight(){
@@ -1482,12 +1482,14 @@ const DLG_IC={
   file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
   edit:'<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8 16l8-8"/>',
   trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
-  x:'<path d="M6 6l12 12M18 6L6 18"/>'
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  fly:'<path d="M12 3l2 7 7 3v2l-7-1-1 5 2 2v1l-3-1-3 1v-1l2-2-1-5-7 1v-2l7-3z"/>'
 };
 function dlgIcon(label,cls){
   if(/^draw/i.test(label)) return DLG_IC.pen;
   if(/^load/i.test(label)) return DLG_IC.file;
   if(/^edit/i.test(label)) return DLG_IC.edit;
+  if(/^fly/i.test(label)) return DLG_IC.fly;
   if(/remove|clear|delete/i.test(label)) return DLG_IC.trash;
   if(cls==="keep"||/^(close|keep)/i.test(label)) return DLG_IC.x;
   return "";
@@ -1700,6 +1702,7 @@ function tdQ(html){ $("tdQ").innerHTML=html; }
 function tdStill(){ if(TD.here) onPos({coords:{latitude:TD.here.lat,longitude:TD.here.lon,accuracy:5,altitude:300,speed:0,heading:TD.here.hdg||0},_td:true}); }
 function tdPlaceStart(){ TD.here={lat:TD.start.lat,lon:TD.start.lon,hdg:TD.hdg||0}; tdStill(); if(POS&&RAW){ POS.lat=RAW.lat; POS.lon=RAW.lon; } }
 function tdOpen(){
+  if(TD.fly){ toast("Stop the simulated flight first",3000); return; }
   tdBuild(); const c=MAP.getCenter();
   TD.start=POS? {lat:POS.lat,lon:POS.lon} : {lat:c.lat,lon:c.lng};
   tdBase(); TD.ov=null; TD.log=[]; TD.legs=[]; TD.legNo=0; TD.sid=Date.now(); TD.res={route:false,direct:false,charts:false}; TD.watch=false; { const a=calList(); if(a.length) calApply(a[0],"your last saved calibration ("+calLabel(a[0].t)+")"); } TD.sp=60; TD.kt=100; TD.nz=0; TD.run=true; GPS.on=true; AZ_ON=true;
@@ -1772,7 +1775,8 @@ function tdAnswer(k){
   if(k==="pcopy"){ const t="TRACK pill: min "+PCFG.min+", far "+PCFG.far+" (AirTrack v"+VER+")"; try{ navigator.clipboard.writeText(t); toast("Copied: "+t,3500); }catch(er){ toast(t,6000); } return; }
   if(k==="watch"){ tdWatch(); return; }
   if(k==="again2"){ tdWatch(); return; }
-  if(k==="wback"){ tdWatchEnd(); return; }
+  if(k==="wback"){ if(TD.fly){ flyEnd(); return; } tdWatchEnd(); return; }
+  if(/^sp\d+$/.test(k)&&TD.fly){ TD.flySp=+k.slice(2); TD.sp=TD.flySp; if(TD.playing&&!TD.paused) tdGo(); tdWatchPanel(TD.phase==="done"); return; }
   if(k==="ch"){ lpSet(LPANEL==="charts"?"":"charts"); tdWatchPanel(); setTimeout(tdBoxDraw,300); return; }
   if(k==="fs"){ FULL=!FULL; ui(); tdWatchPanel(); setTimeout(tdBoxDraw,500); return; }
   if(k==="newleg"){ TD.start={lat:TD.wp.lat,lon:TD.wp.lon}; tdNewLeg(); return; }
@@ -1833,13 +1837,14 @@ function tdFinish(){
 }
 /* watch what you calibrated: the same leg again, no questions, with switches that take screen room like the real pills */
 function tdBoxDraw(){
-  let e=$("tdBoxV"); if(!TD.watch){ if(e) e.style.display="none"; return; }
+  let e=$("tdBoxV"); if(!TD.watch||TD.fly){ if(e) e.style.display="none"; return; }
   if(!e){ e=document.createElement("div"); e.id="tdBoxV"; e.style.cssText="position:absolute;z-index:6;border:2px dashed rgba(216,27,96,.7);border-radius:10px;pointer-events:none"; wrap.appendChild(e); }
   const b=azBox(); e.style.display="block"; e.style.left=b.x1+"px"; e.style.top=b.y1+"px"; e.style.width=b.w+"px"; e.style.height=b.h+"px";
   let t=$("tdDemoTag"); if(TD.demo){ if(!t){ t=document.createElement("div"); t.id="tdDemoTag"; t.style.cssText="position:absolute;left:6px;bottom:4px;font:700 11px var(--font-ui);color:#d81b60;background:rgba(251,246,232,.85);border-radius:8px;padding:1px 6px"; e.appendChild(t); } const n=ROUTE.wp? ROUTE.wp.length-1 : 0; t.textContent="Demo | leg "+Math.min(NX.i,n)+" of "+n+" | step "+(Math.max(0,AZ_RI)+1)+" of 4"; t.style.display="block"; } else if(t) t.style.display="none";
 }
 function tdWatchPanel(ended){
   document.body.classList.add("tdwatch"); document.body.classList.toggle("tddemo",!!TD.demo);
+  if(TD.fly){ tdQ('<div class="pr"><span>Speed</span>'+[1,5,30].map(v=>'<button data-a="sp'+v+'" class="cp'+(TD.sp===v?" on":"")+'">x'+v+'</button>').join("")+'</div><div class="pn">Simulated flight. Your real GPS is paused.</div><div class="r"><button data-a="ch" class="'+(LPANEL==="charts"?"on":"")+'">Charts</button><button data-a="fs" class="'+(FULL?"on":"")+'">Full screen</button>'+(ended?'<button data-a="again2">Again</button>':'')+'<button data-a="wback">'+(ended?"Done":"Stop")+'</button></div>'); tdBoxDraw(); return; }
   tdQ((TD.demo? pillRow() : '')+'<div class="r"><button data-a="ch" class="'+(LPANEL==="charts"?"on":"")+'">Charts</button><button data-a="fs" class="'+(FULL?"on":"")+'">Full screen</button>'+(ended?'<button data-a="again2">Again</button>':'')+'<button data-a="wback">Done</button></div>');
   tdBoxDraw();
 }
@@ -1847,7 +1852,7 @@ function pillRow(){ return '<div class="pr"><span>Min</span><button data-a="pmin
 function tdRealSave(){ TD.saved={d:DIRECT_ON,t:TGT,l:LPANEL,f:FULL}; }
 function tdRealRestore(){ if(!TD.saved) return; const v=TD.saved; TD.saved=null; DIRECT_ON=v.d; TGT=v.t; lpSet(v.l); FULL=v.f; ui(); draw(); setTimeout(tdBoxDraw,300); }
 function tdWatch(){
-  if(!TD.watch){ TD.oldSp=TD.sp; tdRealSave(); } TD.watch=true; TD.sp=30; tdPrep(); TD.phase="ready"; tdWatchPanel(); TD.fresh=true; tdGo(); tdWatchPanel(); tdSay("Watching: no questions, nothing is learned.");
+  if(!TD.watch){ TD.oldSp=TD.sp; tdRealSave(); } TD.watch=true; TD.sp=TD.fly? (TD.flySp||30) : 30; tdPrep(); TD.phase="ready"; tdWatchPanel(); TD.fresh=true; tdGo(); tdWatchPanel(); tdSay("Watching: no questions, nothing is learned.");
 }
 function tdWatchEnd(){ document.body.classList.remove("tdwatch","tddemo"); TD.watch=false; TD.sp=TD.oldSp||60; tdRealRestore(); tdBoxDraw(); if(TD.demo){ tdDemoEnd(); return; } tdPrep(); tdDonePanel(); }
 /* DEMO: a built-in route of several legs in different directions and lengths, flown with the simple rule; nothing is learned and nothing saved */
@@ -1911,6 +1916,34 @@ function tdGo(){
 }
 function tdStop(keepRun){ if(TD.tm){ clearInterval(TD.tm); TD.tm=null; } TD.playing=false; TS=1; if(!keepRun) return; $("tdPlay").innerHTML="&#9654; Play"; tdSay("Paused."); }
 function tdExit(){ if(TD.demo){ TD.demo=false; TD.snap=null; routeClear(); } document.body.classList.remove("tdwatch","tddemo"); TD.watch=false; tdRealRestore(); tdBoxDraw(); if(TD.keep){ clearInterval(TD.keep); TD.keep=null; } tdStop(false); TD.run=false; TD.drawing=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; tdLine(); TS=1; $("tdPanel").style.display="none"; }
+/* FLY IT: your route flown by a simulated plane in the normal map view; the real GPS is paused and everything is put back when it ends */
+function flyIt(){
+  if(TD.run){ toast("Close the Test drive first",3000); return; }
+  if(DRAW.on||!ROUTE.layer||!ROUTE.wp||ROUTE.wp.length<2) return;
+  tdBuild();
+  const line=ROUTE.pins? ROUTE.wp : ((ROUTE.al&&(ROUTE.al[ROUTE.main]||ROUTE.al[0])||[]).map(q=>({lat:q[0],lon:q[1]})));
+  const pts=(line.length>=2? line : ROUTE.wp).map(q=>({lat:q.lat,lon:q.lon}));
+  TD.fly={gps:GPS.on,az:AZ_ON,azs:LS.get("az","1"),follow:FOLLOW,pos:POS,raw:RAW,gs:GS,trk:TRK,stale:STALE,nx:NX,dir:DIRECT_ON,ff:firstFix};
+  TD.demo=true; TD.run=true; TD.kt=100; TD.pts=pts; TD.start={lat:pts[0].lat,lon:pts[0].lon}; TD.wp={lat:pts[pts.length-1].lat,lon:pts[pts.length-1].lon};
+  TD.hdg=tdBrg(pts[0],pts[1]); TD.legNo=1; TD.attempt=0; TD.legs=[]; TD.log=[]; TD.ov=null; TD.res={route:false,direct:false,charts:false};
+  GPS.on=true; firstFix=false; AZ_OFF=null;
+  if(TD.keep) clearInterval(TD.keep); TD.keep=setInterval(()=>{ if(TD.run&&!TD.tm) tdStill(); },1000);
+  $("tdPanel").style.display="block";
+  tdWatch(); DIRECT_ON=false; ui(); draw();
+}
+function flyEnd(){
+  const v=TD.fly; if(!v) return;
+  tdStop(false); if(TD.keep){ clearInterval(TD.keep); TD.keep=null; }
+  document.body.classList.remove("tdwatch","tddemo");
+  TD.fly=false; TD.demo=false; TD.watch=false; TD.run=false; TD.pts=[]; TD.d=0; TD.hold=null; TD.paused=false; TD.awaitB=false; TD.free=false; TD.phase=""; TS=1; TD.sp=TD.oldSp||60;
+  $("tdPanel").style.display="none"; tdBoxDraw();
+  AZ_RI=-1; AZ_FITK=-1; AZ_TW=null; AZ_OFF=null;
+  GPS.on=v.gps; AZ_ON=v.az; LS.set("az",v.azs); FOLLOW=v.follow; NX=v.nx; firstFix=v.ff;
+  POS=v.pos; RAW=v.raw; GS=v.gs; TRK=v.trk; STALE=v.stale;
+  tdRealRestore(); DIRECT_ON=v.dir;
+  if(!v.gps){ POS=null; RAW=null; GS=null; TRK=null; FOLLOW=false; try{ MAP.fitBounds(L.latLngBounds(ROUTE.al[0]),{padding:[70,70],animate:false}); }catch(e){} }
+  ui(); draw();
+}
 let LOG_LAST=Date.now();
 setInterval(()=>{ const n=Date.now(), gap=n-LOG_LAST; LOG_LAST=n; if(gap>20000) logAdd("GAP: app was frozen for "+Math.round(gap/1000)+" s"); },5000);
 setInterval(()=>{ logAdd("alive | "+document.visibilityState+" | screen-on "+(typeof WL!=="undefined"&&WL?"held":"not held")+""+" | GPS "+(GPS&&GPS.on?"on":"off")); },30000);
@@ -2144,12 +2177,14 @@ routeFile.addEventListener("change",async()=>{
   routeFile.value="";
 });
 function routeTap(){
+  if(TD.fly){ toast("Stop the simulated flight first",2500); return; }
   const a=$("bRoute"), loadFile=()=>{ routeFile.value=""; routeFile.click(); };
   if(!ROUTE.layer){
     dlg("Route","",[["Draw on the map","alt",()=>drawStart([])],["Load a GPX file","alt",loadFile],["Close","keep"]],a,"down"); return; }
   dlg(ROUTE.name,ROUTE.len.toFixed(0)+" NM",[
+    ["Fly it","alt",flyIt],
     ["Edit route","alt",()=>drawStart(ROUTE.wp.map(p=>({lat:p.lat,lon:p.lon,name:/^Point \d+$/.test(p.name)?"":p.name})))],
-    ["Load another file","alt",loadFile],
+    ["Load GPX","alt",loadFile],
     ["Remove from map","stp2",()=>{ routeClear(); kvDel("route"); ui(); draw(); }],
     ["Close","keep"]],a,"down");
 }
